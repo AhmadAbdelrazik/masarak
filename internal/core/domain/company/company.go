@@ -9,9 +9,12 @@ import (
 )
 
 type Company struct {
-	company      *entity.Company
-	ownerID      uuid.UUID
-	postedJobIDs uuid.UUIDs
+	company *entity.Company
+	ownerID uuid.UUID
+}
+
+func (c *Company) OwnerID() uuid.UUID {
+	return c.ownerID
 }
 
 func (c *Company) ID() uuid.UUID {
@@ -25,9 +28,8 @@ func New(name, details, lineOfBusiness string, ownerID uuid.UUID) (*Company, err
 	}
 
 	return &Company{
-		company:      company,
-		ownerID:      ownerID,
-		postedJobIDs: uuid.UUIDs{},
+		company: company,
+		ownerID: ownerID,
 	}, nil
 }
 
@@ -38,6 +40,7 @@ var (
 
 type Repository interface {
 	Get(ctx context.Context, uid uuid.UUID) (*Company, error)
+	GetByOwnerID(ctx context.Context, ownerID uuid.UUID) ([]*Company, error)
 	Create(ctx context.Context, company *Company) error
 	Update(ctx context.Context, company *Company) error
 	Delete(ctx context.Context, uid uuid.UUID) error

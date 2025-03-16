@@ -70,3 +70,18 @@ func (r *InMemoryCompanyRepository) Delete(ctx context.Context, uid uuid.UUID) e
 
 	return company.ErrCompanyNotFound
 }
+
+func (r *InMemoryCompanyRepository) GetByOwnerID(ctx context.Context, ownerID uuid.UUID) ([]*company.Company, error) {
+	r.memory.Lock()
+	defer r.memory.Unlock()
+
+	companies := make([]*company.Company, 0)
+
+	for _, c := range r.memory.companies {
+		if c.OwnerID() == ownerID {
+			companies = append(companies, c)
+		}
+	}
+
+	return companies, nil
+}
