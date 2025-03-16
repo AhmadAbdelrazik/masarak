@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 
-	"github.com/ahmadabdelrazik/layout/config"
-	"github.com/ahmadabdelrazik/layout/internal/common/auth"
-	"github.com/ahmadabdelrazik/layout/internal/common/server"
-	httpport "github.com/ahmadabdelrazik/layout/internal/port/http"
-	"github.com/ahmadabdelrazik/layout/internal/service"
+	"github.com/ahmadabdelrazik/linkedout/config"
+	"github.com/ahmadabdelrazik/linkedout/internal/common/auth"
+	"github.com/ahmadabdelrazik/linkedout/internal/common/server"
+	httpport "github.com/ahmadabdelrazik/linkedout/internal/port/http"
+	"github.com/ahmadabdelrazik/linkedout/internal/service"
 	"github.com/rs/zerolog/pkgerrors"
 
 	"github.com/rs/zerolog"
@@ -29,13 +29,20 @@ func main() {
 	app, f := service.NewApplication(ctx)
 	defer f()
 
-	srv := httpport.NewHttpServer(app, cfg)
-	authSrv, err := auth.NewAuthService(cfg, auth.WithInMemoryTokenManager)
+	authSrv, err := auth.NewAuthService(
+		cfg,
+		auth.WithInMemoryTokenManager(),
+		auth.WithInMemoryUserRepository(),
+	)
 
-	routes := httpport.Routes(srv, authSrv)
-
-	if err := server.RunHTTPServer(routes); err != nil {
-		log.Error().Stack().Err(err).Msg("")
+	srv, err := httpport.NewHttpServer(
+		app,
+		cfg,
+		httpport.WithOAuthService(authSrv),
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msg("")
 	}
 
+	server.RunHTTPServer(srv.Routes())
 }

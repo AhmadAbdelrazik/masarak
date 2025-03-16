@@ -1,34 +1,57 @@
 package tokens
 
-import "sync"
+import (
+	"context"
+	"errors"
+	"sync"
+
+	users "github.com/ahmadabdelrazik/linkedout/internal/domain/user"
+)
 
 type InMemoryTokenManager struct {
-	users map[User][32]byte
+	userRepo users.Repository
+	tokens   map[[32]byte]string // hash -> email
 
 	sync.Mutex
 }
 
-func NewInMemoryTokenManager() *InMemoryTokenManager {
+func NewInMemoryTokenManager(userRepo users.Repository) *InMemoryTokenManager {
 	return &InMemoryTokenManager{
-		users: make(map[User][32]byte),
+		userRepo: userRepo,
 	}
 }
 
-func (t *InMemoryTokenManager) GenerateToken(user User) (string, error) {
+func (t *InMemoryTokenManager) GenerateToken(ctx context.Context, email string) (string, error) {
+	_, err := t.userRepo.Get(ctx, email)
+	if err != nil {
+		return "", err
+	}
+
 	token := generateToken()
+
 	hash := hashToken(token)
 
 	t.Lock()
 	defer t.Unlock()
 	// think about multiple tokens
-	t.users[user] = hash
+	t.tokens[hash] = email
 
 	return token, nil
 }
 
-func (t *InMemoryTokenManager) GetFromToken(token string) (User, error) {
+var (
+	ErrInvalidToken = errors.New("invalid token")
+)
+
+func (t *InMemoryTokenManager) GetFromToken(ctx context.Context, token string) (*users.User, error) {
 	t.Lock()
 	defer t.Unlock()
 
-	return User{}, nil
+	hash := hashToken(token)
+	email, ok := t.tokens[hash]
+	if !ok {
+		return nil, ErrInvalidToken
+	}
+
+	return t.userRepo.Get(ctx, email)
 }

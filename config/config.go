@@ -12,6 +12,7 @@ type Config struct {
 	GoogleClientID     string `env:"GOOGLE_CLIENT_ID,required"`
 	GoogleClientSecret string `env:"GOOGLE_CLIENT_SECRET,required"`
 	RandomState        string `env:"RANDOM_STATE" envdefault:"random_state"`
+	HostURL            string `env:"DOMAIN_HOST_URL" envdefault:"localhost:8080"`
 }
 
 func Load() (*Config, error) {

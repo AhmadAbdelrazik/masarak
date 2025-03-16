@@ -7,10 +7,13 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/ahmadabdelrazik/layout/config"
-	"github.com/ahmadabdelrazik/layout/internal/common/auth/tokens"
-	"github.com/ahmadabdelrazik/layout/internal/common/server"
-	"github.com/ahmadabdelrazik/layout/internal/common/server/httperr"
+	"github.com/ahmadabdelrazik/linkedout/config"
+	"github.com/ahmadabdelrazik/linkedout/internal/adapter"
+	"github.com/ahmadabdelrazik/linkedout/internal/common/auth/tokens"
+	"github.com/ahmadabdelrazik/linkedout/internal/common/server/httperr"
+	command "github.com/ahmadabdelrazik/linkedout/internal/domain/user"
+	users "github.com/ahmadabdelrazik/linkedout/internal/domain/user"
+	httpport "github.com/ahmadabdelrazik/linkedout/internal/port/http"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -22,22 +25,13 @@ type authConfig struct {
 type AuthService struct {
 	cfg    *config.Config
 	auth   *authConfig
-	tokens tokens.TokenManager
+	tokens httpport.TokenRepository
+	users  users.Repository
 }
 
-type AuthServiceConfigs func(*AuthService) error
+type AuthServiceOption func(*AuthService) error
 
-func WithTokenManager(t tokens.TokenManager, as *AuthService) error {
-	as.tokens = t
-	return nil
-}
-
-func WithInMemoryTokenManager(as *AuthService) error {
-	memory := tokens.NewInMemoryTokenManager()
-	return WithTokenManager(memory, as)
-}
-
-func NewAuthService(cfg *config.Config, cfgs ...AuthServiceConfigs) (*AuthService, error) {
+func NewAuthService(cfg *config.Config, opts ...AuthServiceOption) (*AuthService, error) {
 	authCfg := &authConfig{}
 	authCfg.GoogleLoginConfig = oauth2.Config{
 		RedirectURL:  "http://localhost:8080/google_callback",
@@ -53,8 +47,8 @@ func NewAuthService(cfg *config.Config, cfgs ...AuthServiceConfigs) (*AuthServic
 		auth: authCfg,
 	}
 
-	for _, c := range cfgs {
-		err := c(authService)
+	for _, opt := range opts {
+		err := opt(authService)
 		if err != nil {
 			return &AuthService{}, err
 		}
@@ -63,7 +57,31 @@ func NewAuthService(cfg *config.Config, cfgs ...AuthServiceConfigs) (*AuthServic
 	return authService, nil
 }
 
-func (a AuthService) Middleware(next http.HandlerFunc) http.Handler {
+func WithInMemoryUserRepository() AuthServiceOption {
+	r := adapter.NewInMemoryUserRepository()
+	return WithUserRepository(r)
+}
+
+func WithUserRepository(r command.Repository) AuthServiceOption {
+	return func(as *AuthService) error {
+		as.users = r
+		return nil
+	}
+}
+
+func WithTokenManager(t httpport.TokenRepository) AuthServiceOption {
+	return func(as *AuthService) error {
+		as.tokens = t
+		return nil
+	}
+}
+
+func WithInMemoryTokenManager(userRepo users.Repository) AuthServiceOption {
+	memory := tokens.NewInMemoryTokenManager(userRepo)
+	return WithTokenManager(memory)
+}
+
+func (a AuthService) AuthMiddleware(next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		cookie, err := r.Cookie("session_id")
@@ -77,7 +95,7 @@ func (a AuthService) Middleware(next http.HandlerFunc) http.Handler {
 			return
 		}
 
-		user, err := a.tokens.GetFromToken(cookie.Value)
+		user, err := a.tokens.GetFromToken(r.Context(), cookie.Value)
 
 		ctx := r.Context()
 
@@ -138,14 +156,25 @@ func (a AuthService) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := tokens.User{
-		UUID:        input.ID,
-		Email:       input.Email,
-		DisplayName: input.Name,
-		Role:        "user",
+	_, err = a.users.Get(r.Context(), input.Email)
+	if errors.Is(err, users.ErrUserNotFound) {
+		user := &users.User{
+			Email: input.Email,
+			Name:  input.Name,
+			Role:  "user",
+		}
+
+		err := a.users.Add(r.Context(), user)
+		if err != nil {
+			httperr.ServerErrorResponse(w, r, err)
+			return
+		}
+	} else {
+		httperr.ServerErrorResponse(w, r, err)
+		return
 	}
 
-	userToken, err := a.tokens.GenerateToken(user)
+	userToken, err := a.tokens.GenerateToken(r.Context(), input.Email)
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 		return
@@ -160,7 +189,9 @@ func (a AuthService) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, cookie)
-	if err := server.WriteJSON(w, http.StatusOK, server.Envelope{"message": "logged in successfully"}, nil); err != nil {
-		httperr.ServerErrorResponse(w, r, err)
-	}
+	// if err := server.WriteJSON(w, http.StatusOK, server.Envelope{"message": "logged in successfully"}, nil); err != nil {
+	// 	httperr.ServerErrorResponse(w, r, err)
+	// }
+
+	http.Redirect(w, r, a.cfg.HostURL+"/create_account", http.StatusSeeOther)
 }

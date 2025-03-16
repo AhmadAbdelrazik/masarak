@@ -1,34 +1,37 @@
 package httpport
 
 import (
-	"net/http"
-
-	"github.com/ahmadabdelrazik/layout/config"
-	"github.com/ahmadabdelrazik/layout/internal/app"
-	"github.com/ahmadabdelrazik/layout/internal/app/command"
+	"github.com/ahmadabdelrazik/linkedout/config"
+	"github.com/ahmadabdelrazik/linkedout/internal/app"
 )
 
 type HttpServer struct {
-	app app.Application
-	cfg *config.Config
+	app  app.Application
+	cfg  *config.Config
+	auth OAuthService
 }
 
-func NewHttpServer(app app.Application, cfg *config.Config) *HttpServer {
-	return &HttpServer{app, cfg}
-}
+type ServerOption func(*HttpServer) error
 
-func (h HttpServer) CommandUseCase(w http.ResponseWriter, r *http.Request) {
-	// 1. Parse the input
-	// 2. Validate the input
-	// 3. Place the input in the CommandUseCase
-
-	cmd := command.UseCaseCommand{}
-
-	err := h.app.Commands.UseCase.Handle(r.Context(), cmd)
-	if err != nil {
-		// Handle error
-		return
+func NewHttpServer(app app.Application, cfg *config.Config, opts ...ServerOption) (*HttpServer, error) {
+	server := &HttpServer{
+		app: app,
+		cfg: cfg,
 	}
 
-	// 4. Handle Happy Path Output
+	for _, opt := range opts {
+		err := opt(server)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return server, nil
+}
+
+func WithOAuthService(AuthService OAuthService) ServerOption {
+	return func(hs *HttpServer) error {
+		hs.auth = AuthService
+		return nil
+	}
 }

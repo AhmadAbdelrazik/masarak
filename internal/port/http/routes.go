@@ -2,18 +2,17 @@ package httpport
 
 import (
 	"net/http"
-
-	"github.com/ahmadabdelrazik/layout/internal/common/auth"
 )
 
-func Routes(h *HttpServer, a *auth.AuthService) http.Handler {
+func (h *HttpServer) Routes() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /google_login", a.GoogleLogin)
-	mux.HandleFunc("POST /google_callback", a.GoogleCallback)
-	mux.HandleFunc("GET /google_callback", a.GoogleCallback)
+	mux.HandleFunc("GET /google_login", h.auth.GoogleLogin)
+	mux.HandleFunc("POST /google_callback", h.auth.GoogleCallback)
+	mux.HandleFunc("GET /google_callback", h.auth.GoogleCallback)
 
-	mux.Handle("/usecase", a.Middleware(h.CommandUseCase))
+	mux.Handle("POST /create_account", h.auth.AuthMiddleware(h.SelectPersonRole))
+	mux.Handle("GET /applicant", h.auth.AuthMiddleware(h.GetApplicant))
 
 	return mux
 }

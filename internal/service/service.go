@@ -3,9 +3,10 @@ package service
 import (
 	"context"
 
-	"github.com/ahmadabdelrazik/layout/internal/app"
-	"github.com/ahmadabdelrazik/layout/internal/app/command"
-	"github.com/ahmadabdelrazik/layout/internal/app/query"
+	"github.com/ahmadabdelrazik/linkedout/internal/adapter"
+	"github.com/ahmadabdelrazik/linkedout/internal/app"
+	"github.com/ahmadabdelrazik/linkedout/internal/app/command"
+	"github.com/ahmadabdelrazik/linkedout/internal/app/query"
 )
 
 // NewApplication - Used to initialize an application and place the
@@ -15,12 +16,15 @@ import (
 // It returns a function also that will be deferred in the main.go to
 // close all the clients that we opened.
 func NewApplication(ctx context.Context) (app.Application, func()) {
+	applicantRepo := adapter.NewInMemoryApplicantRepo()
+
 	return app.Application{
 			Commands: app.Commands{
-				UseCase: command.NewUseCommandHandler(),
+				SelectPersonRole: command.NewSelectPersonRoleHandler(applicantRepo),
 			},
 			Queries: app.Queries{
-				UseCase: query.NewUseQueryHandler(),
+				GetApplicant:       query.NewGetApplicantHandler(applicantRepo),
+				GetApplicantNumber: query.NewGetApplicantNumberHandler(applicantRepo),
 			},
 		}, func() {
 

@@ -6,19 +6,9 @@ import (
 	"crypto/sha256"
 	"encoding/base32"
 	"errors"
+
+	users "github.com/ahmadabdelrazik/linkedout/internal/domain/user"
 )
-
-type TokenManager interface {
-	GenerateToken(user User) (string, error)
-	GetFromToken(string) (User, error)
-}
-
-type User struct {
-	UUID        string
-	Email       string
-	Role        string
-	DisplayName string
-}
 
 type ctxKey int
 
@@ -32,13 +22,13 @@ var (
 	NoUserInContextError = errors.New("No User in Context")
 )
 
-func UserFromCtx(ctx context.Context) (User, error) {
-	u, ok := ctx.Value(UserContextKey).(User)
+func UserFromCtx(ctx context.Context) (users.User, error) {
+	u, ok := ctx.Value(UserContextKey).(users.User)
 	if ok {
 		return u, nil
 	}
 
-	return User{}, NoUserInContextError
+	return users.User{}, NoUserInContextError
 }
 
 func generateToken() string {

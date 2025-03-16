@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/ahmadabdelrazik/layout/internal/app/command"
-	"github.com/ahmadabdelrazik/layout/internal/app/query"
+	"github.com/ahmadabdelrazik/linkedout/internal/app/command"
+	"github.com/ahmadabdelrazik/linkedout/internal/app/query"
 )
 
 type Application struct {
@@ -11,9 +11,10 @@ type Application struct {
 }
 
 type Commands struct {
-	UseCase *command.UseCaseCommandHandler
+	SelectPersonRole *command.SelectPersonRoleHandler
 }
 
 type Queries struct {
-	UseCase *query.UseCaseQueryHandler
+	GetApplicant       *query.GetApplicantHandler
+	GetApplicantNumber *query.GetApplicantNumberHandler
 }
