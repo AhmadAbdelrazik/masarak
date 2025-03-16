@@ -37,7 +37,7 @@ func (r *InMemoryJobRepository) Create(ctx context.Context, j *job.Job) error {
 
 	for _, jj := range r.memory.jobs {
 		if jj.ID() == j.ID() {
-			return job.ErrAlreadyExists
+			return job.ErrJobAlreadyExists
 		}
 	}
 

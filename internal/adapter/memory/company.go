@@ -39,6 +39,9 @@ func (r *InMemoryCompanyRepository) Create(ctx context.Context, c *company.Compa
 		if cc.ID() == c.ID() {
 			return company.ErrAlreadyExists
 		}
+		if cc.Name() == c.Name() {
+			return company.ErrAlreadyExists
+		}
 	}
 
 	r.memory.companies = append(r.memory.companies, c)

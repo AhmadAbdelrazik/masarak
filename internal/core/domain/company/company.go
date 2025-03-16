@@ -17,6 +17,10 @@ func (c *Company) OwnerID() uuid.UUID {
 	return c.ownerID
 }
 
+func (c *Company) Name() string {
+	return c.company.Name
+}
+
 func (c *Company) ID() uuid.UUID {
 	return c.company.ID
 }

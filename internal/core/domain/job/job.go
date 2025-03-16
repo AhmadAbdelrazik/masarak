@@ -30,8 +30,8 @@ func New(title, description string, companyID uuid.UUID) (*Job, error) {
 }
 
 var (
-	ErrJobNotFound   = errors.New("job not found")
-	ErrAlreadyExists = errors.New("job already exists")
+	ErrJobNotFound      = errors.New("job not found")
+	ErrJobAlreadyExists = errors.New("job already exists")
 )
 
 type Repository interface {
