@@ -3,18 +3,26 @@ package owner
 import (
 	"context"
 
+	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/company"
 	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
 type Owner struct {
-	person            *entity.Person
-	ownedCompaniesIDs uuid.UUIDs
+	person *entity.Person
+}
+
+func (o *Owner) Email() string {
+	return o.person.Email
 }
 
 func (o *Owner) ID() uuid.UUID {
 	return o.person.ID
+}
+
+func (o *Owner) CreateCompany(name, details, lineOfBusiness string) (*company.Company, error) {
+	return company.New(name, details, lineOfBusiness, o.ID())
 }
 
 func New(name, email string) (*Owner, error) {
@@ -34,6 +42,7 @@ var (
 
 type Repository interface {
 	Get(ctx context.Context, uid uuid.UUID) (*Owner, error)
+	GetByEmail(ctx context.Context, email string) (*Owner, error)
 	Create(ctx context.Context, owner *Owner) error
 	Update(ctx context.Context, owner *Owner) error
 	Delete(ctx context.Context, uid uuid.UUID) error

@@ -31,6 +31,19 @@ func (r *InMemoryOwnerRepository) Get(ctx context.Context, uid uuid.UUID) (*owne
 	return nil, owner.ErrOwnerNotFound
 }
 
+func (r *InMemoryOwnerRepository) GetByEmail(ctx context.Context, email string) (*owner.Owner, error) {
+	r.memory.Lock()
+	defer r.memory.Unlock()
+
+	for _, o := range r.memory.owners {
+		if o.Email() == email {
+			return o, nil
+		}
+	}
+
+	return nil, owner.ErrOwnerNotFound
+}
+
 func (r *InMemoryOwnerRepository) Create(ctx context.Context, o *owner.Owner) error {
 	r.memory.Lock()
 	defer r.memory.Unlock()
