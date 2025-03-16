@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/valueobject"
 )
 
 type InMemoryAuthUserRepository struct {
@@ -42,7 +43,7 @@ func (r *InMemoryAuthUserRepository) GetByEmail(ctx context.Context, email strin
 	return nil, entity.ErrUserNotFound
 }
 
-func (r *InMemoryAuthUserRepository) ChangeRole(ctx context.Context, email, role string) error {
+func (r *InMemoryAuthUserRepository) ChangeRole(ctx context.Context, email string, role *valueobject.Role) error {
 	r.memory.Lock()
 	defer r.memory.Unlock()
 

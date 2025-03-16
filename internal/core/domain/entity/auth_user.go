@@ -3,6 +3,7 @@ package entity
 import (
 	"context"
 
+	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/valueobject"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
@@ -11,10 +12,10 @@ type AuthUser struct {
 	ID    uuid.UUID
 	Name  string
 	Email string
-	Role  string
+	Role  *valueobject.Role
 }
 
-func NewAuthUser(name, email, role string) (*AuthUser, error) {
+func NewAuthUser(name, email string, role *valueobject.Role) (*AuthUser, error) {
 	return &AuthUser{
 		ID:    uuid.New(),
 		Name:  name,
@@ -31,5 +32,5 @@ var (
 type AuthUserRepository interface {
 	Add(ctx context.Context, user *AuthUser) error
 	GetByEmail(ctx context.Context, email string) (*AuthUser, error)
-	ChangeRole(ctx context.Context, email, role string) error
+	ChangeRole(ctx context.Context, email string, role *valueobject.Role) error
 }
