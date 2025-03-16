@@ -41,3 +41,16 @@ func (r *InMemoryAuthUserRepository) GetByEmail(ctx context.Context, email strin
 
 	return nil, entity.ErrUserNotFound
 }
+
+func (r *InMemoryAuthUserRepository) ChangeRole(ctx context.Context, email, role string) error {
+	r.memory.Lock()
+	defer r.memory.Unlock()
+
+	for i, u := range r.memory.authUsers {
+		if u.Email == email {
+			r.memory.authUsers[i].Role = role
+		}
+	}
+
+	return entity.ErrUserNotFound
+}

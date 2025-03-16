@@ -31,4 +31,5 @@ var (
 type AuthUserRepository interface {
 	Add(ctx context.Context, user *AuthUser) error
 	GetByEmail(ctx context.Context, email string) (*AuthUser, error)
+	ChangeRole(ctx context.Context, email, role string) error
 }
