@@ -4,20 +4,19 @@ import (
 	"context"
 
 	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/valueobject"
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
 type AuthUser struct {
-	ID    uuid.UUID
+	ID    string
 	Name  string
 	Email string
 	Role  *valueobject.Role
 }
 
-func NewAuthUser(name, email string, role *valueobject.Role) (*AuthUser, error) {
+func NewAuthUser(id, name, email string, role *valueobject.Role) (*AuthUser, error) {
 	return &AuthUser{
-		ID:    uuid.New(),
+		ID:    id,
 		Name:  name,
 		Email: email,
 		Role:  role,
