@@ -8,18 +8,24 @@ import (
 )
 
 type AuthUser struct {
-	ID    string
-	Name  string
-	Email string
-	Role  *valueobject.Role
+	ID       string
+	Name     string
+	Email    string
+	Password *valueobject.Password
+	Role     *valueobject.Role
 }
 
-func NewAuthUser(id, name, email string, role *valueobject.Role) (*AuthUser, error) {
+func NewAuthUser(id, name, email, passwordText string, role *valueobject.Role) (*AuthUser, error) {
+	password, err := valueobject.NewPassword(passwordText)
+	if err != nil {
+		return nil, err
+	}
 	return &AuthUser{
-		ID:    id,
-		Name:  name,
-		Email: email,
-		Role:  role,
+		ID:       id,
+		Name:     name,
+		Email:    email,
+		Role:     role,
+		Password: password,
 	}, nil
 }
 

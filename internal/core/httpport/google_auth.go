@@ -136,11 +136,10 @@ func (a GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	user := &entity.AuthUser{
-		ID:    input.ID,
-		Name:  input.Name,
-		Email: input.Email,
-		Role:  userRole,
+	user, err := entity.NewAuthUser(input.ID, input.Name, input.Email, (input.ID + input.Name), userRole)
+	if err != nil {
+		httperr.ServerErrorResponse(w, r, err)
+		return
 	}
 
 	err = a.userRepo.Add(r.Context(), user)
