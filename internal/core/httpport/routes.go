@@ -1,4 +1,4 @@
-package port
+package httpport
 
 import (
 	"net/http"
@@ -11,5 +11,12 @@ func (h *HttpServer) Routes() http.Handler {
 	mux.HandleFunc("POST /google_callback", h.auth.GoogleCallback)
 	mux.HandleFunc("GET /google_callback", h.auth.GoogleCallback)
 
+	mux.HandleFunc("GET /health", h.HealthCheck)
+	mux.Handle("GET /auth_health", h.auth.Middleware(h.HealthCheck))
+
 	return mux
+}
+
+func (h *HttpServer) HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Healthy\n"))
 }

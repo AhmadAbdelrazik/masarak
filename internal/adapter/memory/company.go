@@ -88,3 +88,16 @@ func (r *InMemoryCompanyRepository) GetByOwnerID(ctx context.Context, ownerID uu
 
 	return companies, nil
 }
+
+func (r *InMemoryCompanyRepository) GetByName(ctx context.Context, name string) (*company.Company, error) {
+	r.memory.Lock()
+	defer r.memory.Unlock()
+
+	for _, c := range r.memory.companies {
+		if c.Name() == name {
+			return c, nil
+		}
+	}
+
+	return nil, company.ErrCompanyNotFound
+}

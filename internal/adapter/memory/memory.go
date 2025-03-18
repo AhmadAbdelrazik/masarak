@@ -3,11 +3,11 @@ package memory
 import (
 	"sync"
 
+	"github.com/ahmadabdelrazik/linkedout/internal/core/app"
 	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/company"
 	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
 	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/job"
 	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/owner"
-	app "github.com/ahmadabdelrazik/linkedout/internal/core/services"
 )
 
 type Memory struct {

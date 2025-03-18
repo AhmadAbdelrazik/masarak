@@ -42,31 +42,26 @@ func NewCreateJobHandler(
 	return &CreateJobHandler{}
 }
 
+var (
+	ErrInvalidOwner = errors.New("owner does not own this company")
+)
+
 func (h *CreateJobHandler) Handle(ctx context.Context, cmd CreateJob) error {
 	owner, err := h.ownerRepo.GetByEmail(ctx, cmd.Email)
 	if err != nil {
 		return err
 	}
 
-	companies, err := h.companyRepo.GetByOwnerID(ctx, owner.ID())
+	company, err := h.companyRepo.GetByName(ctx, cmd.CompanyName)
 	if err != nil {
 		return err
 	}
 
-	var targetCompany *company.Company
-
-	for _, c := range companies {
-		if c.Name() == cmd.CompanyName {
-			targetCompany = c
-			break
-		}
+	if owner.ID() != company.ID() {
+		return ErrInvalidOwner
 	}
 
-	if targetCompany == nil {
-		return errors.New("company not found")
-	}
-
-	job, err := job.New(cmd.JobTitle, cmd.JobDescription, targetCompany.ID())
+	job, err := job.New(cmd.JobTitle, cmd.JobDescription, company.ID())
 	if err != nil {
 		return err
 	}

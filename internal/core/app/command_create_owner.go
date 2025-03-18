@@ -9,7 +9,7 @@ import (
 )
 
 type CreateOwner struct {
-	user entity.AuthUser
+	User entity.AuthUser
 }
 
 type CreateOwnerHandler struct {
@@ -32,7 +32,7 @@ func NewCreateOwnerHandler(ownerRepo owner.Repository, userRepo entity.AuthUserR
 }
 
 func (h *CreateOwnerHandler) Handle(ctx context.Context, cmd CreateOwner) error {
-	o, err := owner.New(cmd.user.Name, cmd.user.Email)
+	o, err := owner.New(cmd.User.Name, cmd.User.Email)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func (h *CreateOwnerHandler) Handle(ctx context.Context, cmd CreateOwner) error 
 	if err != nil {
 		return err
 	}
-	if err := h.userRepo.ChangeRole(ctx, cmd.user.Email, ownerRole); err != nil {
+	if err := h.userRepo.ChangeRole(ctx, cmd.User.Email, ownerRole); err != nil {
 		return err
 	}
 

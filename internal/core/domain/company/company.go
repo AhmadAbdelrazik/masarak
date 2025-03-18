@@ -45,6 +45,7 @@ var (
 type Repository interface {
 	Get(ctx context.Context, uid uuid.UUID) (*Company, error)
 	GetByOwnerID(ctx context.Context, ownerID uuid.UUID) ([]*Company, error)
+	GetByName(ctx context.Context, name string) (*Company, error)
 	Create(ctx context.Context, company *Company) error
 	Update(ctx context.Context, company *Company) error
 	Delete(ctx context.Context, uid uuid.UUID) error

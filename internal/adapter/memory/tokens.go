@@ -7,7 +7,7 @@ import (
 	"encoding/base32"
 
 	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/port"
+	"github.com/ahmadabdelrazik/linkedout/internal/core/httpport"
 )
 
 type InMemoryTokenRepository struct {
@@ -22,7 +22,7 @@ func NewInMemoryTokenRepository(memory *Memory, user entity.AuthUserRepository) 
 	}
 }
 
-func (r *InMemoryTokenRepository) GenerateToken(ctx context.Context, email string) (port.Token, error) {
+func (r *InMemoryTokenRepository) GenerateToken(ctx context.Context, email string) (httpport.Token, error) {
 	token := generateToken()
 	hash := hashToken(token)
 
@@ -34,7 +34,7 @@ func (r *InMemoryTokenRepository) GenerateToken(ctx context.Context, email strin
 	return token, nil
 }
 
-func (r *InMemoryTokenRepository) GetFromToken(ctx context.Context, token port.Token) (*entity.AuthUser, error) {
+func (r *InMemoryTokenRepository) GetFromToken(ctx context.Context, token httpport.Token) (*entity.AuthUser, error) {
 	hash := hashToken(token)
 
 	r.memory.Lock()
@@ -44,15 +44,15 @@ func (r *InMemoryTokenRepository) GetFromToken(ctx context.Context, token port.T
 	return r.users.GetByEmail(ctx, email)
 }
 
-func generateToken() port.Token {
+func generateToken() httpport.Token {
 	bytes := make([]byte, 16)
 
 	rand.Read(bytes)
 
-	return port.Token(base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(bytes))
+	return httpport.Token(base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(bytes))
 
 }
 
-func hashToken(token port.Token) [32]byte {
+func hashToken(token httpport.Token) [32]byte {
 	return sha256.Sum256([]byte(token))
 }

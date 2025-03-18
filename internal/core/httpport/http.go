@@ -1,8 +1,8 @@
-package port
+package httpport
 
 import (
 	"github.com/ahmadabdelrazik/linkedout/config"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/services"
+	"github.com/ahmadabdelrazik/linkedout/internal/core/app"
 )
 
 type HttpServer struct {
