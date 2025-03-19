@@ -3,7 +3,7 @@ package entity
 import (
 	"context"
 
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/valueobject"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
 	"github.com/pkg/errors"
 )
 

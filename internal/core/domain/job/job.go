@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
 	"github.com/google/uuid"
 )
 

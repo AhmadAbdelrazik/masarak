@@ -7,10 +7,10 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/ahmadabdelrazik/linkedout/config"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/valueobject"
-	"github.com/ahmadabdelrazik/linkedout/pkg/httperr"
+	"github.com/ahmadabdelrazik/masarak/config"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
+	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )

@@ -6,8 +6,8 @@ import (
 	"crypto/sha256"
 	"encoding/base32"
 
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/httpport"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/httpport"
 )
 
 type InMemoryTokenRepository struct {

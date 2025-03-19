@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/ahmadabdelrazik/linkedout/config"
-	"github.com/ahmadabdelrazik/linkedout/internal/adapter/memory"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/app"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/httpport"
-	"github.com/ahmadabdelrazik/linkedout/pkg/httpserver"
+	"github.com/ahmadabdelrazik/masarak/config"
+	"github.com/ahmadabdelrazik/masarak/internal/adapter/memory"
+	"github.com/ahmadabdelrazik/masarak/internal/core/app"
+	"github.com/ahmadabdelrazik/masarak/internal/core/httpport"
+	"github.com/ahmadabdelrazik/masarak/pkg/httpserver"
 	"github.com/rs/zerolog/pkgerrors"
 
 	"github.com/rs/zerolog"

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
 )
 
 type Token string

@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ahmadabdelrazik/linkedout/config"
+	"github.com/ahmadabdelrazik/masarak/config"
 	"github.com/rs/zerolog/log"
 )
 

@@ -1,4 +1,4 @@
-module github.com/ahmadabdelrazik/linkedout
+module github.com/ahmadabdelrazik/masarak
 
 go 1.23.5
 

@@ -3,9 +3,9 @@ package app
 import (
 	"context"
 
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/owner"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/valueobject"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
 )
 
 type CreateOwner struct {

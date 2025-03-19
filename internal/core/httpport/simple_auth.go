@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/valueobject"
-	"github.com/ahmadabdelrazik/linkedout/pkg/httperr"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
+	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 	"github.com/google/uuid"
 )
 

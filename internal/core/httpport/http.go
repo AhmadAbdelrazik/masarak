@@ -1,9 +1,9 @@
 package httpport
 
 import (
-	"github.com/ahmadabdelrazik/linkedout/config"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/app"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/config"
+	"github.com/ahmadabdelrazik/masarak/internal/core/app"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
 )
 
 type HttpServer struct {

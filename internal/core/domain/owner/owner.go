@@ -3,8 +3,8 @@ package owner
 import (
 	"context"
 
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/company"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/company"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )

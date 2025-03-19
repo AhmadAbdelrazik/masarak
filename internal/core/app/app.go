@@ -1,10 +1,10 @@
 package app
 
 import (
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/company"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/entity"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/job"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/owner"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/company"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/job"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
 )
 
 type Application struct {

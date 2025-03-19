@@ -4,7 +4,7 @@ import (
 	"context"
 	"slices"
 
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/owner"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
 	"github.com/google/uuid"
 )
 

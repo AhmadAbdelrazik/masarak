@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/ahmadabdelrazik/linkedout/internal/core/app"
-	"github.com/ahmadabdelrazik/linkedout/internal/core/domain/company"
-	"github.com/ahmadabdelrazik/linkedout/pkg/httperr"
+	"github.com/ahmadabdelrazik/masarak/internal/core/app"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/company"
+	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 )
 
 func (h *HttpServer) postOwner(w http.ResponseWriter, r *http.Request) {
