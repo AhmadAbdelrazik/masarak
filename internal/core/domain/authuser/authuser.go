@@ -1,4 +1,4 @@
-package entity
+package authuser
 
 import (
 	"context"
@@ -11,12 +11,12 @@ type AuthUser struct {
 	ID       string
 	Name     string
 	Email    string
-	Password *valueobject.Password
+	Password *Password
 	Role     *valueobject.Role
 }
 
-func NewAuthUser(id, name, email, passwordText string, role *valueobject.Role) (*AuthUser, error) {
-	password, err := valueobject.NewPassword(passwordText)
+func New(id, name, email, passwordText string, role *valueobject.Role) (*AuthUser, error) {
+	password, err := newPassword(passwordText)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ var (
 	ErrUserNotFound      = errors.New("user not found")
 )
 
-type AuthUserRepository interface {
+type Repository interface {
 	Add(ctx context.Context, user *AuthUser) error
 	GetByEmail(ctx context.Context, email string) (*AuthUser, error)
 	ChangeRole(ctx context.Context, email string, role *valueobject.Role) error

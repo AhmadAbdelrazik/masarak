@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/ahmadabdelrazik/masarak/config"
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 	"golang.org/x/oauth2"
@@ -18,12 +18,12 @@ import (
 type GoogleAuthService struct {
 	cfg              *config.Config
 	GoogleAuthConfig oauth2.Config
-	userRepo         entity.AuthUserRepository
+	userRepo         authuser.Repository
 	tokenRepo        TokenRepository
 }
 
 func NewGoogleOAuthService(
-	userRepo entity.AuthUserRepository,
+	userRepo authuser.Repository,
 	tokenRepo TokenRepository,
 	cfg *config.Config,
 ) *GoogleAuthService {
@@ -107,7 +107,7 @@ func (a *GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Reques
 
 	if _, err := a.userRepo.GetByEmail(r.Context(), input.Email); err != nil {
 		switch {
-		case errors.Is(err, entity.ErrUserNotFound):
+		case errors.Is(err, authuser.ErrUserNotFound):
 			if err := a.createUser(r, input.ID, input.Name, input.Email); err != nil {
 				httperr.ServerErrorResponse(w, r, err)
 				return
@@ -136,7 +136,7 @@ func (a *GoogleAuthService) createUser(r *http.Request, id, name, email string) 
 		return err
 	}
 
-	user, err := entity.NewAuthUser(id, name, email, (id + name), userRole)
+	user, err := authuser.New(id, name, email, (id + name), userRole)
 	if err != nil {
 		return err
 	}

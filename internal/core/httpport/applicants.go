@@ -15,7 +15,11 @@ func (h *HttpServer) postOwner(w http.ResponseWriter, r *http.Request) {
 		httperr.UnauthorizedResponse(w, r)
 		return
 	}
-	cmd := app.CreateOwner{User: user}
+	if !user.Role.Is("user") {
+		httperr.ErrorResponse(w, r, http.StatusBadRequest, "user already has role: "+user.Role.String())
+		return
+	}
+	cmd := app.CreateOwner{Name: user.Name, Email: user.Email}
 
 	err = h.app.Commands.CreateOwner.Handle(r.Context(), cmd)
 	if err != nil {
@@ -69,7 +73,7 @@ func (h *HttpServer) postCompany(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *HttpServer) PostJob(w http.ResponseWriter, r *http.Request) {
+func (h *HttpServer) postJob(w http.ResponseWriter, r *http.Request) {
 	user, err := userFromCtx(r.Context())
 	if err != nil {
 		httperr.UnauthorizedResponse(w, r)

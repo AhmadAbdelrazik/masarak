@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 	"github.com/google/uuid"
@@ -30,7 +30,7 @@ func (h *HttpServer) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := entity.NewAuthUser(uuid.NewString(), input.Name, input.Email, input.Password, role)
+	user, err := authuser.New(uuid.NewString(), input.Name, input.Email, input.Password, role)
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 		return
@@ -38,7 +38,7 @@ func (h *HttpServer) Signup(w http.ResponseWriter, r *http.Request) {
 
 	if err := h.userRepo.Add(r.Context(), user); err != nil {
 		switch {
-		case errors.Is(err, entity.ErrUserAlreadyExists):
+		case errors.Is(err, authuser.ErrUserAlreadyExists):
 			httperr.ErrorResponse(w, r, http.StatusUnprocessableEntity, "user already exists")
 		default:
 			httperr.ServerErrorResponse(w, r, err)
@@ -72,7 +72,7 @@ func (h *HttpServer) login(w http.ResponseWriter, r *http.Request) {
 	user, err := h.userRepo.GetByEmail(r.Context(), input.Email)
 	if err != nil {
 		switch {
-		case errors.Is(err, entity.ErrUserNotFound):
+		case errors.Is(err, authuser.ErrUserNotFound):
 			httperr.AuthenticationErrorResponse(w, r)
 		default:
 			httperr.ServerErrorResponse(w, r, err)

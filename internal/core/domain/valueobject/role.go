@@ -1,15 +1,27 @@
 package valueobject
 
-import "github.com/pkg/errors"
+import (
+	"strings"
+
+	"github.com/pkg/errors"
+)
 
 type Role struct {
 	role string
 }
 
+func (r *Role) Is(role string) bool {
+	return r.role == strings.ToLower(role)
+}
+
+func (r *Role) String() string {
+	return r.role
+}
+
 var (
-	roleUser  Role = Role{role: "User"}
-	roleAdmin      = Role{role: "Admin"}
-	roleOwner      = Role{role: "Owner"}
+	roleUser  Role = Role{role: "user"}
+	roleAdmin      = Role{role: "admin"}
+	roleOwner      = Role{role: "owner"}
 
 	ErrInvalidRole = errors.New("invalid role")
 )

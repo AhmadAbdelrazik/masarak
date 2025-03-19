@@ -3,7 +3,7 @@ package httpport
 import (
 	"github.com/ahmadabdelrazik/masarak/config"
 	"github.com/ahmadabdelrazik/masarak/internal/core/app"
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 )
 
 type HttpServer struct {
@@ -11,10 +11,10 @@ type HttpServer struct {
 	cfg       *config.Config
 	auth      *GoogleAuthService
 	tokenRepo TokenRepository
-	userRepo  entity.AuthUserRepository
+	userRepo  authuser.Repository
 }
 
-func NewHttpServer(app *app.Application, cfg *config.Config, google *GoogleAuthService, tokenRepo TokenRepository, userRepo entity.AuthUserRepository) *HttpServer {
+func NewHttpServer(app *app.Application, cfg *config.Config, google *GoogleAuthService, tokenRepo TokenRepository, userRepo authuser.Repository) *HttpServer {
 	if cfg == nil {
 		panic("config not found")
 	}

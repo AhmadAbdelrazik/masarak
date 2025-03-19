@@ -5,14 +5,14 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 )
 
 type Token string
 
 type TokenRepository interface {
 	GenerateToken(ctx context.Context, email string) (Token, error)
-	GetFromToken(ctx context.Context, token Token) (*entity.AuthUser, error)
+	GetFromToken(ctx context.Context, token Token) (*authuser.AuthUser, error)
 }
 
 func getTokenCookie(r *http.Request, email string, tokenRepo TokenRepository) (*http.Cookie, error) {
@@ -43,11 +43,11 @@ var (
 	NoUserInContextError = errors.New("no user in context error")
 )
 
-func userFromCtx(ctx context.Context) (entity.AuthUser, error) {
-	u, ok := ctx.Value(UserContextKey).(entity.AuthUser)
+func userFromCtx(ctx context.Context) (authuser.AuthUser, error) {
+	u, ok := ctx.Value(UserContextKey).(authuser.AuthUser)
 	if ok {
 		return u, nil
 	}
 
-	return entity.AuthUser{}, NoUserInContextError
+	return authuser.AuthUser{}, NoUserInContextError
 }

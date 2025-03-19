@@ -1,8 +1,8 @@
 package app
 
 import (
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/company"
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/job"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
 )
@@ -39,5 +39,5 @@ type Repositories struct {
 	Companies company.Repository
 	Jobs      job.Repository
 	Owner     owner.Repository
-	AuthUsers entity.AuthUserRepository
+	AuthUsers authuser.Repository
 }

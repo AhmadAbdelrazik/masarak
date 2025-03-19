@@ -6,16 +6,16 @@ import (
 	"crypto/sha256"
 	"encoding/base32"
 
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/core/httpport"
 )
 
 type InMemoryTokenRepository struct {
 	memory *Memory
-	users  entity.AuthUserRepository
+	users  authuser.Repository
 }
 
-func NewInMemoryTokenRepository(memory *Memory, user entity.AuthUserRepository) *InMemoryTokenRepository {
+func NewInMemoryTokenRepository(memory *Memory, user authuser.Repository) *InMemoryTokenRepository {
 	return &InMemoryTokenRepository{
 		memory: memory,
 		users:  user,
@@ -34,7 +34,7 @@ func (r *InMemoryTokenRepository) GenerateToken(ctx context.Context, email strin
 	return token, nil
 }
 
-func (r *InMemoryTokenRepository) GetFromToken(ctx context.Context, token httpport.Token) (*entity.AuthUser, error) {
+func (r *InMemoryTokenRepository) GetFromToken(ctx context.Context, token httpport.Token) (*authuser.AuthUser, error) {
 	hash := hashToken(token)
 
 	r.memory.Lock()

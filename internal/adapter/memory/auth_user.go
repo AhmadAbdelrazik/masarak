@@ -3,7 +3,7 @@ package memory
 import (
 	"context"
 
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
 )
 
@@ -17,20 +17,20 @@ func NewInMemoryAuthUserRepository(memory *Memory) *InMemoryAuthUserRepository {
 	}
 }
 
-func (r *InMemoryAuthUserRepository) Add(ctx context.Context, user *entity.AuthUser) error {
+func (r *InMemoryAuthUserRepository) Add(ctx context.Context, user *authuser.AuthUser) error {
 	r.memory.Lock()
 	defer r.memory.Unlock()
 
 	for _, u := range r.memory.authUsers {
 		if u.Email == user.Email {
-			return entity.ErrUserAlreadyExists
+			return authuser.ErrUserAlreadyExists
 		}
 	}
 
 	return nil
 }
 
-func (r *InMemoryAuthUserRepository) GetByEmail(ctx context.Context, email string) (*entity.AuthUser, error) {
+func (r *InMemoryAuthUserRepository) GetByEmail(ctx context.Context, email string) (*authuser.AuthUser, error) {
 	r.memory.Lock()
 	defer r.memory.Unlock()
 
@@ -40,7 +40,7 @@ func (r *InMemoryAuthUserRepository) GetByEmail(ctx context.Context, email strin
 		}
 	}
 
-	return nil, entity.ErrUserNotFound
+	return nil, authuser.ErrUserNotFound
 }
 
 func (r *InMemoryAuthUserRepository) ChangeRole(ctx context.Context, email string, role *valueobject.Role) error {
@@ -53,5 +53,5 @@ func (r *InMemoryAuthUserRepository) ChangeRole(ctx context.Context, email strin
 		}
 	}
 
-	return entity.ErrUserNotFound
+	return authuser.ErrUserNotFound
 }

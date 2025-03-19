@@ -3,21 +3,22 @@ package app
 import (
 	"context"
 
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
 )
 
 type CreateOwner struct {
-	User entity.AuthUser
+	Name  string
+	Email string
 }
 
 type CreateOwnerHandler struct {
 	ownerRepo owner.Repository
-	userRepo  entity.AuthUserRepository
+	userRepo  authuser.Repository
 }
 
-func NewCreateOwnerHandler(ownerRepo owner.Repository, userRepo entity.AuthUserRepository) *CreateOwnerHandler {
+func NewCreateOwnerHandler(ownerRepo owner.Repository, userRepo authuser.Repository) *CreateOwnerHandler {
 	if ownerRepo == nil {
 		panic("owner repo not found")
 	}
@@ -32,7 +33,7 @@ func NewCreateOwnerHandler(ownerRepo owner.Repository, userRepo entity.AuthUserR
 }
 
 func (h *CreateOwnerHandler) Handle(ctx context.Context, cmd CreateOwner) error {
-	o, err := owner.New(cmd.User.Name, cmd.User.Email)
+	o, err := owner.New(cmd.Name, cmd.Email)
 	if err != nil {
 		return err
 	}
@@ -45,7 +46,7 @@ func (h *CreateOwnerHandler) Handle(ctx context.Context, cmd CreateOwner) error 
 	if err != nil {
 		return err
 	}
-	if err := h.userRepo.ChangeRole(ctx, cmd.User.Email, ownerRole); err != nil {
+	if err := h.userRepo.ChangeRole(ctx, cmd.Email, ownerRole); err != nil {
 		return err
 	}
 
