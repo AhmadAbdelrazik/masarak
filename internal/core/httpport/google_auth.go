@@ -55,38 +55,13 @@ func NewGoogleOAuthService(
 
 }
 
-func (a GoogleAuthService) Middleware(next http.HandlerFunc) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		cookie, err := r.Cookie("session_id")
-		if err != nil {
-			switch {
-			case errors.Is(err, http.ErrNoCookie):
-				httperr.AuthenticationErrorResponse(w, r)
-			default:
-				httperr.BadRequestResponse(w, r, err)
-			}
-			return
-		}
-
-		user, err := a.tokenRepo.GetFromToken(r.Context(), Token(cookie.Value))
-
-		ctx := r.Context()
-
-		ctx = context.WithValue(ctx, UserContextKey, user)
-		r = r.WithContext(ctx)
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-func (a GoogleAuthService) GoogleLogin(w http.ResponseWriter, r *http.Request) {
+func (a *GoogleAuthService) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 	url := a.GoogleAuthConfig.AuthCodeURL(a.cfg.RandomState)
 
 	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
-func (a GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Request) {
+func (a *GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	state := r.URL.Query().Get("state")
 	if state != a.cfg.RandomState {
 		httperr.BadRequestResponse(w, r, errors.New("States don't match"))
@@ -130,40 +105,46 @@ func (a GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	userRole, err := valueobject.NewRole("user")
+	if _, err := a.userRepo.GetByEmail(r.Context(), input.Email); err != nil {
+		switch {
+		case errors.Is(err, entity.ErrUserNotFound):
+			if err := a.createUser(r, input.ID, input.Name, input.Email); err != nil {
+				httperr.ServerErrorResponse(w, r, err)
+				return
+			}
+		default:
+			httperr.ServerErrorResponse(w, r, err)
+			return
+		}
+	}
+
+	cookie, err := getTokenCookie(r, input.Email, a.tokenRepo)
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 		return
-	}
-
-	user, err := entity.NewAuthUser(input.ID, input.Name, input.Email, (input.ID + input.Name), userRole)
-	if err != nil {
-		httperr.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	err = a.userRepo.Add(r.Context(), user)
-	if err != nil {
-		httperr.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	userToken, err := a.tokenRepo.GenerateToken(r.Context(), user.Email)
-	if err != nil {
-		httperr.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	cookie := &http.Cookie{
-		Name:     "session_id",
-		Value:    string(userToken),
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
 	}
 
 	http.SetCookie(w, cookie)
 	if err := writeJSON(w, http.StatusOK, envelope{"message": "logged in successfully"}, nil); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
+}
+
+func (a *GoogleAuthService) createUser(r *http.Request, id, name, email string) error {
+	userRole, err := valueobject.NewRole("user")
+	if err != nil {
+		return err
+	}
+
+	user, err := entity.NewAuthUser(id, name, email, (id + name), userRole)
+	if err != nil {
+		return err
+	}
+
+	err = a.userRepo.Add(r.Context(), user)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

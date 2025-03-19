@@ -28,7 +28,7 @@ func main() {
 	application := app.NewApplication(repos)
 	tokens := memory.NewInMemoryTokenRepository(mem, repos.AuthUsers)
 	googleAuthService := httpport.NewGoogleOAuthService(repos.AuthUsers, tokens, cfg)
-	server := httpport.NewHttpServer(application, cfg, googleAuthService)
+	server := httpport.NewHttpServer(application, cfg, googleAuthService, tokens, repos.AuthUsers)
 
 	httpserver.Serve(server.Routes(), cfg)
 }

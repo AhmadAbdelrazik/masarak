@@ -50,7 +50,7 @@ func EditConflictResponse(w http.ResponseWriter, r *http.Request) {
 }
 
 func AuthenticationErrorResponse(w http.ResponseWriter, r *http.Request) {
-	message := "Unauthorized authentication token"
+	message := "Invalid Authentication Credentials"
 	ErrorResponse(w, r, http.StatusUnauthorized, message)
 }
 
