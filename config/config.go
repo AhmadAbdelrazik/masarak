@@ -15,8 +15,8 @@ type Config struct {
 	HostURL            string `env:"DOMAIN_HOST_URL" envdefault:"localhost:8080"`
 }
 
-func Load() (*Config, error) {
-	if err := godotenv.Load(); err != nil {
+func Load(fileNames ...string) (*Config, error) {
+	if err := godotenv.Load(fileNames...); err != nil {
 		log.Fatal().Err(err).Msg("Failed to load environment")
 	}
 
