@@ -27,6 +27,8 @@ func (r *InMemoryAuthUserRepository) Add(ctx context.Context, user *authuser.Aut
 		}
 	}
 
+	r.memory.authUsers = append(r.memory.authUsers, *user)
+
 	return nil
 }
 
@@ -36,7 +38,7 @@ func (r *InMemoryAuthUserRepository) GetByEmail(ctx context.Context, email strin
 
 	for _, u := range r.memory.authUsers {
 		if u.Email == email {
-			return u, nil
+			return &u, nil
 		}
 	}
 
@@ -50,6 +52,7 @@ func (r *InMemoryAuthUserRepository) ChangeRole(ctx context.Context, email strin
 	for i, u := range r.memory.authUsers {
 		if u.Email == email {
 			r.memory.authUsers[i].Role = role
+			return nil
 		}
 	}
 

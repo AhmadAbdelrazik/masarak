@@ -6,12 +6,15 @@ import (
 
 	"github.com/ahmadabdelrazik/masarak/internal/core/app"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/company"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *HttpServer) postOwner(w http.ResponseWriter, r *http.Request) {
 	user, err := userFromCtx(r.Context())
 	if err != nil {
+		log.Error().Err(err).Msg("")
 		httperr.UnauthorizedResponse(w, r)
 		return
 	}
@@ -19,15 +22,56 @@ func (h *HttpServer) postOwner(w http.ResponseWriter, r *http.Request) {
 		httperr.ErrorResponse(w, r, http.StatusBadRequest, "user already has role: "+user.Role.String())
 		return
 	}
-	cmd := app.CreateOwner{Name: user.Name, Email: user.Email}
+	cmd := app.RegisterOwner{Name: user.Name, Email: user.Email}
 
-	err = h.app.Commands.CreateOwner.Handle(r.Context(), cmd)
+	err = h.app.Commands.RegisterOwner.Handle(r.Context(), cmd)
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 		return
 	}
 
 	writeJSON(w, http.StatusCreated, envelope{"message": "registered as an owner"}, nil)
+}
+
+func (h *HttpServer) getOwner(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Email string `json:"email"`
+	}
+
+	if err := readJSON(w, r, &input); err != nil {
+		httperr.BadRequestResponse(w, r, err)
+		return
+	}
+
+	cmd := app.GetOwner{Email: input.Email}
+
+	o, companies, err := h.app.Queries.GetOwner.Handle(r.Context(), cmd)
+	if err != nil {
+		switch {
+		case errors.Is(err, owner.ErrOwnerNotFound):
+			httperr.NotFoundResponse(w, r)
+		default:
+			httperr.ServerErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	var output struct {
+		Name           string   `json:"name"`
+		Email          string   `json:"email"`
+		OwnedCompanies []string `json:"owned_companies"`
+	}
+
+	output.Email = o.Email()
+	output.Name = o.Name()
+
+	for _, c := range companies {
+		output.OwnedCompanies = append(output.OwnedCompanies, c.Name())
+	}
+
+	if err := writeJSON(w, http.StatusOK, envelope{"owner": output}, nil); err != nil {
+		httperr.ServerErrorResponse(w, r, err)
+	}
 }
 
 func (h *HttpServer) postCompany(w http.ResponseWriter, r *http.Request) {

@@ -11,10 +11,10 @@ import (
 )
 
 type Memory struct {
-	owners    []*owner.Owner
-	jobs      []*job.Job
-	companies []*company.Company
-	authUsers []*authuser.AuthUser
+	owners    []owner.Owner
+	jobs      []job.Job
+	companies []company.Company
+	authUsers []authuser.AuthUser
 	tokens    map[[32]byte]string // hash -> email
 
 	sync.Mutex
@@ -22,10 +22,10 @@ type Memory struct {
 
 func NewMemory() *Memory {
 	return &Memory{
-		owners:    make([]*owner.Owner, 0),
-		jobs:      make([]*job.Job, 0),
-		companies: make([]*company.Company, 0),
-		authUsers: make([]*authuser.AuthUser, 0),
+		owners:    make([]owner.Owner, 0),
+		jobs:      make([]job.Job, 0),
+		companies: make([]company.Company, 0),
+		authUsers: make([]authuser.AuthUser, 0),
 		tokens:    make(map[[32]byte]string),
 	}
 }

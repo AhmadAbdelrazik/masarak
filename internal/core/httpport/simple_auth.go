@@ -116,10 +116,19 @@ func (h *HttpServer) IsAuthenticated(next http.HandlerFunc) http.Handler {
 		}
 
 		user, err := h.tokenRepo.GetFromToken(r.Context(), Token(cookie.Value))
+		if err != nil {
+			switch {
+			case errors.Is(err, authuser.ErrUserNotFound):
+				httperr.AuthenticationErrorResponse(w, r)
+			default:
+				httperr.ServerErrorResponse(w, r, err)
+			}
+			return
+		}
 
 		ctx := r.Context()
 
-		ctx = context.WithValue(ctx, UserContextKey, user)
+		ctx = context.WithValue(ctx, UserContextKey, *user)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)

@@ -24,7 +24,7 @@ func (r *InMemoryJobRepository) Get(ctx context.Context, uid uuid.UUID) (*job.Jo
 
 	for _, j := range r.memory.jobs {
 		if j.ID() == uid {
-			return j, nil
+			return &j, nil
 		}
 	}
 
@@ -41,7 +41,7 @@ func (r *InMemoryJobRepository) Create(ctx context.Context, j *job.Job) error {
 		}
 	}
 
-	r.memory.jobs = append(r.memory.jobs, j)
+	r.memory.jobs = append(r.memory.jobs, *j)
 	return nil
 }
 func (r *InMemoryJobRepository) Update(ctx context.Context, j *job.Job) error {
@@ -50,7 +50,7 @@ func (r *InMemoryJobRepository) Update(ctx context.Context, j *job.Job) error {
 
 	for i, jj := range r.memory.jobs {
 		if jj.ID() == j.ID() {
-			r.memory.jobs[i] = j
+			r.memory.jobs[i] = *j
 			return nil
 		}
 	}

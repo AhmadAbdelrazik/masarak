@@ -16,9 +16,11 @@ func NewApplication(repos *Repositories) *Application {
 	commands := &Commands{
 		CreateCompany: NewCreateCompanyHandler(repos.Companies, repos.Owner),
 		CreateJob:     NewCreateJobHandler(repos.Owner, repos.Companies, repos.Jobs),
-		CreateOwner:   NewCreateOwnerHandler(repos.Owner, repos.AuthUsers),
+		RegisterOwner: NewRegisterOwnerHandler(repos.Owner, repos.AuthUsers),
 	}
-	queries := &Queries{}
+	queries := &Queries{
+		GetOwner: NewGetOwnerHandler(repos.Owner, repos.Companies),
+	}
 
 	return &Application{
 		Commands: commands,
@@ -29,10 +31,11 @@ func NewApplication(repos *Repositories) *Application {
 type Commands struct {
 	CreateCompany *CreateCompanyHandler
 	CreateJob     *CreateJobHandler
-	CreateOwner   *CreateOwnerHandler
+	RegisterOwner *RegisterOwnerHandler
 }
 
 type Queries struct {
+	GetOwner *GetOwnerHandler
 }
 
 type Repositories struct {

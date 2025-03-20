@@ -8,17 +8,17 @@ import (
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
 )
 
-type CreateOwner struct {
+type RegisterOwner struct {
 	Name  string
 	Email string
 }
 
-type CreateOwnerHandler struct {
+type RegisterOwnerHandler struct {
 	ownerRepo owner.Repository
 	userRepo  authuser.Repository
 }
 
-func NewCreateOwnerHandler(ownerRepo owner.Repository, userRepo authuser.Repository) *CreateOwnerHandler {
+func NewRegisterOwnerHandler(ownerRepo owner.Repository, userRepo authuser.Repository) *RegisterOwnerHandler {
 	if ownerRepo == nil {
 		panic("owner repo not found")
 	}
@@ -26,13 +26,13 @@ func NewCreateOwnerHandler(ownerRepo owner.Repository, userRepo authuser.Reposit
 	if userRepo == nil {
 		panic("user repo not found")
 	}
-	return &CreateOwnerHandler{
+	return &RegisterOwnerHandler{
 		ownerRepo: ownerRepo,
 		userRepo:  userRepo,
 	}
 }
 
-func (h *CreateOwnerHandler) Handle(ctx context.Context, cmd CreateOwner) error {
+func (h *RegisterOwnerHandler) Handle(ctx context.Context, cmd RegisterOwner) error {
 	o, err := owner.New(cmd.Name, cmd.Email)
 	if err != nil {
 		return err

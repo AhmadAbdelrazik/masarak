@@ -38,7 +38,10 @@ func (r *InMemoryTokenRepository) GetFromToken(ctx context.Context, token httppo
 	hash := hashToken(token)
 
 	r.memory.Lock()
-	email := r.memory.tokens[hash]
+	email, ok := r.memory.tokens[hash]
+	if !ok {
+		return nil, authuser.ErrUserNotFound
+	}
 	r.memory.Unlock()
 
 	return r.users.GetByEmail(ctx, email)

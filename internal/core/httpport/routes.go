@@ -19,6 +19,7 @@ func (h *HttpServer) Routes() http.Handler {
 
 	// Owner
 	mux.Handle("POST /v1/owner", h.IsAuthenticated(h.postOwner))
+	mux.HandleFunc("GET /v1/owner", h.getOwner)
 
 	// Company
 	mux.Handle("POST /v1/companies", h.IsAuthenticated(h.postCompany))

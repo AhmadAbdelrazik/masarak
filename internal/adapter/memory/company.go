@@ -24,7 +24,7 @@ func (r *InMemoryCompanyRepository) Get(ctx context.Context, uid uuid.UUID) (*co
 
 	for _, c := range r.memory.companies {
 		if c.ID() == uid {
-			return c, nil
+			return &c, nil
 		}
 	}
 
@@ -44,7 +44,7 @@ func (r *InMemoryCompanyRepository) Create(ctx context.Context, c *company.Compa
 		}
 	}
 
-	r.memory.companies = append(r.memory.companies, c)
+	r.memory.companies = append(r.memory.companies, *c)
 	return nil
 }
 func (r *InMemoryCompanyRepository) Update(ctx context.Context, c *company.Company) error {
@@ -53,7 +53,7 @@ func (r *InMemoryCompanyRepository) Update(ctx context.Context, c *company.Compa
 
 	for i, cc := range r.memory.companies {
 		if cc.ID() == c.ID() {
-			r.memory.companies[i] = c
+			r.memory.companies[i] = *c
 			return nil
 		}
 	}
@@ -82,7 +82,7 @@ func (r *InMemoryCompanyRepository) GetByOwnerID(ctx context.Context, ownerID uu
 
 	for _, c := range r.memory.companies {
 		if c.OwnerID() == ownerID {
-			companies = append(companies, c)
+			companies = append(companies, &c)
 		}
 	}
 
@@ -95,7 +95,7 @@ func (r *InMemoryCompanyRepository) GetByName(ctx context.Context, name string) 
 
 	for _, c := range r.memory.companies {
 		if c.Name() == name {
-			return c, nil
+			return &c, nil
 		}
 	}
 

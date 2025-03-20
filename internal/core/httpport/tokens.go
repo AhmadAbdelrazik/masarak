@@ -44,9 +44,9 @@ var (
 )
 
 func userFromCtx(ctx context.Context) (authuser.AuthUser, error) {
-	u, ok := ctx.Value(UserContextKey).(authuser.AuthUser)
+	user, ok := ctx.Value(UserContextKey).(authuser.AuthUser)
 	if ok {
-		return u, nil
+		return user, nil
 	}
 
 	return authuser.AuthUser{}, NoUserInContextError

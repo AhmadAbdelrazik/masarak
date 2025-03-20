@@ -17,6 +17,10 @@ func (o *Owner) Email() string {
 	return o.person.Email
 }
 
+func (o *Owner) Name() string {
+	return o.person.Name
+}
+
 func (o *Owner) ID() uuid.UUID {
 	return o.person.ID
 }
