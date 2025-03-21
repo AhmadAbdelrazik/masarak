@@ -10,4 +10,15 @@ func TestServer_RegisterOwner(t *testing.T) {
 	tc := NewTestClient(t)
 	defer tc.Close()
 
+	t.Run("post owner", func(t *testing.T) {
+
+	})
+}
+
+func addUser(t *testing.T, tc *TestClient) {
+
+}
+
+func testPostOwner(t *testing.T, tc *TestClient) {
+
 }

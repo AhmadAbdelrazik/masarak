@@ -9,8 +9,7 @@ import (
 )
 
 type RegisterOwner struct {
-	Name  string
-	Email string
+	User *authuser.AuthUser
 }
 
 type RegisterOwnerHandler struct {
@@ -33,7 +32,7 @@ func NewRegisterOwnerHandler(ownerRepo owner.Repository, userRepo authuser.Repos
 }
 
 func (h *RegisterOwnerHandler) Handle(ctx context.Context, cmd RegisterOwner) error {
-	o, err := owner.New(cmd.Name, cmd.Email)
+	o, err := owner.New(cmd.User)
 	if err != nil {
 		return err
 	}
@@ -46,7 +45,7 @@ func (h *RegisterOwnerHandler) Handle(ctx context.Context, cmd RegisterOwner) er
 	if err != nil {
 		return err
 	}
-	if err := h.userRepo.ChangeRole(ctx, cmd.Email, ownerRole); err != nil {
+	if err := h.userRepo.ChangeRole(ctx, o.Email(), ownerRole); err != nil {
 		return err
 	}
 

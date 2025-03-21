@@ -128,7 +128,7 @@ func (h *HttpServer) IsAuthenticated(next http.HandlerFunc) http.Handler {
 
 		ctx := r.Context()
 
-		ctx = context.WithValue(ctx, UserContextKey, *user)
+		ctx = context.WithValue(ctx, UserContextKey, user)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)

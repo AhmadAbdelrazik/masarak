@@ -22,7 +22,7 @@ func (h *HttpServer) postOwner(w http.ResponseWriter, r *http.Request) {
 		httperr.ErrorResponse(w, r, http.StatusBadRequest, "user already has role: "+user.Role.String())
 		return
 	}
-	cmd := app.RegisterOwner{Name: user.Name, Email: user.Email}
+	cmd := app.RegisterOwner{User: user}
 
 	err = h.app.Commands.RegisterOwner.Handle(r.Context(), cmd)
 	if err != nil {

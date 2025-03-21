@@ -43,11 +43,11 @@ var (
 	NoUserInContextError = errors.New("no user in context error")
 )
 
-func userFromCtx(ctx context.Context) (authuser.AuthUser, error) {
-	user, ok := ctx.Value(UserContextKey).(authuser.AuthUser)
+func userFromCtx(ctx context.Context) (*authuser.AuthUser, error) {
+	user, ok := ctx.Value(UserContextKey).(*authuser.AuthUser)
 	if ok {
 		return user, nil
 	}
 
-	return authuser.AuthUser{}, NoUserInContextError
+	return nil, NoUserInContextError
 }

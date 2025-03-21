@@ -3,39 +3,37 @@ package owner
 import (
 	"context"
 
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/company"
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
 type Owner struct {
-	person *entity.Person
+	id       uuid.UUID
+	authuser *authuser.AuthUser
 }
 
 func (o *Owner) Email() string {
-	return o.person.Email
+	return o.authuser.Email
 }
 
 func (o *Owner) Name() string {
-	return o.person.Name
+	return o.authuser.Name
 }
 
 func (o *Owner) ID() uuid.UUID {
-	return o.person.ID
+	return o.id
 }
 
 func (o *Owner) CreateCompany(name, details, lineOfBusiness string) (*company.Company, error) {
 	return company.New(name, details, lineOfBusiness, o.ID())
 }
 
-func New(name, email string) (*Owner, error) {
-	person, err := entity.NewPerson(name, email)
-	if err != nil {
-		return nil, err
-	}
+func New(authuser *authuser.AuthUser) (*Owner, error) {
 	return &Owner{
-		person: person,
+		authuser: authuser,
+		id:       uuid.New(),
 	}, nil
 }
 
