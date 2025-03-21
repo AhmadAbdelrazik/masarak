@@ -33,6 +33,20 @@ func NewTestClient(t *testing.T) *TestClient {
 	}
 }
 
+func TestServer_Healthy(t *testing.T) {
+	t.Parallel()
+
+	tc := NewTestClient(t)
+	defer tc.Close()
+
+	res, err := tc.Get("/v1/health")
+	assert.Nil(t, err)
+	response, err := io.ReadAll(res.Body)
+	defer res.Body.Close()
+	assert.Nil(t, err)
+	assert.Equal(t, string(response), "Healthy\n")
+}
+
 func (c *TestClient) Close() {
 	c.server.Close()
 }
@@ -89,7 +103,7 @@ func (c *TestClient) Delete(endpoint string) (*http.Response, error) {
 	return http.DefaultClient.Do(req)
 }
 
-func (c *TestClient) ReadResponseBody(resp *http.Response, v interface{}) error {
+func (c *TestClient) ParseResponseBody(resp *http.Response, v interface{}) error {
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -97,6 +111,16 @@ func (c *TestClient) ReadResponseBody(resp *http.Response, v interface{}) error 
 	}
 
 	return json.Unmarshal(body, v)
+}
+
+func (c *TestClient) GetResponseString(resp *http.Response) (string, error) {
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(body), nil
 }
 
 func (c *TestClient) GetCookie(res *http.Response, cookieName string) *http.Cookie {

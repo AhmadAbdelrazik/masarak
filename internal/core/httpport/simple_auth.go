@@ -39,7 +39,7 @@ func (h *HttpServer) Signup(w http.ResponseWriter, r *http.Request) {
 	if err := h.userRepo.Add(r.Context(), user); err != nil {
 		switch {
 		case errors.Is(err, authuser.ErrUserAlreadyExists):
-			httperr.ErrorResponse(w, r, http.StatusUnprocessableEntity, "user already exists")
+			httperr.ErrorResponse(w, r, http.StatusForbidden, "user already exists")
 		default:
 			httperr.ServerErrorResponse(w, r, err)
 		}
@@ -53,7 +53,7 @@ func (h *HttpServer) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, cookie)
-	if err := writeJSON(w, http.StatusOK, envelope{"message": "logged in successfully"}, nil); err != nil {
+	if err := writeJSON(w, http.StatusCreated, envelope{"message": "registered successfully"}, nil); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
 }
