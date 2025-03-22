@@ -8,35 +8,7 @@ import (
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/company"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
-	"github.com/rs/zerolog/log"
 )
-
-func (h *HttpServer) registerOwner(w http.ResponseWriter, r *http.Request) {
-	user, err := userFromCtx(r.Context())
-	if err != nil {
-		log.Error().Err(err).Msg("")
-		httperr.UnauthorizedResponse(w, r)
-		return
-	}
-	if !user.Role.Is("user") {
-		httperr.ErrorResponse(w, r, http.StatusBadRequest, "user already has role: "+user.Role.String())
-		return
-	}
-	cmd := app.RegisterOwner{User: user}
-
-	err = h.app.Commands.RegisterOwner.Handle(r.Context(), cmd)
-	if err != nil {
-		switch {
-		case errors.Is(err, app.ErrUserAlreadyRegistered):
-			httperr.ErrorResponse(w, r, http.StatusBadRequest, "user already has role: "+user.Role.String())
-		default:
-			httperr.ServerErrorResponse(w, r, err)
-		}
-		return
-	}
-
-	writeJSON(w, http.StatusCreated, envelope{"message": "registered as an owner"}, nil)
-}
 
 func (h *HttpServer) getOwner(w http.ResponseWriter, r *http.Request) {
 	var input struct {

@@ -5,6 +5,7 @@ import (
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/company"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/job"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/talent"
 )
 
 type Application struct {
@@ -16,7 +17,7 @@ func NewApplication(repos *Repositories) *Application {
 	commands := &Commands{
 		CreateCompany: NewCreateCompanyHandler(repos.Companies, repos.Owner),
 		CreateJob:     NewCreateJobHandler(repos.Owner, repos.Companies, repos.Jobs),
-		RegisterOwner: NewRegisterOwnerHandler(repos.Owner, repos.AuthUsers),
+		RegisterOwner: NewRegisterUserTypeHandler(repos.Owner, repos.AuthUsers, repos.Talents),
 	}
 	queries := &Queries{
 		GetOwner: NewGetOwnerHandler(repos.Owner, repos.Companies),
@@ -31,7 +32,7 @@ func NewApplication(repos *Repositories) *Application {
 type Commands struct {
 	CreateCompany *CreateCompanyHandler
 	CreateJob     *CreateJobHandler
-	RegisterOwner *RegisterOwnerHandler
+	RegisterOwner *RegisterUserTypeHandler
 }
 
 type Queries struct {
@@ -43,4 +44,5 @@ type Repositories struct {
 	Jobs      job.Repository
 	Owner     owner.Repository
 	AuthUsers authuser.Repository
+	Talents   talent.Repository
 }

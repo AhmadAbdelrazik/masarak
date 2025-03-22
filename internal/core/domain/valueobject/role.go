@@ -19,9 +19,10 @@ func (r *Role) String() string {
 }
 
 var (
-	roleUser  Role = Role{role: "user"}
-	roleAdmin      = Role{role: "admin"}
-	roleOwner      = Role{role: "owner"}
+	roleUser   Role = Role{role: "user"}
+	roleAdmin       = Role{role: "admin"}
+	roleOwner       = Role{role: "owner"}
+	roleTalent      = Role{role: "talent"}
 
 	ErrInvalidRole = errors.New("invalid role")
 )
@@ -33,6 +34,8 @@ func NewRole(role string) (*Role, error) {
 	case "owner", "Owner":
 		return &roleOwner, nil
 	case "user", "User":
+		return &roleUser, nil
+	case "talent", "Talent":
 		return &roleUser, nil
 	default:
 		return nil, ErrInvalidRole
