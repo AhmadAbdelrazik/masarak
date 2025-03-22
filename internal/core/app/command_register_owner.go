@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
@@ -31,7 +32,15 @@ func NewRegisterOwnerHandler(ownerRepo owner.Repository, userRepo authuser.Repos
 	}
 }
 
+var (
+	ErrUserAlreadyRegistered = errors.New("user already registered")
+)
+
 func (h *RegisterOwnerHandler) Handle(ctx context.Context, cmd RegisterOwner) error {
+	if !cmd.User.Role.Is("user") {
+		return ErrUserAlreadyRegistered
+	}
+
 	o, err := owner.New(cmd.User)
 	if err != nil {
 		return err

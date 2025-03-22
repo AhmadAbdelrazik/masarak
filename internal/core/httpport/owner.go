@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (h *HttpServer) postOwner(w http.ResponseWriter, r *http.Request) {
+func (h *HttpServer) registerOwner(w http.ResponseWriter, r *http.Request) {
 	user, err := userFromCtx(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -26,7 +26,12 @@ func (h *HttpServer) postOwner(w http.ResponseWriter, r *http.Request) {
 
 	err = h.app.Commands.RegisterOwner.Handle(r.Context(), cmd)
 	if err != nil {
-		httperr.ServerErrorResponse(w, r, err)
+		switch {
+		case errors.Is(err, app.ErrUserAlreadyRegistered):
+			httperr.ErrorResponse(w, r, http.StatusBadRequest, "user already has role: "+user.Role.String())
+		default:
+			httperr.ServerErrorResponse(w, r, err)
+		}
 		return
 	}
 
