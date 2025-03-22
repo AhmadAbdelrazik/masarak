@@ -12,6 +12,7 @@ import (
 	"github.com/ahmadabdelrazik/masarak/internal/adapter/memory"
 	"github.com/ahmadabdelrazik/masarak/internal/core/app"
 	"github.com/ahmadabdelrazik/masarak/internal/core/httpport"
+	"github.com/ahmadabdelrazik/masarak/internal/core/httpport/auth"
 	"github.com/ahmadabdelrazik/masarak/pkg/assert"
 )
 
@@ -26,8 +27,8 @@ func NewTestClient(t *testing.T) *TestClient {
 	repos := memory.NewInMemoryRepositories(mem)
 	tokens := memory.NewInMemoryTokenRepository(mem, repos.AuthUsers)
 	application := app.NewApplication(repos)
-	googleAuth := httpport.NewGoogleOAuthService(repos.AuthUsers, tokens, cfg)
-	server := httpport.NewHttpServer(application, cfg, googleAuth, tokens, repos.AuthUsers)
+	authService := auth.New(tokens, repos.AuthUsers)
+	server := httpport.NewHttpServer(application, cfg, authService, repos.AuthUsers)
 	return &TestClient{
 		server: httptest.NewServer(server.Routes()),
 	}

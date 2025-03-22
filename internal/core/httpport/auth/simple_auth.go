@@ -66,7 +66,7 @@ func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *AuthService) login(w http.ResponseWriter, r *http.Request) {
+func (h *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`

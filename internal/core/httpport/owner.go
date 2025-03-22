@@ -7,6 +7,7 @@ import (
 	"github.com/ahmadabdelrazik/masarak/internal/core/app"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/company"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
+	"github.com/ahmadabdelrazik/masarak/internal/core/httpport/auth"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 )
 
@@ -52,7 +53,7 @@ func (h *HttpServer) getOwner(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HttpServer) postCompany(w http.ResponseWriter, r *http.Request) {
-	user, err := userFromCtx(r.Context())
+	user, err := auth.UserFromCtx(r.Context())
 	if err != nil {
 		httperr.UnauthorizedResponse(w, r)
 		return
@@ -95,7 +96,7 @@ func (h *HttpServer) postCompany(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HttpServer) postJob(w http.ResponseWriter, r *http.Request) {
-	user, err := userFromCtx(r.Context())
+	user, err := auth.UserFromCtx(r.Context())
 	if err != nil {
 		httperr.UnauthorizedResponse(w, r)
 		return

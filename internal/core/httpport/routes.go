@@ -7,25 +7,25 @@ import (
 func (h *HttpServer) Routes() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /v1/google_login", h.auth.GoogleLogin)
-	mux.HandleFunc("POST /v1/google_callback", h.auth.GoogleCallback)
-	mux.HandleFunc("GET /v1/google_callback", h.auth.GoogleCallback)
+	mux.HandleFunc("GET /v1/google_login", h.auth.Google.GoogleLogin)
+	mux.HandleFunc("POST /v1/google_callback", h.auth.Google.GoogleCallback)
+	mux.HandleFunc("GET /v1/google_callback", h.auth.Google.GoogleCallback)
 
-	mux.HandleFunc("POST /v1/login", h.login)
-	mux.HandleFunc("POST /v1/signup", h.Signup)
+	mux.HandleFunc("POST /v1/login", h.auth.Login)
+	mux.HandleFunc("POST /v1/signup", h.auth.Signup)
 
 	mux.HandleFunc("GET /v1/health", h.HealthCheck)
-	mux.Handle("GET /v1/auth_health", h.IsAuthenticated(h.HealthCheck))
+	mux.Handle("GET /v1/auth_health", h.auth.IsAuthenticated(h.HealthCheck))
 
 	// Owner
-	mux.Handle("POST /v1/select_role", h.IsAuthenticated(h.registerUser))
+	mux.Handle("POST /v1/select_role", h.auth.IsAuthenticated(h.registerUser))
 	mux.HandleFunc("GET /v1/owner", h.getOwner)
 
 	// Company
-	mux.Handle("POST /v1/companies", h.IsAuthenticated(h.postCompany))
+	mux.Handle("POST /v1/companies", h.auth.IsAuthenticated(h.postCompany))
 
 	// Job
-	mux.Handle("POST /v1/jobs", h.IsAuthenticated(h.postJob))
+	mux.Handle("POST /v1/jobs", h.auth.IsAuthenticated(h.postJob))
 
 	return mux
 }

@@ -6,12 +6,13 @@ import (
 
 	"github.com/ahmadabdelrazik/masarak/internal/core/app"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
+	"github.com/ahmadabdelrazik/masarak/internal/core/httpport/auth"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 	"github.com/rs/zerolog/log"
 )
 
 func (h *HttpServer) registerUser(w http.ResponseWriter, r *http.Request) {
-	user, err := userFromCtx(r.Context())
+	user, err := auth.UserFromCtx(r.Context())
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		httperr.UnauthorizedResponse(w, r)

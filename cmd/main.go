@@ -5,6 +5,7 @@ import (
 	"github.com/ahmadabdelrazik/masarak/internal/adapter/memory"
 	"github.com/ahmadabdelrazik/masarak/internal/core/app"
 	"github.com/ahmadabdelrazik/masarak/internal/core/httpport"
+	"github.com/ahmadabdelrazik/masarak/internal/core/httpport/auth"
 	"github.com/ahmadabdelrazik/masarak/pkg/httpserver"
 	"github.com/rs/zerolog/pkgerrors"
 
@@ -27,8 +28,8 @@ func main() {
 	repos := memory.NewInMemoryRepositories(mem)
 	application := app.NewApplication(repos)
 	tokens := memory.NewInMemoryTokenRepository(mem, repos.AuthUsers)
-	googleAuthService := httpport.NewGoogleOAuthService(repos.AuthUsers, tokens, cfg)
-	server := httpport.NewHttpServer(application, cfg, googleAuthService, tokens, repos.AuthUsers)
+	authService := auth.New(tokens, repos.AuthUsers)
+	server := httpport.NewHttpServer(application, cfg, authService, repos.AuthUsers)
 
 	httpserver.Serve(server.Routes(), cfg)
 }
