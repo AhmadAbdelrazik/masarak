@@ -105,7 +105,8 @@ func (a *GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if _, err := a.userRepo.GetByEmail(r.Context(), input.Email); err != nil {
+	user, err := a.userRepo.GetByEmail(r.Context(), input.Email)
+	if err != nil {
 		switch {
 		case errors.Is(err, authuser.ErrUserNotFound):
 			if err := a.createUser(r, input.ID, input.Name, input.Email); err != nil {
@@ -123,9 +124,16 @@ func (a *GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Reques
 		httperr.ServerErrorResponse(w, r, err)
 		return
 	}
+	var output struct {
+		Name  string `json:"name"`
+		Email string `json:"email"`
+	}
+
+	output.Name = user.Name
+	output.Email = user.Email
 
 	http.SetCookie(w, cookie)
-	if err := writeJSON(w, http.StatusOK, envelope{"message": "logged in successfully"}, nil); err != nil {
+	if err := writeJSON(w, http.StatusCreated, envelope{"message": "logged in successfully", "user": output}, nil); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
 }

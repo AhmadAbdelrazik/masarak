@@ -52,8 +52,16 @@ func (h *HttpServer) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var output struct {
+		Name  string `json:"name"`
+		Email string `json:"email"`
+	}
+
+	output.Name = user.Name
+	output.Email = user.Email
+
 	http.SetCookie(w, cookie)
-	if err := writeJSON(w, http.StatusCreated, envelope{"message": "registered successfully"}, nil); err != nil {
+	if err := writeJSON(w, http.StatusCreated, envelope{"message": "registered successfully", "user": output}, nil); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
 }
@@ -94,8 +102,16 @@ func (h *HttpServer) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var output struct {
+		Name  string `json:"name"`
+		Email string `json:"email"`
+	}
+
+	output.Name = user.Name
+	output.Email = user.Email
+
 	http.SetCookie(w, cookie)
-	if err := writeJSON(w, http.StatusOK, envelope{"message": "logged in successfully"}, nil); err != nil {
+	if err := writeJSON(w, http.StatusOK, envelope{"message": "logged in successfully", "user": output}, nil); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
 
