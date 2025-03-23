@@ -33,7 +33,7 @@ func (h *HttpServer) registerUser(w http.ResponseWriter, r *http.Request) {
 		Role: input.Role,
 	}
 
-	err = h.app.Commands.RegisterOwner.Handle(r.Context(), cmd)
+	err = h.app.Commands.RegisterUserTypeHandler(r.Context(), cmd)
 	if err != nil {
 		switch {
 		case errors.Is(err, app.ErrUserAlreadyRegistered):

@@ -24,7 +24,7 @@ func (r *InMemoryTalentRepository) Get(ctx context.Context, uid uuid.UUID) (*tal
 
 	for _, o := range r.memory.talents {
 		if o.ID() == uid {
-			return &o, nil
+			return o, nil
 		}
 	}
 
@@ -37,7 +37,7 @@ func (r *InMemoryTalentRepository) GetByEmail(ctx context.Context, email string)
 
 	for _, o := range r.memory.talents {
 		if o.Email() == email {
-			return &o, nil
+			return o, nil
 		}
 	}
 
@@ -54,7 +54,7 @@ func (r *InMemoryTalentRepository) Create(ctx context.Context, o *talent.Talent)
 		}
 	}
 
-	r.memory.talents = append(r.memory.talents, *o)
+	r.memory.talents = append(r.memory.talents, o)
 	return nil
 }
 func (r *InMemoryTalentRepository) Update(ctx context.Context, o *talent.Talent) error {
@@ -63,7 +63,7 @@ func (r *InMemoryTalentRepository) Update(ctx context.Context, o *talent.Talent)
 
 	for i, oo := range r.memory.talents {
 		if oo.ID() == o.ID() {
-			r.memory.talents[i] = *o
+			r.memory.talents[i] = o
 			return nil
 		}
 	}

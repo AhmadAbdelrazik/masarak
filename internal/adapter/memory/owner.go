@@ -24,7 +24,7 @@ func (r *InMemoryOwnerRepository) Get(ctx context.Context, uid uuid.UUID) (*owne
 
 	for _, o := range r.memory.owners {
 		if o.ID() == uid {
-			return &o, nil
+			return o, nil
 		}
 	}
 
@@ -37,7 +37,7 @@ func (r *InMemoryOwnerRepository) GetByEmail(ctx context.Context, email string) 
 
 	for _, o := range r.memory.owners {
 		if o.Email() == email {
-			return &o, nil
+			return o, nil
 		}
 	}
 
@@ -49,12 +49,12 @@ func (r *InMemoryOwnerRepository) Create(ctx context.Context, o *owner.Owner) er
 	defer r.memory.Unlock()
 
 	for _, oo := range r.memory.owners {
-		if oo.ID() == o.ID() {
+		if oo.Email() == o.Email() {
 			return owner.ErrAlreadyExists
 		}
 	}
 
-	r.memory.owners = append(r.memory.owners, *o)
+	r.memory.owners = append(r.memory.owners, o)
 	return nil
 }
 func (r *InMemoryOwnerRepository) Update(ctx context.Context, o *owner.Owner) error {
@@ -63,7 +63,7 @@ func (r *InMemoryOwnerRepository) Update(ctx context.Context, o *owner.Owner) er
 
 	for i, oo := range r.memory.owners {
 		if oo.ID() == o.ID() {
-			r.memory.owners[i] = *o
+			r.memory.owners[i] = o
 			return nil
 		}
 	}
@@ -82,4 +82,15 @@ func (r *InMemoryOwnerRepository) Delete(ctx context.Context, uid uuid.UUID) err
 	}
 
 	return owner.ErrOwnerNotFound
+}
+
+func (r *InMemoryOwnerRepository) GetAll(ctx context.Context, limit, offset int) ([]*owner.Owner, error) {
+	r.memory.Lock()
+	defer r.memory.Unlock()
+
+	if len(r.memory.owners) < offset {
+		return nil, nil
+	}
+
+	return r.memory.owners[offset : offset+limit], nil
 }

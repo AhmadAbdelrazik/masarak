@@ -45,6 +45,7 @@ var (
 type Repository interface {
 	Get(ctx context.Context, uid uuid.UUID) (*Owner, error)
 	GetByEmail(ctx context.Context, email string) (*Owner, error)
+	GetAll(ctx context.Context, limit, offset int) ([]*Owner, error)
 	Create(ctx context.Context, owner *Owner) error
 	Update(ctx context.Context, owner *Owner) error
 	Delete(ctx context.Context, uid uuid.UUID) error

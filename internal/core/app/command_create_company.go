@@ -2,9 +2,6 @@ package app
 
 import (
 	"context"
-
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/company"
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
 )
 
 type CreateCompany struct {
@@ -14,27 +11,8 @@ type CreateCompany struct {
 	CompanyLineOfBusiness string
 }
 
-type CreateCompanyHandler struct {
-	companyRepo company.Repository
-	ownerRepo   owner.Repository
-}
-
-func NewCreateCompanyHandler(companyRepo company.Repository, ownerRepo owner.Repository) *CreateCompanyHandler {
-	if companyRepo == nil {
-		panic("company repo not found")
-	}
-
-	if ownerRepo == nil {
-		panic("user repo not found")
-	}
-	return &CreateCompanyHandler{
-		companyRepo: companyRepo,
-		ownerRepo:   ownerRepo,
-	}
-}
-
-func (h *CreateCompanyHandler) Handle(ctx context.Context, cmd CreateCompany) error {
-	owner, err := h.ownerRepo.GetByEmail(ctx, cmd.OwnerEmail)
+func (h *Commands) CreateCompanyHandler(ctx context.Context, cmd CreateCompany) error {
+	owner, err := h.repo.Owner.GetByEmail(ctx, cmd.OwnerEmail)
 	if err != nil {
 		return err
 	}
@@ -48,5 +26,5 @@ func (h *CreateCompanyHandler) Handle(ctx context.Context, cmd CreateCompany) er
 		return err
 	}
 
-	return h.companyRepo.Create(ctx, company)
+	return h.repo.Companies.Create(ctx, company)
 }

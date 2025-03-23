@@ -26,7 +26,7 @@ func main() {
 
 	mem := memory.NewMemory()
 	repos := memory.NewInMemoryRepositories(mem)
-	application := app.NewApplication(repos)
+	application := app.NewApplication(repos, repos)
 	tokens := memory.NewInMemoryTokenRepository(mem, repos.AuthUsers)
 	authService := auth.New(tokens, repos.AuthUsers)
 	server := httpport.NewHttpServer(application, cfg, authService, repos.AuthUsers)

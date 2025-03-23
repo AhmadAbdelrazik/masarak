@@ -13,14 +13,12 @@ type Application struct {
 	Queries  *Queries
 }
 
-func NewApplication(repos *Repositories) *Application {
+func NewApplication(commandRepos, queryRepos *Repositories) *Application {
 	commands := &Commands{
-		CreateCompany: NewCreateCompanyHandler(repos.Companies, repos.Owner),
-		CreateJob:     NewCreateJobHandler(repos.Owner, repos.Companies, repos.Jobs),
-		RegisterOwner: NewRegisterUserTypeHandler(repos.Owner, repos.AuthUsers, repos.Talents),
+		repo: commandRepos,
 	}
 	queries := &Queries{
-		GetOwner: NewGetOwnerHandler(repos.Owner, repos.Companies),
+		repo: queryRepos,
 	}
 
 	return &Application{
@@ -30,13 +28,11 @@ func NewApplication(repos *Repositories) *Application {
 }
 
 type Commands struct {
-	CreateCompany *CreateCompanyHandler
-	CreateJob     *CreateJobHandler
-	RegisterOwner *RegisterUserTypeHandler
+	repo *Repositories
 }
 
 type Queries struct {
-	GetOwner *GetOwnerHandler
+	repo *Repositories
 }
 
 type Repositories struct {

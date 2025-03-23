@@ -26,7 +26,7 @@ func NewTestClient(t *testing.T) *TestClient {
 	mem := memory.NewMemory()
 	repos := memory.NewInMemoryRepositories(mem)
 	tokens := memory.NewInMemoryTokenRepository(mem, repos.AuthUsers)
-	application := app.NewApplication(repos)
+	application := app.NewApplication(repos, repos)
 	authService := auth.New(tokens, repos.AuthUsers)
 	server := httpport.NewHttpServer(application, cfg, authService, repos.AuthUsers)
 	return &TestClient{

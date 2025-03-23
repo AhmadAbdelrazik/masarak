@@ -23,7 +23,7 @@ func (h *HttpServer) getOwner(w http.ResponseWriter, r *http.Request) {
 
 	cmd := app.GetOwner{Email: input.Email}
 
-	o, companies, err := h.app.Queries.GetOwner.Handle(r.Context(), cmd)
+	ownerDTO, err := h.app.Queries.GetOwnerHandler(r.Context(), cmd)
 	if err != nil {
 		switch {
 		case errors.Is(err, owner.ErrOwnerNotFound):
@@ -34,65 +34,21 @@ func (h *HttpServer) getOwner(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var output struct {
-		Name           string   `json:"name"`
-		Email          string   `json:"email"`
-		OwnedCompanies []string `json:"owned_companies"`
-	}
-
-	output.Email = o.Email()
-	output.Name = o.Name()
-
-	for _, c := range companies {
-		output.OwnedCompanies = append(output.OwnedCompanies, c.Name())
-	}
-
-	if err := writeJSON(w, http.StatusOK, envelope{"owner": output}, nil); err != nil {
+	if err := writeJSON(w, http.StatusOK, envelope{"owner": ownerDTO}, nil); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
 }
 
-func (h *HttpServer) postCompany(w http.ResponseWriter, r *http.Request) {
-	user, err := auth.UserFromCtx(r.Context())
+func (h *HttpServer) getOwners(w http.ResponseWriter, r *http.Request) {
+	owners, err := h.app.Queries.GetOwnersHandler(r.Context())
 	if err != nil {
-		httperr.UnauthorizedResponse(w, r)
+		httperr.ServerErrorResponse(w, r, err)
 		return
 	}
 
-	var input struct {
-		CompanyName    string `json:"company_name"`
-		CompanyDetails string `json:"company_details"`
-		LineOfBusiness string `json:"line_of_business"`
+	if err := writeJSON(w, http.StatusOK, envelope{"owners": owners}, nil); err != nil {
+		httperr.ServerErrorResponse(w, r, err)
 	}
-
-	if err := readJSON(w, r, &input); err != nil {
-		httperr.BadRequestResponse(w, r, err)
-		return
-	}
-
-	cmd := app.CreateCompany{
-		OwnerEmail:            user.Email,
-		CompanyName:           input.CompanyName,
-		CompanyDetails:        input.CompanyDetails,
-		CompanyLineOfBusiness: input.LineOfBusiness,
-	}
-
-	err = h.app.Commands.CreateCompany.Handle(r.Context(), cmd)
-	if err != nil {
-		switch {
-		case errors.Is(err, company.ErrAlreadyExists):
-			httperr.ErrorResponse(
-				w,
-				r,
-				http.StatusUnprocessableEntity,
-				"company with this name already exists",
-			)
-		default:
-			httperr.ServerErrorResponse(w, r, err)
-		}
-		return
-	}
-
 }
 
 func (h *HttpServer) postJob(w http.ResponseWriter, r *http.Request) {
@@ -120,7 +76,7 @@ func (h *HttpServer) postJob(w http.ResponseWriter, r *http.Request) {
 		JobDescription: input.jobDescription,
 	}
 
-	err = h.app.Commands.CreateJob.Handle(r.Context(), cmd)
+	err = h.app.Commands.CreateJobHandler(r.Context(), cmd)
 	if err != nil {
 		switch {
 		case errors.Is(err, company.ErrCompanyNotFound):

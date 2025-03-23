@@ -19,7 +19,8 @@ func (h *HttpServer) Routes() http.Handler {
 
 	// Owner
 	mux.Handle("POST /v1/select_role", h.auth.IsAuthenticated(h.registerUser))
-	mux.HandleFunc("GET /v1/owner", h.getOwner)
+	mux.HandleFunc("GET /v1/owners/owner", h.getOwner)
+	mux.HandleFunc("GET /v1/owners", h.getOwners)
 
 	// Company
 	mux.Handle("POST /v1/companies", h.auth.IsAuthenticated(h.postCompany))
