@@ -3,6 +3,7 @@ module github.com/ahmadabdelrazik/masarak
 go 1.23.5
 
 require (
+	github.com/Rhymond/go-money v1.0.14
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1

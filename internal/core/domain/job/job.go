@@ -23,8 +23,7 @@ func New(title, description, yearsOfExperience, workLocation, expectedSalary str
 	}
 
 	return &AvailableJob{
-		job:       job,
-		companyID: companyID,
+		job: job,
 	}, nil
 }
 
