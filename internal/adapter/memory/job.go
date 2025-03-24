@@ -18,7 +18,7 @@ func NewInMemoryJobRepository(memory *Memory) *InMemoryJobRepository {
 	}
 }
 
-func (r *InMemoryJobRepository) Get(ctx context.Context, uid uuid.UUID) (*job.Job, error) {
+func (r *InMemoryJobRepository) Get(ctx context.Context, uid uuid.UUID) (*job.AvailableJob, error) {
 	r.memory.Lock()
 	defer r.memory.Unlock()
 
@@ -31,7 +31,7 @@ func (r *InMemoryJobRepository) Get(ctx context.Context, uid uuid.UUID) (*job.Jo
 	return nil, job.ErrJobNotFound
 }
 
-func (r *InMemoryJobRepository) Create(ctx context.Context, j *job.Job) error {
+func (r *InMemoryJobRepository) Create(ctx context.Context, j *job.AvailableJob) error {
 	r.memory.Lock()
 	defer r.memory.Unlock()
 
@@ -44,7 +44,7 @@ func (r *InMemoryJobRepository) Create(ctx context.Context, j *job.Job) error {
 	r.memory.jobs = append(r.memory.jobs, j)
 	return nil
 }
-func (r *InMemoryJobRepository) Update(ctx context.Context, j *job.Job) error {
+func (r *InMemoryJobRepository) Update(ctx context.Context, j *job.AvailableJob) error {
 	r.memory.Lock()
 	defer r.memory.Unlock()
 
