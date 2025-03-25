@@ -1,56 +1,38 @@
 package business
 
 import (
-	"errors"
-
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/job"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
 	"github.com/google/uuid"
 )
 
 type Business struct {
-	id          uuid.UUID
-	name        string
-	email       string
-	description string
-	imageURL    string
-	jobs        []*job.AvailableJob
+	business *entity.Business
 }
 
 func NewBusiness(name, email, description, imageURL string) (*Business, error) {
-	business := &Business{
-		name:        name,
-		email:       email,
-		description: description,
-		imageURL:    imageURL,
+	business, err := entity.NewBusiness(name, email, description, imageURL)
+
+	if err != nil {
+		return nil, err
 	}
 
-	return business, nil
+	return &Business{
+		business: business,
+	}, nil
 }
 
-func (b Business) ID() uuid.UUID {
-	return b.id
+func (b *Business) ID() uuid.UUID {
+	return b.business.ID
 }
 
-func (b Business) Name() string {
-	return b.name
+func (b *Business) Name() string {
+	return b.business.Name
 }
 
-func (b Business) Email() string {
-	return b.email
+func (b *Business) Email() string {
+	return b.business.Email
 }
 
-var ErrJobAlreadyPosted = errors.New("job already posted")
-
-func (b *Business) AddJob(job *job.AvailableJob) error {
-	for _, j := range b.jobs {
-		if j.ID() == job.ID() {
-			return ErrJobAlreadyPosted
-		}
-	}
-
-	return nil
-}
-
-func (b *Business) GetJobs() []*job.AvailableJob {
-	return b.jobs
+func (b *Business) ImageURL() string {
+	return b.business.ImageURL
 }
