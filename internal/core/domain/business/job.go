@@ -41,6 +41,40 @@ func (b *Business) CreateNewJob(
 	return nil
 }
 
+// UpdateJob - Updates the details of a job
+func (b *Business) UpdateJob(
+	jobID uuid.UUID,
+	title, description, yearsOfExperience, workLocation, workTime, expectedSalary string,
+	skills []string,
+) error {
+	for _, job := range b.availableJobs {
+		if job.ID == jobID {
+			return job.Update(
+				title,
+				description,
+				yearsOfExperience,
+				workLocation,
+				workTime,
+				expectedSalary,
+				skills,
+			)
+		}
+	}
+
+	return ErrJobNotFound
+}
+
+func (b *Business) MarkJobClosed(jobID uuid.UUID) error {
+	for _, j := range b.availableJobs {
+		if j.ID == jobID {
+			j.SetClosed()
+			return nil
+		}
+	}
+
+	return ErrJobNotFound
+}
+
 // GetAllAvailableJobs - Returns jobs that are still available
 func (b *Business) GetAllAvailableJobs() []job.Job {
 	jobs := make([]job.Job, 0, len(b.availableJobs))
@@ -74,27 +108,4 @@ func (b *Business) GetJobByID(id uuid.UUID) (job.Job, error) {
 	}
 
 	return job.Job{}, ErrJobNotFound
-}
-
-// UpdateJob - Updates the details of a job
-func (b *Business) UpdateJob(
-	jobID uuid.UUID,
-	title, description, yearsOfExperience, workLocation, workTime, expectedSalary string,
-	skills []string,
-) error {
-	for _, job := range b.availableJobs {
-		if job.ID == jobID {
-			return job.Update(
-				title,
-				description,
-				yearsOfExperience,
-				workLocation,
-				workTime,
-				expectedSalary,
-				skills,
-			)
-		}
-	}
-
-	return ErrJobNotFound
 }

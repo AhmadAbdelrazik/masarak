@@ -32,9 +32,14 @@ func NewApplication(
 	hourlyRate *money.Money,
 	freelancerProfile, resumeURL string,
 ) *Application {
+	status, err := valueobject.NewApplicationStatus("pending")
+	if err != nil {
+		panic(err)
+	}
+
 	return &Application{
 		ID:                uuid.New(),
-		status:            valueobject.NewApplicationStatus("pending"),
+		status:            status,
 		Name:              name,
 		Email:             email,
 		Title:             title,
@@ -46,16 +51,32 @@ func NewApplication(
 	}
 }
 
+func (a *Application) IsPending() bool {
+	return a.status.IsPending()
+}
+
+func (a *Application) IsAccepted() bool {
+	return a.status.IsAccepted()
+}
+
+func (a *Application) IsRejected() bool {
+	return a.status.IsRejected()
+}
+
 func (a *Application) Accept() {
-	a.status = valueobject.NewApplicationStatus("accepted")
+	a.setStatus("accepted")
 }
 
 func (a *Application) Reject() {
-	a.status = valueobject.NewApplicationStatus("rejected")
+	a.setStatus("rejected")
 }
 
-func (a *Application) Status() string {
-	return a.status.Status()
+func (a *Application) setStatus(statusString string) {
+	status, err := valueobject.NewApplicationStatus(statusString)
+	if err != nil {
+		panic(err)
+	}
+	a.status = status
 }
 
 func (a *Application) Update(
@@ -64,7 +85,7 @@ func (a *Application) Update(
 	hourlyRate *money.Money,
 	freelancerProfile, resumeURL string,
 ) error {
-	if !a.status.IsPending() {
+	if !a.IsPending() {
 		return ErrUnableToUpdate
 	}
 

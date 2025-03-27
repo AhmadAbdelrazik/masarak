@@ -65,17 +65,16 @@ func (j *Job) Update(
 	return nil
 }
 
-// SetAvailable - Set the status of the job to available
-func (j *Job) SetAvailable() {
+func (j *Job) SetStatusToOpen() {
 	j.setStatus("available")
 }
 
-func (j *Job) SetClosed() {
+func (j *Job) SetStatusToClosed() {
 	j.setStatus("closed")
 }
 
-func (j *Job) SetPending() {
-	j.setStatus("pending")
+func (j *Job) SetStatusToArchived() {
+	j.setStatus("archived")
 }
 
 func (j *Job) setStatus(status string) {
@@ -83,7 +82,12 @@ func (j *Job) setStatus(status string) {
 		return
 	}
 
-	j.status = valueobject.NewJobStatus(status)
+	newStatus, err := valueobject.NewJobStatus(status)
+	if err != nil {
+		panic(err)
+	}
+
+	j.status = newStatus
 }
 
 func (j *Job) Status() string {
@@ -91,5 +95,5 @@ func (j *Job) Status() string {
 }
 
 func (j *Job) IsAvailable() bool {
-	return j.status.IsAvailable()
+	return j.status.IsOpen()
 }
