@@ -30,13 +30,13 @@ func (b *Business) CreateNewJob(
 		return err
 	}
 
-	for _, jj := range b.availableJobs {
+	for _, jj := range b.jobs {
 		if jj.Title == job.Title {
 			return ErrDuplicateJob
 		}
 	}
 
-	b.availableJobs = append(b.availableJobs, job)
+	b.jobs = append(b.jobs, job)
 
 	return nil
 }
@@ -47,7 +47,7 @@ func (b *Business) UpdateJob(
 	title, description, yearsOfExperience, workLocation, workTime, expectedSalary string,
 	skills []string,
 ) error {
-	for _, job := range b.availableJobs {
+	for _, job := range b.jobs {
 		if job.ID == jobID {
 			return job.Update(
 				title,
@@ -65,9 +65,9 @@ func (b *Business) UpdateJob(
 }
 
 func (b *Business) MarkJobClosed(jobID uuid.UUID) error {
-	for _, j := range b.availableJobs {
+	for _, j := range b.jobs {
 		if j.ID == jobID {
-			j.SetClosed()
+			j.SetStatusToClosed()
 			return nil
 		}
 	}
@@ -75,12 +75,12 @@ func (b *Business) MarkJobClosed(jobID uuid.UUID) error {
 	return ErrJobNotFound
 }
 
-// GetAllAvailableJobs - Returns jobs that are still available
-func (b *Business) GetAllAvailableJobs() []job.Job {
-	jobs := make([]job.Job, 0, len(b.availableJobs))
+// GetAllOpenJobs - Returns jobs that are still available
+func (b *Business) GetAllOpenJobs() []job.Job {
+	jobs := make([]job.Job, 0, len(b.jobs))
 
-	for _, jj := range b.availableJobs {
-		if jj.IsAvailable() {
+	for _, jj := range b.jobs {
+		if jj.IsOpen() {
 			jobs = append(jobs, *jj)
 		}
 	}
@@ -90,7 +90,7 @@ func (b *Business) GetAllAvailableJobs() []job.Job {
 
 // GetJobByName - Query the job in available jobs
 func (b *Business) GetJobByName(title string) (job.Job, error) {
-	for _, j := range b.availableJobs {
+	for _, j := range b.jobs {
 		if j.Title == title {
 			return *j, nil
 		}
@@ -101,7 +101,7 @@ func (b *Business) GetJobByName(title string) (job.Job, error) {
 
 // GetJobByID - Query the job in available jobs
 func (b *Business) GetJobByID(id uuid.UUID) (job.Job, error) {
-	for _, j := range b.availableJobs {
+	for _, j := range b.jobs {
 		if j.ID == id {
 			return *j, nil
 		}

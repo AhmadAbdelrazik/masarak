@@ -30,9 +30,14 @@ func NewJob(title, description, yearsOfExperience, workLocation, workTime, expec
 		return nil, ErrSkillLimitReached
 	}
 
+	status, err := valueobject.NewJobStatus("available")
+	if err != nil {
+		panic(err)
+	}
+
 	return &Job{
 		ID:                uuid.New(),
-		status:            valueobject.NewJobStatus("available"),
+		status:            status,
 		Title:             title,
 		Description:       description,
 		YearsOfExperience: yearsOfExperience,
@@ -90,10 +95,14 @@ func (j *Job) setStatus(status string) {
 	j.status = newStatus
 }
 
-func (j *Job) Status() string {
-	return j.status.Status()
+func (j *Job) IsOpen() bool {
+	return j.status.IsOpen()
 }
 
-func (j *Job) IsAvailable() bool {
-	return j.status.IsOpen()
+func (j *Job) IsClosed() bool {
+	return j.status.IsClosed()
+}
+
+func (j *Job) IsArchived() bool {
+	return j.status.IsArchived()
 }

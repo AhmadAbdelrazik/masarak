@@ -63,20 +63,26 @@ func (a *Application) IsRejected() bool {
 	return a.status.IsRejected()
 }
 
-func (a *Application) Accept() {
-	a.setStatus("accepted")
+func (a *Application) Accept() error {
+	return a.setStatus("accepted")
 }
 
-func (a *Application) Reject() {
-	a.setStatus("rejected")
+func (a *Application) Reject() error {
+	return a.setStatus("rejected")
 }
 
-func (a *Application) setStatus(statusString string) {
+func (a *Application) SetStatusToPending() error {
+	return a.setStatus("pending")
+}
+
+func (a *Application) setStatus(statusString string) error {
 	status, err := valueobject.NewApplicationStatus(statusString)
 	if err != nil {
 		panic(err)
 	}
 	a.status = status
+
+	return nil
 }
 
 func (a *Application) Update(
