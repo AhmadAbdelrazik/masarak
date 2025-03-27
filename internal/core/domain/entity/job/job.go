@@ -1,16 +1,17 @@
-package entity
+package job
 
 import (
 	"errors"
 	"time"
 
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
 	"github.com/google/uuid"
 )
 
 type Job struct {
 	ID                uuid.UUID
-	Status            *valueobject.JobStatus
+	status            *valueobject.JobStatus
 	Title             string
 	Skills            []string
 	Description       string
@@ -19,6 +20,7 @@ type Job struct {
 	WorkTime          string
 	ExpectedSalary    string
 	PostDate          time.Time
+	applications      []*entity.Application
 }
 
 var ErrSkillLimitReached = errors.New("skill number must not be more than 10")
@@ -30,7 +32,7 @@ func NewJob(title, description, yearsOfExperience, workLocation, workTime, expec
 
 	return &Job{
 		ID:                uuid.New(),
-		Status:            valueobject.NewJobStatus("available"),
+		status:            valueobject.NewJobStatus("available"),
 		Title:             title,
 		Description:       description,
 		YearsOfExperience: yearsOfExperience,
@@ -39,6 +41,7 @@ func NewJob(title, description, yearsOfExperience, workLocation, workTime, expec
 		ExpectedSalary:    expectedSalary,
 		PostDate:          time.Now(),
 		Skills:            skills,
+		applications:      make([]*entity.Application, 0),
 	}, nil
 }
 
@@ -67,8 +70,8 @@ func (j *Job) SetAvailable() {
 	j.setStatus("available")
 }
 
-func (j *Job) SetCompleted() {
-	j.setStatus("completed")
+func (j *Job) SetClosed() {
+	j.setStatus("closed")
 }
 
 func (j *Job) SetPending() {
@@ -76,9 +79,17 @@ func (j *Job) SetPending() {
 }
 
 func (j *Job) setStatus(status string) {
-	if j.Status.Status() == status {
+	if j.status.Status() == status {
 		return
 	}
 
-	j.Status = valueobject.NewJobStatus(status)
+	j.status = valueobject.NewJobStatus(status)
+}
+
+func (j *Job) Status() string {
+	return j.status.Status()
+}
+
+func (j *Job) IsAvailable() bool {
+	return j.status.IsAvailable()
 }

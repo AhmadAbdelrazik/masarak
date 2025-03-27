@@ -2,12 +2,13 @@ package business
 
 import (
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity/job"
 	"github.com/google/uuid"
 )
 
 type Business struct {
 	business      *entity.Business
-	availableJobs []*entity.Job
+	availableJobs []*job.Job
 }
 
 func NewBusiness(name, email, description, imageURL string) (*Business, error) {

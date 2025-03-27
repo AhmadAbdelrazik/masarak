@@ -3,7 +3,7 @@ package business
 import (
 	"errors"
 
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/entity/job"
 	"github.com/google/uuid"
 )
 
@@ -17,7 +17,7 @@ func (b *Business) CreateNewJob(
 	title, description, yearsOfExperience, workLocation, workTime, expectedSalary string,
 	skills []string,
 ) error {
-	job, err := entity.NewJob(
+	job, err := job.NewJob(
 		title,
 		description,
 		yearsOfExperience,
@@ -42,11 +42,11 @@ func (b *Business) CreateNewJob(
 }
 
 // GetAllAvailableJobs - Returns jobs that are still available
-func (b *Business) GetAllAvailableJobs() []entity.Job {
-	jobs := make([]entity.Job, 0, len(b.availableJobs))
+func (b *Business) GetAllAvailableJobs() []job.Job {
+	jobs := make([]job.Job, 0, len(b.availableJobs))
 
 	for _, jj := range b.availableJobs {
-		if jj.Status.IsAvailable() {
+		if jj.IsAvailable() {
 			jobs = append(jobs, *jj)
 		}
 	}
@@ -55,25 +55,25 @@ func (b *Business) GetAllAvailableJobs() []entity.Job {
 }
 
 // GetJobByName - Query the job in available jobs
-func (b *Business) GetJobByName(title string) (entity.Job, error) {
+func (b *Business) GetJobByName(title string) (job.Job, error) {
 	for _, j := range b.availableJobs {
 		if j.Title == title {
 			return *j, nil
 		}
 	}
 
-	return entity.Job{}, ErrJobNotFound
+	return job.Job{}, ErrJobNotFound
 }
 
 // GetJobByID - Query the job in available jobs
-func (b *Business) GetJobByID(id uuid.UUID) (entity.Job, error) {
+func (b *Business) GetJobByID(id uuid.UUID) (job.Job, error) {
 	for _, j := range b.availableJobs {
 		if j.ID == id {
 			return *j, nil
 		}
 	}
 
-	return entity.Job{}, ErrJobNotFound
+	return job.Job{}, ErrJobNotFound
 }
 
 // UpdateJob - Updates the details of a job

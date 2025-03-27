@@ -17,3 +17,7 @@ func (s *JobStatus) Status() string {
 func (s *JobStatus) IsAvailable() bool {
 	return s.status == "available"
 }
+
+func (s *JobStatus) IsClosed() bool {
+	return s.status == "closed"
+}

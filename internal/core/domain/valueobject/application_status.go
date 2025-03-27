@@ -15,7 +15,7 @@ func (s *ApplicationStatus) Status() string {
 }
 
 func (s *ApplicationStatus) IsAccepted() bool {
-	return s.status == "accpeted"
+	return s.status == "accepted"
 }
 
 func (s *ApplicationStatus) IsPending() bool {
