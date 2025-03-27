@@ -1,5 +1,9 @@
 package app
 
+import (
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
+)
+
 type Application struct {
 	Commands *Commands
 	Queries  *Queries
@@ -28,4 +32,5 @@ type Queries struct {
 }
 
 type Repositories struct {
+	AuthUsers authuser.Repository
 }

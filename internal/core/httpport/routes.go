@@ -17,17 +17,6 @@ func (h *HttpServer) Routes() http.Handler {
 	mux.HandleFunc("GET /v1/health", h.HealthCheck)
 	mux.Handle("GET /v1/auth_health", h.auth.IsAuthenticated(h.HealthCheck))
 
-	// Owner
-	mux.Handle("POST /v1/select_role", h.auth.IsAuthenticated(h.registerUser))
-	mux.HandleFunc("GET /v1/owners/owner", h.getOwner)
-	mux.HandleFunc("GET /v1/owners", h.getOwners)
-
-	// Company
-	mux.Handle("POST /v1/companies", h.auth.IsAuthenticated(h.postCompany))
-
-	// Job
-	mux.Handle("POST /v1/jobs", h.auth.IsAuthenticated(h.postJob))
-
 	return mux
 }
 

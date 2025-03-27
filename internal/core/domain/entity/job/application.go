@@ -21,7 +21,7 @@ func (j *Job) Apply(name, email, title string,
 	hourlyRate *money.Money,
 	freelancerProfile, resumeURL string,
 ) error {
-	if !j.Status.IsAvailable() {
+	if !j.IsAvailable() {
 		return ErrJobNotAvailable
 	}
 
