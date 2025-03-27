@@ -1,6 +1,8 @@
 package freelancerprofile
 
 import (
+	"errors"
+
 	"github.com/Rhymond/go-money"
 )
 
@@ -9,20 +11,33 @@ type FreelancerProfile struct {
 	email             string
 	pictureURL        string
 	title             string
+	skills            []string
 	yearsOfExperience int
 	hourlyRate        *money.Money
 	resumeURL         string
 }
 
-func New(name, email, pictureURL, title string, yearsOfExperiencce int, hourlyRate *money.Money) *FreelancerProfile {
+var ErrSkillLimitReached = errors.New("skill number must not be more than 10")
+
+func New(
+	name, email, pictureURL, title string,
+	skills []string,
+	yearsOfExperience int,
+	hourlyRate *money.Money,
+) (*FreelancerProfile, error) {
+	if len(skills) > 10 {
+		return nil, ErrSkillLimitReached
+	}
+
 	return &FreelancerProfile{
 		name:              name,
 		email:             email,
 		pictureURL:        pictureURL,
 		title:             title,
-		yearsOfExperience: yearsOfExperiencce,
+		yearsOfExperience: yearsOfExperience,
 		hourlyRate:        hourlyRate,
-	}
+		skills:            skills,
+	}, nil
 }
 
 func (f *FreelancerProfile) UpdateMainInfo(name, pictureURL, title string, yearsOfExperience int) error {

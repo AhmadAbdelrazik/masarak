@@ -1,13 +1,5 @@
 package app
 
-import (
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/company"
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/job"
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/owner"
-	"github.com/ahmadabdelrazik/masarak/internal/core/domain/talent"
-)
-
 type Application struct {
 	Commands *Commands
 	Queries  *Queries
@@ -36,9 +28,4 @@ type Queries struct {
 }
 
 type Repositories struct {
-	Companies company.Repository
-	Jobs      job.Repository
-	Owner     owner.Repository
-	AuthUsers authuser.Repository
-	Talents   talent.Repository
 }
