@@ -99,13 +99,13 @@ func (b *Business) GetApplicationByID(jobID, applicationID uuid.UUID) (entity.Ap
 	return job.GetApplicationByID(applicationID)
 }
 
-func (b *Business) GetApplicationByEmail(jobID uuid.UUID, applicationEmail string) (entity.Application, error) {
+func (b *Business) GetApplicationByEmail(jobID uuid.UUID, applicantEmail string) (entity.Application, error) {
 	job, err := b.getJobByID(jobID)
 	if err != nil {
 		return entity.Application{}, err
 	}
 
-	return job.GetApplicationByEmail(applicationEmail)
+	return job.GetApplicationByEmail(applicantEmail)
 
 }
 
