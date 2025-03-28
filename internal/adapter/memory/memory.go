@@ -25,5 +25,8 @@ func NewMemory() *Memory {
 }
 
 func NewInMemoryRepositories(mem *Memory) *app.Repositories {
-	return &app.Repositories{}
+	return &app.Repositories{
+		AuthUsers:  NewInMemoryAuthUserRepository(mem),
+		Businesses: NewInMemoryBusinessRepository(mem),
+	}
 }

@@ -12,6 +12,12 @@ type InMemoryBusinessRepository struct {
 	memory *Memory
 }
 
+func NewInMemoryBusinessRepository(mem *Memory) *InMemoryBusinessRepository {
+	return &InMemoryBusinessRepository{
+		memory: mem,
+	}
+}
+
 func (r *InMemoryBusinessRepository) Create(
 	ctx context.Context,
 	name, email, description, imageURL string,

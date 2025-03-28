@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/business"
 )
 
 type Application struct {
@@ -32,5 +33,6 @@ type Queries struct {
 }
 
 type Repositories struct {
-	AuthUsers authuser.Repository
+	AuthUsers  authuser.Repository
+	Businesses business.Repository
 }
