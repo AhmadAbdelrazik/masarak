@@ -30,18 +30,7 @@ func NewApplicationStatus(status string) (*ApplicationStatus, error) {
 	}
 }
 
+// Status - return the job application status ("accepted", "rejected", "pending")
 func (s *ApplicationStatus) Status() string {
 	return s.status
-}
-
-func (s *ApplicationStatus) IsPending() bool {
-	return s == applicationStatusPending
-}
-
-func (s *ApplicationStatus) IsAccepted() bool {
-	return s == applicationStatusAccepted
-}
-
-func (s *ApplicationStatus) IsRejected() bool {
-	return s == applicationStatusRejected
 }

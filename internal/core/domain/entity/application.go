@@ -24,6 +24,7 @@ type Application struct {
 	FreelancerProfile string
 	ResumeURL         string
 	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }
 
 func NewApplication(
@@ -48,26 +49,37 @@ func NewApplication(
 		FreelancerProfile: freelancerProfile,
 		ResumeURL:         resumeURL,
 		CreatedAt:         time.Now(),
+		UpdatedAt:         time.Now(),
 	}
 }
 
-func (a *Application) IsPending() bool {
-	return a.status.IsPending()
+func (a *Application) Update(
+	name, title string,
+	yearsOfExperience int,
+	hourlyRate *money.Money,
+	freelancerProfile, resumeURL string,
+) error {
+	a.Name = name
+	a.Title = title
+	a.YearsOfExperience = yearsOfExperience
+	a.HourlyRate = hourlyRate
+	a.FreelancerProfile = freelancerProfile
+	a.ResumeURL = resumeURL
+	a.UpdatedAt = time.Now()
+
+	return nil
 }
 
-func (a *Application) IsAccepted() bool {
-	return a.status.IsAccepted()
+// Status - return the job application status ("accepted", "rejected", "pending")
+func (a *Application) Status() string {
+	return a.status.Status()
 }
 
-func (a *Application) IsRejected() bool {
-	return a.status.IsRejected()
-}
-
-func (a *Application) Accept() error {
+func (a *Application) SetStatusToAccepted() error {
 	return a.setStatus("accepted")
 }
 
-func (a *Application) Reject() error {
+func (a *Application) SetStatusToRejected() error {
 	return a.setStatus("rejected")
 }
 
@@ -81,27 +93,6 @@ func (a *Application) setStatus(statusString string) error {
 		panic(err)
 	}
 	a.status = status
-
-	return nil
-}
-
-func (a *Application) Update(
-	name, email, title string,
-	yearsOfExperience int,
-	hourlyRate *money.Money,
-	freelancerProfile, resumeURL string,
-) error {
-	if !a.IsPending() {
-		return ErrUnableToUpdate
-	}
-
-	a.Name = name
-	a.Email = email
-	a.Title = title
-	a.YearsOfExperience = yearsOfExperience
-	a.HourlyRate = hourlyRate
-	a.FreelancerProfile = freelancerProfile
-	a.ResumeURL = resumeURL
 
 	return nil
 }

@@ -30,18 +30,7 @@ func NewJobStatus(status string) (*JobStatus, error) {
 	}
 }
 
+// Status - return the job status ("open", "closed", "archived")
 func (s *JobStatus) Status() string {
 	return s.status
-}
-
-func (s *JobStatus) IsOpen() bool {
-	return s == JobStatusOpen
-}
-
-func (s *JobStatus) IsClosed() bool {
-	return s == JobStatusClosed
-}
-
-func (s *JobStatus) IsArchived() bool {
-	return s == JobStatusArchived
 }

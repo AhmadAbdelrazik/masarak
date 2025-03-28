@@ -7,8 +7,8 @@ import (
 )
 
 type Business struct {
-	business      *entity.Business
-	availableJobs []*job.Job
+	business *entity.Business
+	jobs     []*job.Job
 }
 
 func NewBusiness(name, email, description, imageURL string) (*Business, error) {

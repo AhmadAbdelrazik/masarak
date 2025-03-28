@@ -21,7 +21,7 @@ func (j *Job) Apply(name, email, title string,
 	hourlyRate *money.Money,
 	freelancerProfile, resumeURL string,
 ) error {
-	if !j.IsAvailable() {
+	if j.Status() != "open" {
 		return ErrJobNotAvailable
 	}
 
@@ -46,7 +46,12 @@ func (j *Job) Apply(name, email, title string,
 	return nil
 }
 
+// CancelApplication - Cancel the application and deletes it as long as it's still pending
 func (j *Job) CancelApplication(applicationID uuid.UUID) error {
+	if j.Status() != "open" {
+		return ErrJobNotAvailable
+	}
+
 	for i, a := range j.applications {
 		if a.ID == applicationID {
 			if a.Status() != "pending" {
@@ -61,18 +66,26 @@ func (j *Job) CancelApplication(applicationID uuid.UUID) error {
 	return ErrApplicationNotFound
 }
 
+// UpdateApplication - update application details as long as it's still pending
 func (j *Job) UpdateApplication(
 	applicationID uuid.UUID,
-	name, email, title string,
+	name, title string,
 	yearsOfExperience int,
 	hourlyRate *money.Money,
 	freelancerProfile, resumeURL string,
 ) error {
+	if j.Status() != "open" {
+		return ErrJobNotAvailable
+	}
+
 	for _, a := range j.applications {
 		if a.ID == applicationID {
+			if a.Status() != "pending" {
+				return ErrApplicationReviewd
+			}
+
 			return a.Update(
 				name,
-				email,
 				title,
 				yearsOfExperience,
 				hourlyRate,
@@ -86,10 +99,13 @@ func (j *Job) UpdateApplication(
 }
 
 func (j *Job) AcceptApplication(applicationID uuid.UUID) error {
+	if j.Status() != "open" {
+		return ErrJobNotAvailable
+	}
+
 	for _, a := range j.applications {
 		if a.ID == applicationID {
-			a.Accept()
-			return nil
+			return a.SetStatusToAccepted()
 		}
 	}
 
@@ -97,14 +113,51 @@ func (j *Job) AcceptApplication(applicationID uuid.UUID) error {
 }
 
 func (j *Job) RejectApplication(applicationID uuid.UUID) error {
+	if j.Status() != "open" {
+		return ErrJobNotAvailable
+	}
+
 	for _, a := range j.applications {
 		if a.ID == applicationID {
-			a.Reject()
-			return nil
+			return a.SetStatusToRejected()
 		}
 	}
 
 	return ErrApplicationNotFound
+}
+
+func (j *Job) SetApplicationStatusToPending(applicationID uuid.UUID) error {
+	if j.Status() != "open" {
+		return ErrJobNotAvailable
+	}
+
+	for _, a := range j.applications {
+		if a.ID == applicationID {
+			return a.SetStatusToPending()
+		}
+	}
+
+	return ErrApplicationNotFound
+}
+
+func (j *Job) GetApplicationByID(applicationID uuid.UUID) (entity.Application, error) {
+	for _, a := range j.applications {
+		if a.ID == applicationID {
+			return *a, nil
+		}
+	}
+
+	return entity.Application{}, ErrApplicationNotFound
+}
+
+func (j *Job) GetApplicationByEmail(applicationEmail string) (entity.Application, error) {
+	for _, a := range j.applications {
+		if a.Email == applicationEmail {
+			return *a, nil
+		}
+	}
+
+	return entity.Application{}, ErrApplicationNotFound
 }
 
 func (j *Job) GetAcceptedApplications() []entity.Application {

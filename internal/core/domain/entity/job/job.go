@@ -19,8 +19,9 @@ type Job struct {
 	WorkLocation      string
 	WorkTime          string
 	ExpectedSalary    string
-	PostDate          time.Time
 	applications      []*entity.Application
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }
 
 var ErrSkillLimitReached = errors.New("skill number must not be more than 10")
@@ -44,9 +45,10 @@ func NewJob(title, description, yearsOfExperience, workLocation, workTime, expec
 		WorkLocation:      workLocation,
 		WorkTime:          workTime,
 		ExpectedSalary:    expectedSalary,
-		PostDate:          time.Now(),
 		Skills:            skills,
 		applications:      make([]*entity.Application, 0),
+		CreatedAt:         time.Now(),
+		UpdatedAt:         time.Now(),
 	}, nil
 }
 
@@ -66,8 +68,14 @@ func (j *Job) Update(
 	j.WorkTime = workTime
 	j.ExpectedSalary = expectedSalary
 	j.Skills = skills
+	j.UpdatedAt = time.Now()
 
 	return nil
+}
+
+// Status - return the job status ("open", "closed", "archived")
+func (j *Job) Status() string {
+	return j.status.Status()
 }
 
 func (j *Job) SetStatusToOpen() {
@@ -93,16 +101,4 @@ func (j *Job) setStatus(status string) {
 	}
 
 	j.status = newStatus
-}
-
-func (j *Job) IsOpen() bool {
-	return j.status.IsOpen()
-}
-
-func (j *Job) IsClosed() bool {
-	return j.status.IsClosed()
-}
-
-func (j *Job) IsArchived() bool {
-	return j.status.IsArchived()
 }
