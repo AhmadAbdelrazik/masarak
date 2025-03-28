@@ -5,6 +5,6 @@ import "context"
 type Repository interface {
 	// GetByEmail - gets the application history for a freelancer
 	// if not exists, create new one
-	GetByEmail(ctx context.Context, email string) *ApplicationHistory
+	GetByEmail(ctx context.Context, email string) (*ApplicationHistory, error)
 	Save(ctx context.Context, applicationHistory *ApplicationHistory) error
 }

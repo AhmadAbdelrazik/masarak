@@ -26,3 +26,11 @@ func (a *ApplicationHistory) Add(businessID uuid.UUID) error {
 	a.businesses = append(a.businesses, businessID)
 	return nil
 }
+
+func (a *ApplicationHistory) GetAllBusinessesIDs() []uuid.UUID {
+	return a.businesses
+}
+
+func (a *ApplicationHistory) Email() string {
+	return a.freelancerEmail
+}

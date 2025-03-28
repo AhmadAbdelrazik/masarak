@@ -1,6 +1,7 @@
 package app
 
 import (
+	applicationshistory "github.com/ahmadabdelrazik/masarak/internal/core/domain/applicationsHistory"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/business"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/freelancerprofile"
@@ -34,7 +35,8 @@ type Queries struct {
 }
 
 type Repositories struct {
-	AuthUsers         authuser.Repository
-	Businesses        business.Repository
-	FreelancerProfile freelancerprofile.Repository
+	AuthUsers          authuser.Repository
+	Businesses         business.Repository
+	FreelancerProfile  freelancerprofile.Repository
+	ApplicationHistory applicationshistory.Repository
 }

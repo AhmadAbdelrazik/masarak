@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/business"
@@ -115,4 +116,30 @@ func (r *InMemoryBusinessRepository) checkValid(_ context.Context, b *business.B
 	}
 
 	return nil
+}
+
+func (r *InMemoryBusinessRepository) GetBusinessesByIDs(ids []uuid.UUID) ([]*business.Business, error) {
+	idSet := make(map[uuid.UUID]bool)
+
+	for _, id := range ids {
+		idSet[id] = true
+	}
+
+	r.memory.Lock()
+	defer r.memory.Unlock()
+
+	businesses := make([]*business.Business, 0, len(ids))
+
+	for _, b := range r.memory.businesses {
+		if _, ok := idSet[b.ID()]; ok {
+			businesses = append(businesses, b)
+			delete(idSet, b.ID())
+		}
+	}
+
+	if len(idSet) != 0 {
+		return nil, fmt.Errorf("invalid businesses %v", idSet)
+	}
+
+	return businesses, nil
 }

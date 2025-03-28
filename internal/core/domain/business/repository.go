@@ -18,6 +18,7 @@ type Repository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*Business, error)
 	GetByName(ctx context.Context, name string) (*Business, error)
 	GetAll(ctx context.Context) ([]*Business, error)
+	GetBusinessesByIDs(ids []uuid.UUID) ([]*Business, error)
 	Search(ctx context.Context, name string) ([]*Business, error)
 	// Save - Save the changes applied to business.
 	// check that name, email, and imageURL still unique
