@@ -96,24 +96,44 @@ func (b *Business) MarkJobArchived(jobID uuid.UUID) error {
 	return ErrJobNotFound
 }
 
-func (b *Business) GetJobByName(title string) (job.Job, error) {
+func (b *Business) GetJobByTitle(title string) (job.Job, error) {
+	j, err := b.getJobByTitle(title)
+	if err != nil {
+		return job.Job{}, err
+	}
+
+	return *j, nil
+}
+
+// getJobByTitle - returns a pointer to the job
+func (b *Business) getJobByTitle(title string) (*job.Job, error) {
 	for _, j := range b.jobs {
 		if j.Title == title {
-			return *j, nil
+			return j, nil
 		}
 	}
 
-	return job.Job{}, ErrJobNotFound
+	return nil, ErrJobNotFound
 }
 
 func (b *Business) GetJobByID(id uuid.UUID) (job.Job, error) {
+	j, err := b.getJobByID(id)
+	if err != nil {
+		return job.Job{}, err
+	}
+
+	return *j, nil
+}
+
+// getJobByID - returns a pointer to the job
+func (b *Business) getJobByID(id uuid.UUID) (*job.Job, error) {
 	for _, j := range b.jobs {
 		if j.ID == id {
-			return *j, nil
+			return j, nil
 		}
 	}
 
-	return job.Job{}, ErrJobNotFound
+	return nil, ErrJobNotFound
 }
 
 // GetAllJobs - Returns all jobs posted by the business. For only
