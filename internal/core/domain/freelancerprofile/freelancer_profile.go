@@ -62,3 +62,7 @@ func (f *FreelancerProfile) UpdateHourlyRate(hourlyRate *money.Money) error {
 func (f *FreelancerProfile) Data() entity.FreelancerProfile {
 	return *f.profile
 }
+
+func (f *FreelancerProfile) Email() string {
+	return f.profile.Email
+}

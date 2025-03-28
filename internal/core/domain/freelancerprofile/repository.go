@@ -2,8 +2,14 @@ package freelancerprofile
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Rhymond/go-money"
+)
+
+var (
+	ErrDuplicateProfile = errors.New("profile already exists")
+	ErrProfileNotFound  = errors.New("profile doesn't exist")
 )
 
 type Repository interface {
@@ -14,7 +20,7 @@ type Repository interface {
 		skills []string,
 		yearsOfExperience int,
 		hourlyRate *money.Money,
-	) error
-	GetByEmail(ctx context.Context, email string) *FreelancerProfile
-	Save(ctx context.Context, applicationHistory *FreelancerProfile) error
+	) (*FreelancerProfile, error)
+	GetByEmail(ctx context.Context, email string) (*FreelancerProfile, error)
+	Save(ctx context.Context, profile *FreelancerProfile) error
 }

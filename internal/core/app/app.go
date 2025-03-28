@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/business"
+	"github.com/ahmadabdelrazik/masarak/internal/core/domain/freelancerprofile"
 )
 
 type Application struct {
@@ -33,6 +34,7 @@ type Queries struct {
 }
 
 type Repositories struct {
-	AuthUsers  authuser.Repository
-	Businesses business.Repository
+	AuthUsers         authuser.Repository
+	Businesses        business.Repository
+	FreelancerProfile freelancerprofile.Repository
 }
