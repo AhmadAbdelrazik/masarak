@@ -1,14 +1,12 @@
 package auth
 
 import (
-	"context"
 	"errors"
 	"net/http"
 
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
-	"github.com/google/uuid"
 )
 
 func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
@@ -30,13 +28,13 @@ func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := authuser.New(uuid.NewString(), input.Name, input.Email, input.Password, role)
+	user, err := authuser.New(input.Name, input.Email, input.Password, role)
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 		return
 	}
 
-	if err := h.userRepo.Add(r.Context(), user); err != nil {
+	if err := h.userRepo.Create(r.Context(), user); err != nil {
 		switch {
 		case errors.Is(err, authuser.ErrUserAlreadyExists):
 			httperr.ErrorResponse(w, r, http.StatusForbidden, "user already exists")
@@ -57,8 +55,8 @@ func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
 		Email string `json:"email"`
 	}
 
-	output.Name = user.Name
-	output.Email = user.Email
+	output.Name = user.Name()
+	output.Email = user.Email()
 
 	http.SetCookie(w, cookie)
 	if err := writeJSON(w, http.StatusCreated, envelope{"message": "registered successfully", "user": output}, nil); err != nil {
@@ -107,46 +105,12 @@ func (h *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 		Email string `json:"email"`
 	}
 
-	output.Name = user.Name
-	output.Email = user.Email
+	output.Name = user.Name()
+	output.Email = user.Email()
 
 	http.SetCookie(w, cookie)
 	if err := writeJSON(w, http.StatusOK, envelope{"message": "logged in successfully", "user": output}, nil); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
 
-}
-
-func (a *AuthService) IsAuthenticated(next http.HandlerFunc) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		cookie, err := r.Cookie("session_id")
-		if err != nil {
-			switch {
-			case errors.Is(err, http.ErrNoCookie):
-				httperr.AuthenticationErrorResponse(w, r)
-			default:
-				httperr.BadRequestResponse(w, r, err)
-			}
-			return
-		}
-
-		user, err := a.tokenRepo.GetFromToken(r.Context(), Token(cookie.Value))
-		if err != nil {
-			switch {
-			case errors.Is(err, authuser.ErrUserNotFound):
-				httperr.AuthenticationErrorResponse(w, r)
-			default:
-				httperr.ServerErrorResponse(w, r, err)
-			}
-			return
-		}
-
-		ctx := r.Context()
-
-		ctx = context.WithValue(ctx, UserContextKey, user)
-		r = r.WithContext(ctx)
-
-		next.ServeHTTP(w, r)
-	})
 }

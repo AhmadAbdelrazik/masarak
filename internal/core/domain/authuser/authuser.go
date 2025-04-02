@@ -1,41 +1,48 @@
 package authuser
 
 import (
-	"context"
-
 	"github.com/ahmadabdelrazik/masarak/internal/core/domain/valueobject"
-	"github.com/pkg/errors"
 )
 
 type AuthUser struct {
-	ID       string
-	Name     string
-	Email    string
+	name     string
+	email    string
 	Password *Password
-	Role     *valueobject.Role
+	role     *valueobject.Role
 }
 
-func New(id, name, email, passwordText string, role *valueobject.Role) (*AuthUser, error) {
+func New(name, email, passwordText string, role *valueobject.Role) (*AuthUser, error) {
 	password, err := newPassword(passwordText)
 	if err != nil {
 		return nil, err
 	}
 	return &AuthUser{
-		ID:       id,
-		Name:     name,
-		Email:    email,
-		Role:     role,
+		name:     name,
+		email:    email,
+		role:     role,
 		Password: password,
 	}, nil
 }
 
-var (
-	ErrUserAlreadyExists = errors.New("user already exists")
-	ErrUserNotFound      = errors.New("user not found")
-)
+func (a *AuthUser) Update(name string, role *valueobject.Role) error {
+	a.name = name
+	a.role = role
 
-type Repository interface {
-	Add(ctx context.Context, user *AuthUser) error
-	GetByEmail(ctx context.Context, email string) (*AuthUser, error)
-	ChangeRole(ctx context.Context, email string, role *valueobject.Role) error
+	return nil
+}
+
+func (a *AuthUser) Email() string {
+	return a.email
+}
+
+func (a *AuthUser) Role() string {
+	return a.role.Role()
+}
+
+func (a *AuthUser) Name() string {
+	return a.name
+}
+
+func (a *AuthUser) HasPermission(permission string) bool {
+	return a.role.HasPermission(permission)
 }

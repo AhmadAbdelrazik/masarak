@@ -129,8 +129,8 @@ func (a *GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Reques
 		Email string `json:"email"`
 	}
 
-	output.Name = user.Name
-	output.Email = user.Email
+	output.Name = user.Name()
+	output.Email = user.Email()
 
 	http.SetCookie(w, cookie)
 	if err := writeJSON(w, http.StatusCreated, envelope{"message": "logged in successfully", "user": output}, nil); err != nil {
@@ -144,12 +144,12 @@ func (a *GoogleAuthService) createUser(r *http.Request, id, name, email string) 
 		return err
 	}
 
-	user, err := authuser.New(id, name, email, (id + name), userRole)
+	user, err := authuser.New(name, email, (id + name), userRole)
 	if err != nil {
 		return err
 	}
 
-	err = a.userRepo.Add(r.Context(), user)
+	err = a.userRepo.Create(r.Context(), user)
 	if err != nil {
 		return err
 	}

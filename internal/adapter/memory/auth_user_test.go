@@ -18,17 +18,17 @@ func TestMemory_AuthUser(t *testing.T) {
 	role, err := valueobject.NewRole("user")
 	assert.Nil(t, err)
 
-	user, err := authuser.New("1", "John Doe", "johndoe@gmail.com", "johndoe1234", role)
+	user, err := authuser.New("John Doe", "johndoe@gmail.com", "johndoe1234", role)
 	assert.Nil(t, err)
 
-	err = userRepo.Add(ctx, user)
+	err = userRepo.Save(ctx, user)
 	assert.Nil(t, err)
 
-	token, err := tokenRepo.GenerateToken(ctx, user.Email)
+	token, err := tokenRepo.GenerateToken(ctx, user.Email())
 	assert.Nil(t, err)
 
 	gottenUser, err := tokenRepo.GetFromToken(ctx, token)
 	assert.Nil(t, err)
 
-	assert.Equal(t, gottenUser.Email, user.Email)
+	assert.Equal(t, gottenUser.Email(), user.Email())
 }
