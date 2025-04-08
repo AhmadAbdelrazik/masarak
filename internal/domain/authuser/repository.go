@@ -24,5 +24,9 @@ type Repository interface {
 	// Save - Save changes to a user (name, password, or role
 	// change). returns ErrUserNotFound if user doesn't exist or a
 	// generic error.
-	Save(ctx context.Context, user *AuthUser) error
+	Save(
+		ctx context.Context,
+		email string,
+		updateFn func(ctx context.Context, user *AuthUser) error,
+	) error
 }

@@ -8,9 +8,8 @@ import (
 
 // DB - a wrapper that hides if using a db or tx from the repository
 type DB struct {
-	db        *sql.DB
-	tx        *sql.Tx
-	committed bool
+	db *sql.DB
+	tx *sql.Tx
 }
 
 func NewDB(driver, dsn string) (*DB, error) {
@@ -25,12 +24,14 @@ func NewDB(driver, dsn string) (*DB, error) {
 }
 
 func (db *DB) Begin() error {
+	if db.tx != nil {
+		return errors.New("transaction already active")
+	}
 	tx, err := db.db.Begin()
 	if err != nil {
 		return err
 	}
 
-	db.committed = false
 	db.tx = tx
 
 	return nil
@@ -47,7 +48,6 @@ func (db *DB) Commit() error {
 	}
 
 	db.tx = nil
-	db.committed = false
 
 	return nil
 }
@@ -62,7 +62,6 @@ func (db *DB) Rollback() error {
 	}
 
 	db.tx = nil
-	db.committed = false
 
 	return nil
 }
