@@ -23,7 +23,7 @@ func (p *Password) Matches(password string) (bool, error) {
 	return true, nil
 }
 
-func newPassword(password string) (*Password, error) {
+func createPassword(password string) (*Password, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err

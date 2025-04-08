@@ -1,6 +1,10 @@
 package authuser
 
-import "github.com/ahmadabdelrazik/masarak/internal/domain/valueobject"
+import (
+	"errors"
+
+	"github.com/ahmadabdelrazik/masarak/internal/domain/valueobject"
+)
 
 type AuthUser struct {
 	name     string
@@ -9,8 +13,10 @@ type AuthUser struct {
 	role     *valueobject.Role
 }
 
+// New - Creates a new user and validate the input data. For reconstructing
+// users from database, use Instantiate instead.
 func New(name, email, passwordText, role string) (*AuthUser, error) {
-	password, err := newPassword(passwordText)
+	password, err := createPassword(passwordText)
 	if err != nil {
 		return nil, err
 	}
@@ -28,6 +34,7 @@ func New(name, email, passwordText, role string) (*AuthUser, error) {
 	}, nil
 }
 
+// Instantiate - Construct user from database.
 func Instantiate(name, email string, passwordHash []byte, role string) *AuthUser {
 	r, _ := valueobject.NewRole(role)
 
@@ -39,9 +46,46 @@ func Instantiate(name, email string, passwordHash []byte, role string) *AuthUser
 	}
 }
 
-func (a *AuthUser) Update(name string, role *valueobject.Role) error {
+func (a *AuthUser) UpdateName(name string) error {
+	if len(name) <= 2 {
+		return errors.New("name must be longer than 2 bytes")
+	} else if len(name) > 32 {
+		return errors.New("name must be less than 33 bytes")
+	}
+
 	a.name = name
-	a.role = role
+
+	return nil
+}
+
+func (a *AuthUser) UpdateRole(role string) error {
+	r, err := valueobject.NewRole(role)
+	if err != nil {
+		return err
+	}
+
+	a.role = r
+
+	return nil
+}
+
+func (a *AuthUser) UpdatePassword(oldPassword, newPassword string) error {
+	if oldPassword == newPassword {
+		return errors.New("new password must be different than old password")
+	}
+
+	if match, err := a.Password.Matches(oldPassword); err != nil {
+		return err
+	} else if !match {
+		return errors.New("old password doesn't match")
+	}
+
+	password, err := createPassword(newPassword)
+	if err != nil {
+		return err
+	}
+
+	a.Password = password
 
 	return nil
 }
