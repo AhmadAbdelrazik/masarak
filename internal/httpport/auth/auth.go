@@ -8,26 +8,26 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ahmadabdelrazik/masarak/internal/domain/authuser"
+	"github.com/ahmadabdelrazik/masarak/internal/app"
 )
 
 type AuthService struct {
 	tokenRepo TokenRepository
-	userRepo  authuser.Repository
 	Google    GoogleAuthService
+	app       *app.Application
 }
 
-func New(tokenRepo TokenRepository, userRepo authuser.Repository) *AuthService {
+func New(tokenRepo TokenRepository, app *app.Application) *AuthService {
 	if tokenRepo == nil {
 		panic("token repo not found")
 	}
-	if userRepo == nil {
-		panic("user repo not found")
+	if app == nil {
+		panic("application not found")
 	}
 
 	return &AuthService{
 		tokenRepo: tokenRepo,
-		userRepo:  userRepo,
+		app:       app,
 	}
 }
 

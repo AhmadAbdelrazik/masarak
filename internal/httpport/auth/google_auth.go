@@ -8,8 +8,8 @@ import (
 	"net/http"
 
 	"github.com/ahmadabdelrazik/masarak/config"
+	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/internal/domain/authuser"
-	"github.com/ahmadabdelrazik/masarak/internal/domain/valueobject"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -18,20 +18,20 @@ import (
 type GoogleAuthService struct {
 	cfg              *config.Config
 	GoogleAuthConfig oauth2.Config
-	userRepo         authuser.Repository
+	app              *app.Application
 	tokenRepo        TokenRepository
 }
 
 func newGoogleOAuthService(
-	userRepo authuser.Repository,
 	tokenRepo TokenRepository,
 	cfg *config.Config,
+	app *app.Application,
 ) *GoogleAuthService {
 	if cfg == nil {
 		panic("config not found")
 	}
-	if userRepo == nil {
-		panic("user not found")
+	if app == nil {
+		panic("application not found")
 	}
 	if tokenRepo == nil {
 		panic("token not found")
@@ -48,7 +48,6 @@ func newGoogleOAuthService(
 
 	return &GoogleAuthService{
 		cfg:              cfg,
-		userRepo:         userRepo,
 		tokenRepo:        tokenRepo,
 		GoogleAuthConfig: googleAuthConfig,
 	}
@@ -105,11 +104,17 @@ func (a *GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user, err := a.userRepo.GetByEmail(r.Context(), input.Email)
-	if err != nil {
+	if _, err := a.app.Queries.GetUser(context.Background(), input.Email); err != nil {
 		switch {
 		case errors.Is(err, authuser.ErrUserNotFound):
-			if err := a.createUser(r, input.ID, input.Name, input.Email); err != nil {
+			cmd := app.CreateUser{
+				Name:     input.Name,
+				Email:    input.Email,
+				Password: input.ID,
+				Role:     "user",
+			}
+
+			if err := a.app.Commands.CreateUserHandler(context.Background(), cmd); err != nil {
 				httperr.ServerErrorResponse(w, r, err)
 				return
 			}
@@ -129,30 +134,11 @@ func (a *GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Reques
 		Email string `json:"email"`
 	}
 
-	output.Name = user.Name()
-	output.Email = user.Email()
+	output.Name = input.Name
+	output.Email = input.Email
 
 	http.SetCookie(w, cookie)
 	if err := writeJSON(w, http.StatusCreated, envelope{"message": "logged in successfully", "user": output}, nil); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
-}
-
-func (a *GoogleAuthService) createUser(r *http.Request, id, name, email string) error {
-	userRole, err := valueobject.NewRole("user")
-	if err != nil {
-		return err
-	}
-
-	user, err := authuser.New(name, email, (id + name), userRole)
-	if err != nil {
-		return err
-	}
-
-	err = a.userRepo.Create(r.Context(), user)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

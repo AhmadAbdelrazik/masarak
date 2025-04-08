@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/internal/domain/authuser"
-	"github.com/ahmadabdelrazik/masarak/internal/domain/valueobject"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 )
 
@@ -22,22 +22,19 @@ func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role, err := valueobject.NewRole("user")
-	if err != nil {
-		httperr.ServerErrorResponse(w, r, err)
-		return
+	cmd := app.CreateUser{
+		Name:     input.Name,
+		Email:    input.Email,
+		Password: input.Password,
+		Role:     "user",
 	}
 
-	user, err := authuser.New(input.Name, input.Email, input.Password, role)
-	if err != nil {
-		httperr.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	if err := h.userRepo.Create(r.Context(), user); err != nil {
+	if err := h.app.Commands.CreateUserHandler(r.Context(), cmd); err != nil {
 		switch {
 		case errors.Is(err, authuser.ErrUserAlreadyExists):
-			httperr.ErrorResponse(w, r, http.StatusForbidden, "user already exists")
+			httperr.ErrorResponse(w, r, http.StatusConflict, "user already exists")
+		case errors.Is(err, authuser.ErrInvalidProperty):
+			httperr.BadRequestResponse(w, r, err)
 		default:
 			httperr.ServerErrorResponse(w, r, err)
 		}
@@ -55,8 +52,8 @@ func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
 		Email string `json:"email"`
 	}
 
-	output.Name = user.Name()
-	output.Email = user.Email()
+	output.Name = input.Name
+	output.Email = input.Email
 
 	http.SetCookie(w, cookie)
 	if err := writeJSON(w, http.StatusCreated, envelope{"message": "registered successfully", "user": output}, nil); err != nil {
@@ -75,22 +72,14 @@ func (h *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userRepo.GetByEmail(r.Context(), input.Email)
+	user, err := h.app.Queries.UserLogin(r.Context(), input.Email, input.Password)
 	if err != nil {
 		switch {
-		case errors.Is(err, authuser.ErrUserNotFound):
+		case errors.Is(err, authuser.ErrUserNotFound), errors.Is(err, app.ErrInvalidPassword):
 			httperr.AuthenticationErrorResponse(w, r)
 		default:
 			httperr.ServerErrorResponse(w, r, err)
 		}
-		return
-	}
-
-	if match, err := user.Password.Matches(input.Password); err != nil {
-		httperr.ServerErrorResponse(w, r, err)
-		return
-	} else if !match {
-		httperr.AuthenticationErrorResponse(w, r)
 		return
 	}
 
@@ -100,16 +89,13 @@ func (h *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var output struct {
-		Name  string `json:"name"`
-		Email string `json:"email"`
-	}
-
-	output.Name = user.Name()
-	output.Email = user.Email()
-
 	http.SetCookie(w, cookie)
-	if err := writeJSON(w, http.StatusOK, envelope{"message": "logged in successfully", "user": output}, nil); err != nil {
+	if err := writeJSON(
+		w,
+		http.StatusOK,
+		envelope{"message": "logged in successfully", "user": user},
+		nil,
+	); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
 
