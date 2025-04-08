@@ -13,6 +13,7 @@ type Config struct {
 	GoogleClientSecret string `env:"GOOGLE_CLIENT_SECRET,required"`
 	RandomState        string `env:"RANDOM_STATE" envdefault:"random_state"`
 	HostURL            string `env:"DOMAIN_HOST_URL" envdefault:"localhost:8080"`
+	DSN                string `env:"MASARAK_DB_DSN"`
 }
 
 func Load(fileNames ...string) (*Config, error) {
