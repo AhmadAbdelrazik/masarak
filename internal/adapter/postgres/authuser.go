@@ -4,18 +4,12 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/ahmadabdelrazik/masarak/internal/domain/authuser"
+	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 )
 
 // AuthUserRepository - Postgres Implemntation for user repository
 type AuthUserRepository struct {
 	db *sql.DB
-}
-
-func newAuthUserRepository(db *sql.DB) *AuthUserRepository {
-	return &AuthUserRepository{
-		db: db,
-	}
 }
 
 func (r *AuthUserRepository) Create(ctx context.Context, name, email, passwordText, role string) error {
@@ -35,7 +29,7 @@ func (r *AuthUserRepository) Create(ctx context.Context, name, email, passwordTe
 	return nil
 }
 
-func (r *AuthUserRepository) GetByEmail(ctx context.Context, email string) (*authuser.AuthUser, error) {
+func (r *AuthUserRepository) GetByEmail(ctx context.Context, email string) (*authuser.User, error) {
 	query := `
 	SELECT name, password, role
 	FROM users
@@ -58,7 +52,7 @@ func (r *AuthUserRepository) GetByEmail(ctx context.Context, email string) (*aut
 	return user, nil
 }
 
-func (r *AuthUserRepository) Save(ctx context.Context, email string, updateFn func(ctx context.Context, user *authuser.AuthUser) error) error {
+func (r *AuthUserRepository) Save(ctx context.Context, email string, updateFn func(ctx context.Context, user *authuser.User) error) error {
 	u, err := r.GetByEmail(ctx, email)
 	if err != nil {
 		return err

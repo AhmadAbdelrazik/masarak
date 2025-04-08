@@ -12,18 +12,18 @@ import (
 
 	"github.com/ahmadabdelrazik/masarak/config"
 	"github.com/ahmadabdelrazik/masarak/internal/app"
-	"github.com/ahmadabdelrazik/masarak/internal/domain/authuser"
-	"github.com/ahmadabdelrazik/masarak/internal/httpport/auth"
+	"github.com/ahmadabdelrazik/masarak/internal/httpport/authservice"
+	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 )
 
 type HttpServer struct {
 	app      *app.Application
 	cfg      *config.Config
-	auth     *auth.AuthService
-	userRepo authuser.Repository
+	auth     *authservice.AuthService
+	userRepo authuser.UserRepository
 }
 
-func NewHttpServer(app *app.Application, cfg *config.Config, authService *auth.AuthService, userRepo authuser.Repository) *HttpServer {
+func NewHttpServer(app *app.Application, cfg *config.Config, authService *authservice.AuthService, userRepo authuser.UserRepository) *HttpServer {
 	if cfg == nil {
 		panic("config not found")
 	}

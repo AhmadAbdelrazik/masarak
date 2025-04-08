@@ -4,9 +4,9 @@ import (
 	"errors"
 
 	applicationshistory "github.com/ahmadabdelrazik/masarak/internal/domain/applicationsHistory"
-	"github.com/ahmadabdelrazik/masarak/internal/domain/authuser"
 	"github.com/ahmadabdelrazik/masarak/internal/domain/business"
 	"github.com/ahmadabdelrazik/masarak/internal/domain/freelancerprofile"
+	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 )
 
 var (
@@ -19,7 +19,7 @@ type Application struct {
 	Queries  *Queries
 }
 
-func NewApplication(commandRepos, queryRepos *Repositories) *Application {
+func New(commandRepos, queryRepos *Repositories) *Application {
 	commands := &Commands{
 		repo: commandRepos,
 	}
@@ -42,7 +42,7 @@ type Queries struct {
 }
 
 type Repositories struct {
-	AuthUsers          authuser.Repository
+	AuthUsers          authuser.UserRepository
 	Businesses         business.Repository
 	FreelancerProfile  freelancerprofile.Repository
 	ApplicationHistory applicationshistory.Repository

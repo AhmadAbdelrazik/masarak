@@ -1,11 +1,11 @@
-package auth
+package authservice
 
 import (
 	"errors"
 	"net/http"
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
-	"github.com/ahmadabdelrazik/masarak/internal/domain/authuser"
+	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 )
 

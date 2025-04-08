@@ -1,11 +1,11 @@
-package auth
+package authservice
 
 import (
 	"context"
 	"errors"
 	"net/http"
 
-	"github.com/ahmadabdelrazik/masarak/internal/domain/authuser"
+	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 )
 
@@ -23,7 +23,7 @@ func (a *AuthService) IsAuthenticated(next http.HandlerFunc) http.Handler {
 			return
 		}
 
-		user, err := a.tokenRepo.GetFromToken(r.Context(), Token(cookie.Value))
+		user, err := a.userRepo.GetByToken(r.Context(), authuser.Token(cookie.Value))
 		if err != nil {
 			switch {
 			case errors.Is(err, authuser.ErrUserNotFound):

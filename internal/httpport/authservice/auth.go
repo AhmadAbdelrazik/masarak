@@ -1,4 +1,4 @@
-package auth
+package authservice
 
 import (
 	"encoding/json"
@@ -9,17 +9,26 @@ import (
 	"strings"
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
+	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 )
 
 type AuthService struct {
-	tokenRepo TokenRepository
+	tokenRepo authuser.TokenRepository
+	userRepo  authuser.UserRepository
 	Google    GoogleAuthService
 	app       *app.Application
 }
 
-func New(tokenRepo TokenRepository, app *app.Application) *AuthService {
+func New(
+	tokenRepo authuser.TokenRepository,
+	userRepo authuser.UserRepository,
+	app *app.Application,
+) *AuthService {
 	if tokenRepo == nil {
 		panic("token repo not found")
+	}
+	if userRepo == nil {
+		panic("user repo not found")
 	}
 	if app == nil {
 		panic("application not found")

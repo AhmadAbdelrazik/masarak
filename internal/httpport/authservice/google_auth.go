@@ -1,4 +1,4 @@
-package auth
+package authservice
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/ahmadabdelrazik/masarak/config"
 	"github.com/ahmadabdelrazik/masarak/internal/app"
-	"github.com/ahmadabdelrazik/masarak/internal/domain/authuser"
+	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -19,11 +19,11 @@ type GoogleAuthService struct {
 	cfg              *config.Config
 	GoogleAuthConfig oauth2.Config
 	app              *app.Application
-	tokenRepo        TokenRepository
+	tokenRepo        authuser.TokenRepository
 }
 
 func newGoogleOAuthService(
-	tokenRepo TokenRepository,
+	tokenRepo authuser.TokenRepository,
 	cfg *config.Config,
 	app *app.Application,
 ) *GoogleAuthService {

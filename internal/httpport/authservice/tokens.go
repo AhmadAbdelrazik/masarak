@@ -1,21 +1,14 @@
-package auth
+package authservice
 
 import (
 	"context"
 	"errors"
 	"net/http"
 
-	"github.com/ahmadabdelrazik/masarak/internal/domain/authuser"
+	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 )
 
-type Token string
-
-type TokenRepository interface {
-	GenerateToken(ctx context.Context, email string) (Token, error)
-	GetFromToken(ctx context.Context, token Token) (*authuser.AuthUser, error)
-}
-
-func getTokenCookie(r *http.Request, email string, tokenRepo TokenRepository) (*http.Cookie, error) {
+func getTokenCookie(r *http.Request, email string, tokenRepo authuser.TokenRepository) (*http.Cookie, error) {
 
 	userToken, err := tokenRepo.GenerateToken(r.Context(), email)
 	if err != nil {
@@ -43,8 +36,8 @@ var (
 	NoUserInContextError = errors.New("no user in context error")
 )
 
-func UserFromCtx(ctx context.Context) (*authuser.AuthUser, error) {
-	user, ok := ctx.Value(UserContextKey).(*authuser.AuthUser)
+func UserFromCtx(ctx context.Context) (*authuser.User, error) {
+	user, ok := ctx.Value(UserContextKey).(*authuser.User)
 	if ok {
 		return user, nil
 	}

@@ -6,7 +6,7 @@ import (
 	"github.com/ahmadabdelrazik/masarak/internal/domain/valueobject"
 )
 
-type AuthUser struct {
+type User struct {
 	name     string
 	email    string
 	Password *Password
@@ -15,7 +15,7 @@ type AuthUser struct {
 
 // New - Creates a new user and validate the input data. For reconstructing
 // users from database, use Instantiate instead.
-func New(name, email, passwordText, role string) (*AuthUser, error) {
+func New(name, email, passwordText, role string) (*User, error) {
 	password, err := createPassword(passwordText)
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func New(name, email, passwordText, role string) (*AuthUser, error) {
 		return nil, err
 	}
 
-	return &AuthUser{
+	return &User{
 		name:     name,
 		email:    email,
 		role:     r,
@@ -35,10 +35,10 @@ func New(name, email, passwordText, role string) (*AuthUser, error) {
 }
 
 // Instantiate - Construct user from database.
-func Instantiate(name, email string, passwordHash []byte, role string) *AuthUser {
+func Instantiate(name, email string, passwordHash []byte, role string) *User {
 	r, _ := valueobject.NewRole(role)
 
-	return &AuthUser{
+	return &User{
 		name:     name,
 		email:    email,
 		Password: &Password{hash: passwordHash},
@@ -46,7 +46,7 @@ func Instantiate(name, email string, passwordHash []byte, role string) *AuthUser
 	}
 }
 
-func (a *AuthUser) UpdateName(name string) error {
+func (a *User) UpdateName(name string) error {
 	if len(name) <= 2 {
 		return errors.New("name must be longer than 2 bytes")
 	} else if len(name) > 32 {
@@ -58,7 +58,7 @@ func (a *AuthUser) UpdateName(name string) error {
 	return nil
 }
 
-func (a *AuthUser) UpdateRole(role string) error {
+func (a *User) UpdateRole(role string) error {
 	r, err := valueobject.NewRole(role)
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func (a *AuthUser) UpdateRole(role string) error {
 	return nil
 }
 
-func (a *AuthUser) UpdatePassword(oldPassword, newPassword string) error {
+func (a *User) UpdatePassword(oldPassword, newPassword string) error {
 	if oldPassword == newPassword {
 		return errors.New("new password must be different than old password")
 	}
@@ -90,18 +90,18 @@ func (a *AuthUser) UpdatePassword(oldPassword, newPassword string) error {
 	return nil
 }
 
-func (a *AuthUser) Email() string {
+func (a *User) Email() string {
 	return a.email
 }
 
-func (a *AuthUser) Role() string {
+func (a *User) Role() string {
 	return a.role.Role()
 }
 
-func (a *AuthUser) Name() string {
+func (a *User) Name() string {
 	return a.name
 }
 
-func (a *AuthUser) HasPermission(permission string) bool {
+func (a *User) HasPermission(permission string) bool {
 	return a.role.HasPermission(permission)
 }
