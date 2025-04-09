@@ -101,3 +101,31 @@ func (h *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func (h *AuthService) Logout(w http.ResponseWriter, r *http.Request) {
+	user, err := UserFromCtx(r.Context())
+	if err != nil {
+		httperr.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	if err := h.tokenRepo.DeleteTokensByEmail(r.Context(), user.Email()); err != nil {
+		httperr.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	cookie := &http.Cookie{
+		Name:     "session_id",
+		Value:    "",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   -1,
+	}
+
+	http.SetCookie(w, cookie)
+
+	if err := httputils.WriteJSON(w, http.StatusOK, httputils.Envelope{"message": "logged out successfully"}, nil); err != nil {
+		httperr.ServerErrorResponse(w, r, err)
+	}
+}

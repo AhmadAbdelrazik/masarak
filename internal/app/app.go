@@ -12,6 +12,7 @@ import (
 var (
 	// Standard error for unauthorized action in the application layer
 	ErrUnauthorized = errors.New("unauthorized")
+	ErrEditConflict = errors.New("edit conflict")
 )
 
 type Application struct {

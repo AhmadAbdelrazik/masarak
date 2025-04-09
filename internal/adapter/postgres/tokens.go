@@ -32,6 +32,16 @@ func (r *TokensRepository) GenerateToken(ctx context.Context, email string) (aut
 	return token, nil
 }
 
+func (r *TokensRepository) DeleteTokensByEmail(ctx context.Context, email string) error {
+	query := `
+	DELETE FROM tokens
+	WHERE email = $1`
+
+	_, err := r.db.ExecContext(ctx, query, email)
+
+	return err
+}
+
 // generateToken - generate a 26 byte random token.
 func generateToken() (authuser.Token, error) {
 	randomBytes := make([]byte, 16)

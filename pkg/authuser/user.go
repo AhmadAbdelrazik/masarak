@@ -41,7 +41,7 @@ func Instantiate(name, email string, passwordHash []byte, role string) *User {
 	return &User{
 		name:     name,
 		email:    email,
-		Password: &Password{hash: passwordHash},
+		Password: &Password{Hash: passwordHash},
 		role:     r,
 	}
 }

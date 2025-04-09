@@ -3,7 +3,9 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"strings"
 
+	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 )
 
@@ -71,7 +73,12 @@ func (r *AuthUserRepository) GetByToken(ctx context.Context, token authuser.Toke
 		&role,
 	)
 	if err != nil {
-		return nil, err
+		switch {
+		case strings.Contains(err.Error(), "no rows in result set"):
+			return nil, authuser.ErrUserNotFound
+		default:
+			return nil, err
+		}
 	}
 
 	user := authuser.Instantiate(name, email, passwordHash, role)
@@ -79,14 +86,53 @@ func (r *AuthUserRepository) GetByToken(ctx context.Context, token authuser.Toke
 	return user, nil
 }
 
+// Save - Gets the user by email, and pass it to the updateFn for updating
+// user using it's method. After updating the user object, it's saved in the
+// database with the condition that there was no updates since getting the
+// user in the beginning. Returns ErrEditConflict in case of collision
 func (r *AuthUserRepository) Save(ctx context.Context, email string, updateFn func(ctx context.Context, user *authuser.User) error) error {
-	u, err := r.GetByEmail(ctx, email)
+	query := `
+	SELECT name, password, role, version
+	FROM users
+	WHERE email = $1`
+
+	var name, role string
+	var passwordHash []byte
+
+	// version ensures that there would be no update collisions
+	var version int
+
+	err := r.db.QueryRowContext(ctx, query, email).Scan(
+		&name,
+		&passwordHash,
+		&role,
+		&version,
+	)
 	if err != nil {
 		return err
 	}
 
-	if err := updateFn(ctx, u); err != nil {
+	user := authuser.Instantiate(name, email, passwordHash, role)
+
+	if err := updateFn(ctx, user); err != nil {
 		return err
+	}
+
+	query = `
+	UPDATE users
+	SET name=$1, password=$2, role=$3, version = version + 1
+	WHERE email = $4 AND version = $5`
+
+	if _, err := r.db.ExecContext(
+		ctx,
+		query,
+		user.Name(),
+		user.Password.Hash(),
+		user.Role(),
+		user.Email(),
+		version,
+	); err != nil {
+		return app.ErrEditConflict
 	}
 
 	return nil
