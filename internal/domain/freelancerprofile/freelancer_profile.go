@@ -14,21 +14,25 @@ type FreelancerProfile struct {
 	skills            []string
 	yearsOfExperience int
 	hourlyRate        *money.Money
-	profileLink       string
 	resumeURL         string
 }
 
 var (
 	ErrSkillLimitReached        = errors.New("skill number must not be more than 10")
 	ErrInvalidYearsOfExperience = errors.New("invalid years of experience")
+	ErrInvalidHourlyRate        = errors.New("invalid hourly rate")
 )
 
+// New - Creates new Freelancer Profile. for creating freelancer profile from
+// database, use Instantiate instead. returns ErrSkillLimitReached if it
+// exceeds the limit. returns ErrInvalidYearsOfExperience for invalid YoE
 func New(
 	email, name, title, pictureURL string,
 	skills []string,
 	yearsOfExperience int,
-	hourlyRate *money.Money,
-	profileLink, resumeURL string,
+	hourlyRateAmount int,
+	hourlyRateCurrency string,
+	resumeURL string,
 ) (*FreelancerProfile, error) {
 	if len(skills) > 10 {
 		return nil, ErrSkillLimitReached
@@ -38,6 +42,16 @@ func New(
 		return nil, ErrInvalidYearsOfExperience
 	}
 
+	if hourlyRateAmount < 0 {
+		return nil, ErrInvalidHourlyRate
+	}
+
+	if hourlyRateCurrency != "EGP" && hourlyRateCurrency != "USD" {
+		return nil, ErrInvalidHourlyRate
+	}
+
+	hourlyRate := money.New(int64(hourlyRateAmount), hourlyRateCurrency)
+
 	return &FreelancerProfile{
 		email:             email,
 		name:              name,
@@ -46,18 +60,21 @@ func New(
 		skills:            skills,
 		yearsOfExperience: yearsOfExperience,
 		hourlyRate:        hourlyRate,
-		profileLink:       profileLink,
 		resumeURL:         resumeURL,
 	}, nil
 }
 
+// Instantiate - Create a freelancer profile from database.
 func Instantiate(
 	email, name, title, pictureURL string,
 	skills []string,
 	yearsOfExperience int,
-	hourlyRate *money.Money,
-	profileLink, resumeURL string,
+	hourlyRateAmount int,
+	hourlyRateCurrency string,
+	resumeURL string,
 ) *FreelancerProfile {
+	hourlyRate := money.New(int64(hourlyRateAmount), hourlyRateCurrency)
+
 	return &FreelancerProfile{
 		email:             email,
 		name:              name,
@@ -66,7 +83,6 @@ func Instantiate(
 		skills:            skills,
 		yearsOfExperience: yearsOfExperience,
 		hourlyRate:        hourlyRate,
-		profileLink:       profileLink,
 		resumeURL:         resumeURL,
 	}
 }
@@ -75,8 +91,12 @@ func (f *FreelancerProfile) Email() string {
 	return f.email
 }
 
-func (f *FreelancerProfile) ProfileLink() string {
-	return f.profileLink
+func (f *FreelancerProfile) Name() string {
+	return f.name
+}
+
+func (f *FreelancerProfile) Title() string {
+	return f.title
 }
 
 func (f *FreelancerProfile) PictureURL() string {
@@ -97,11 +117,6 @@ func (f *FreelancerProfile) HourlyRate() *money.Money {
 
 func (f *FreelancerProfile) ResumeURL() string {
 	return f.resumeURL
-}
-
-func (f *FreelancerProfile) UpdateProfileLink(profileLink string) error {
-	f.profileLink = profileLink
-	return nil
 }
 
 func (f *FreelancerProfile) UpdatePictureURL(pictureURL string) error {

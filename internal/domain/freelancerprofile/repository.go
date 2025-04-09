@@ -3,8 +3,6 @@ package freelancerprofile
 import (
 	"context"
 	"errors"
-
-	"github.com/Rhymond/go-money"
 )
 
 var (
@@ -17,10 +15,12 @@ type Repository interface {
 	// it in the database. returns ErrDuplicateProfile if it already exists
 	Create(
 		ctx context.Context,
-		name, email, pictureURL, title string,
+		email, name, title, pictureURL string,
 		skills []string,
 		yearsOfExperience int,
-		hourlyRate *money.Money,
+		hourlyRateAmount int,
+		hourlyRateCurrency string,
+		resumeURL string,
 	) (*FreelancerProfile, error)
 
 	// GetByEmail - Returns freelancer profile by email. returns

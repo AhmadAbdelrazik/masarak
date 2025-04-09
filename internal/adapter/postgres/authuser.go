@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"strings"
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
@@ -46,7 +47,12 @@ func (r *AuthUserRepository) GetByEmail(ctx context.Context, email string) (*aut
 		&role,
 	)
 	if err != nil {
-		return nil, err
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, authuser.ErrUserNotFound
+		default:
+			return nil, err
+		}
 	}
 
 	user := authuser.Instantiate(name, email, passwordHash, role)
