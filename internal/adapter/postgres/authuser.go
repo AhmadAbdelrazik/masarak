@@ -62,7 +62,9 @@ func (r *AuthUserRepository) GetByToken(ctx context.Context, token authuser.Toke
 	var name, email, role string
 	var passwordHash []byte
 
-	err := r.db.QueryRowContext(ctx, query, string(token)).Scan(
+	tokenHash := hashToken(token)
+
+	err := r.db.QueryRowContext(ctx, query, tokenHash).Scan(
 		&name,
 		&email,
 		&passwordHash,

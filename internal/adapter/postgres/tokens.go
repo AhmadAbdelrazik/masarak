@@ -46,6 +46,7 @@ func generateToken() (authuser.Token, error) {
 }
 
 // hashToken - return a 32 byte hash of the token to be stored in the database
-func hashToken(token authuser.Token) [32]byte {
-	return sha256.Sum256([]byte(token))
+func hashToken(token authuser.Token) []byte {
+	hash := sha256.Sum256([]byte(token))
+	return hash[:]
 }
