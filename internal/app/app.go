@@ -42,7 +42,8 @@ type Queries struct {
 }
 
 type Repositories struct {
-	AuthUsers          authuser.UserRepository
+	Users              authuser.UserRepository
+	Tokens             authuser.TokenRepository
 	Businesses         business.Repository
 	FreelancerProfile  freelancerprofile.Repository
 	ApplicationHistory applicationshistory.Repository

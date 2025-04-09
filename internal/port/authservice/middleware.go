@@ -9,6 +9,8 @@ import (
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 )
 
+// IsAuthenticated - Check if user is authenticated by validating the
+// session_id token in http request
 func (a *AuthService) IsAuthenticated(next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -43,6 +45,10 @@ func (a *AuthService) IsAuthenticated(next http.HandlerFunc) http.Handler {
 	})
 }
 
+// HasPermission - Check if authenticated user has the required permission to
+// access the resources. This acts as RBAC based permissions, you might use
+// another authorization layer for differentiating between users with the same
+// role
 func (a *AuthService) HasPermission(permission string, next http.HandlerFunc) http.Handler {
 	return a.IsAuthenticated(func(w http.ResponseWriter, r *http.Request) {
 		user, err := UserFromCtx(r.Context())

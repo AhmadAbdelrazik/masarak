@@ -14,12 +14,6 @@ type TokensRepository struct {
 	db *sql.DB
 }
 
-func NewTokenRepository(db *sql.DB) authuser.TokenRepository {
-	return &TokensRepository{
-		db: db,
-	}
-}
-
 func (r *TokensRepository) GenerateToken(ctx context.Context, email string) (authuser.Token, error) {
 	token, err := generateToken()
 	if err != nil {

@@ -11,7 +11,7 @@ type CreateUser struct {
 
 // CreateUserHandler - Creates a new user in the system. if the user already exists, ErrUserAlreadyExists will return. if any field fails validation check, ErrInvalidProperty will return.
 func (c *Commands) CreateUserHandler(ctx context.Context, cmd CreateUser) error {
-	err := c.repo.AuthUsers.Create(
+	err := c.repo.Users.Create(
 		ctx,
 		cmd.Name,
 		cmd.Email,

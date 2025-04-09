@@ -17,10 +17,10 @@ type AuthService struct {
 }
 
 func New(
-	tokenRepo authuser.TokenRepository,
-	userRepo authuser.UserRepository,
 	app *app.Application,
 	cfg *config.Config,
+	userRepo authuser.UserRepository,
+	tokenRepo authuser.TokenRepository,
 ) *AuthService {
 	if tokenRepo == nil {
 		panic("token repo not found")

@@ -8,8 +8,9 @@ import (
 	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 )
 
+// getTokenCookie - Generates a new cookie that contains the token session. the
+// newly created token will be stored in the database.
 func getTokenCookie(r *http.Request, email string, tokenRepo authuser.TokenRepository) (*http.Cookie, error) {
-
 	userToken, err := tokenRepo.GenerateToken(r.Context(), email)
 	if err != nil {
 		return nil, err

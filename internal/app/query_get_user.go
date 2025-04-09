@@ -6,7 +6,7 @@ import "context"
 // for login validation, use UserLogin instead. if the user is not found,
 // ErrUserNotFound is returned
 func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
-	user, err := q.repo.AuthUsers.GetByEmail(ctx, email)
+	user, err := q.repo.Users.GetByEmail(ctx, email)
 	if err != nil {
 		return User{}, err
 	}
