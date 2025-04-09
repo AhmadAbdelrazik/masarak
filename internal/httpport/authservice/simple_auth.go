@@ -7,6 +7,7 @@ import (
 	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
+	"github.com/ahmadabdelrazik/masarak/pkg/httputils"
 )
 
 func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +18,7 @@ func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 
-	if err := readJSON(w, r, &input); err != nil {
+	if err := httputils.ReadJSON(w, r, &input); err != nil {
 		httperr.BadRequestResponse(w, r, err)
 		return
 	}
@@ -56,7 +57,7 @@ func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
 	output.Email = input.Email
 
 	http.SetCookie(w, cookie)
-	if err := writeJSON(w, http.StatusCreated, envelope{"message": "registered successfully", "user": output}, nil); err != nil {
+	if err := httputils.WriteJSON(w, http.StatusCreated, httputils.Envelope{"message": "registered successfully", "user": output}, nil); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
 }
@@ -67,7 +68,7 @@ func (h *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 
-	if err := readJSON(w, r, &input); err != nil {
+	if err := httputils.ReadJSON(w, r, &input); err != nil {
 		httperr.BadRequestResponse(w, r, err)
 		return
 	}
@@ -90,10 +91,10 @@ func (h *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, cookie)
-	if err := writeJSON(
+	if err := httputils.WriteJSON(
 		w,
 		http.StatusOK,
-		envelope{"message": "logged in successfully", "user": user},
+		httputils.Envelope{"message": "logged in successfully", "user": user},
 		nil,
 	); err != nil {
 		httperr.ServerErrorResponse(w, r, err)

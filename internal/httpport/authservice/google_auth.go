@@ -11,6 +11,7 @@ import (
 	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
+	"github.com/ahmadabdelrazik/masarak/pkg/httputils"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -41,8 +42,10 @@ func newGoogleOAuthService(
 		RedirectURL:  "http://localhost:8080/google_callback",
 		ClientID:     cfg.GoogleClientID,
 		ClientSecret: cfg.GoogleClientSecret,
-		Scopes: []string{"https://www.googleapis.com/auth/userinfo.email",
-			"https://www.googleapis.com/auth/userinfo.profile"},
+		Scopes: []string{
+			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
+		},
 		Endpoint: google.Endpoint,
 	}
 
@@ -138,7 +141,7 @@ func (a *GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Reques
 	output.Email = input.Email
 
 	http.SetCookie(w, cookie)
-	if err := writeJSON(w, http.StatusCreated, envelope{"message": "logged in successfully", "user": output}, nil); err != nil {
+	if err := httputils.WriteJSON(w, http.StatusCreated, httputils.Envelope{"message": "logged in successfully", "user": output}, nil); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
 }
