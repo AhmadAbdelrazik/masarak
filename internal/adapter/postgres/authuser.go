@@ -52,6 +52,31 @@ func (r *AuthUserRepository) GetByEmail(ctx context.Context, email string) (*aut
 	return user, nil
 }
 
+func (r *AuthUserRepository) GetByToken(ctx context.Context, token authuser.Token) (*authuser.User, error) {
+	query := `
+	SELECT name, users.email, password, role
+	FROM users
+	JOIN tokens ON tokens.email = users.email
+	WHERE tokens.token = $1`
+
+	var name, email, role string
+	var passwordHash []byte
+
+	err := r.db.QueryRowContext(ctx, query, string(token)).Scan(
+		&name,
+		&email,
+		&passwordHash,
+		&role,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	user := authuser.Instantiate(name, email, passwordHash, role)
+
+	return user, nil
+}
+
 func (r *AuthUserRepository) Save(ctx context.Context, email string, updateFn func(ctx context.Context, user *authuser.User) error) error {
 	u, err := r.GetByEmail(ctx, email)
 	if err != nil {
