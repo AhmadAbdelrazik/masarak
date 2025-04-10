@@ -27,10 +27,10 @@ type Repository interface {
 	// ErrProfileNotFound if it doesn't exist
 	GetByEmail(ctx context.Context, email string) (*FreelancerProfile, error)
 
-	// Save - Returns a freelancer profile by email for editing. the
+	// Update - Returns a freelancer profile by email for editing. the
 	// fetched profile would be available in the updateFn for updating it
 	// based on the domain logic. after that it will be saved.
-	Save(
+	Update(
 		ctx context.Context,
 		email string,
 		updateFn func(ctx context.Context, profile *FreelancerProfile) error,

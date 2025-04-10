@@ -107,7 +107,7 @@ func (a *GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if _, err := a.app.Queries.GetUser(context.Background(), input.Email); err != nil {
+	if _, err := a.app.Queries.GetUserHandler(context.Background(), app.GetUser{Email: input.Email}); err != nil {
 		switch {
 		case errors.Is(err, authuser.ErrUserNotFound):
 			cmd := app.CreateUser{

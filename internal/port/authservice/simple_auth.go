@@ -73,7 +73,7 @@ func (h *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.app.Queries.UserLogin(r.Context(), input.Email, input.Password)
+	user, err := h.app.Queries.UserLogin(r.Context(), app.UserLogin(input))
 	if err != nil {
 		switch {
 		case errors.Is(err, authuser.ErrUserNotFound), errors.Is(err, app.ErrInvalidPassword):

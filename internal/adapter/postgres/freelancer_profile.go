@@ -116,7 +116,7 @@ func (r *FreelancerProfileRepository) GetByEmail(ctx context.Context, email stri
 	return profile, nil
 }
 
-func (r *FreelancerProfileRepository) Save(
+func (r *FreelancerProfileRepository) Update(
 	ctx context.Context,
 	email string,
 	updateFn func(ctx context.Context, profile *freelancerprofile.FreelancerProfile) error,
