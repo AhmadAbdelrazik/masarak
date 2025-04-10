@@ -9,7 +9,8 @@ var (
 	ErrInvalidPassword = errors.New("invalid password")
 )
 
-// UserLogin - Get user for login purposes. this method validates password before returning the User.
+// UserLogin - Get user for login purposes. this method validates password
+// before returning the User.
 func (q *Queries) UserLogin(ctx context.Context, email, password string) (User, error) {
 	user, err := q.repo.Users.GetByEmail(ctx, email)
 	if err != nil {
