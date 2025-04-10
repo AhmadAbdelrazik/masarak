@@ -119,6 +119,15 @@ func (f *FreelancerProfile) ResumeURL() string {
 	return f.resumeURL
 }
 
+func (f *FreelancerProfile) UpdateName(name string) error {
+	f.name = name
+	return nil
+}
+func (f *FreelancerProfile) UpdateTitle(title string) error {
+	f.title = title
+	return nil
+}
+
 func (f *FreelancerProfile) UpdatePictureURL(pictureURL string) error {
 	f.pictureURL = pictureURL
 	return nil

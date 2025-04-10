@@ -12,7 +12,8 @@ func New(dsn string) (*app.Repositories, error) {
 		return nil, err
 	}
 	return &app.Repositories{
-		Users:  &AuthUserRepository{db},
-		Tokens: &TokensRepository{db},
+		Users:             &AuthUserRepository{db},
+		Tokens:            &TokensRepository{db},
+		FreelancerProfile: &FreelancerProfileRepository{db},
 	}, nil
 }

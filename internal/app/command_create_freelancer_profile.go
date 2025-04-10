@@ -1,8 +1,13 @@
 package app
 
-import "context"
+import (
+	"context"
+
+	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
+)
 
 type CreateFreelancerProfile struct {
+	User               authuser.User
 	Email              string
 	Name               string
 	Title              string
@@ -15,6 +20,12 @@ type CreateFreelancerProfile struct {
 }
 
 func (c *Commands) CreateFreelancerProfileHandler(ctx context.Context, cmd CreateFreelancerProfile) error {
+	if !cmd.User.HasPermission("freelancer_profile.create") {
+		return ErrUnauthorized
+	} else if cmd.User.Email() != cmd.Email {
+		return ErrUnauthorized
+	}
+
 	_, err := c.repo.FreelancerProfile.Create(
 		ctx,
 		cmd.Name,

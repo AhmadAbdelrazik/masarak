@@ -1,19 +1,21 @@
 package app
 
-import "context"
+import (
+	"context"
+)
 
-// GetUser - Returns a user from the database using email. This is not used
+type GetUser struct {
+	Email string
+}
+
+// GetUserHandler - Returns a user from the database using email. This is not used
 // for login validation, use UserLogin instead. if the user is not found,
 // ErrUserNotFound is returned
-func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
-	user, err := q.repo.Users.GetByEmail(ctx, email)
+func (q *Queries) GetUserHandler(ctx context.Context, cmd GetUser) (User, error) {
+	user, err := q.repo.Users.GetByEmail(ctx, cmd.Email)
 	if err != nil {
 		return User{}, err
 	}
 
-	return User{
-		Name:  user.Name(),
-		Email: user.Email(),
-		Role:  user.Role(),
-	}, nil
+	return toUserDTO(user), nil
 }

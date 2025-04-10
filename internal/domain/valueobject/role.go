@@ -31,56 +31,56 @@ var (
 	roleFreelancer = Role{
 		role: "freelancer",
 		permissions: []string{
-			"create:freelancer_profile",
-			"read:freelancer_profile",
-			"update:freelancer_profile",
-			"delete:freelancer_profile",
+			"freelancer_profile.create",
+			"freelancer_profile.read",
+			"freelancer_profile.update",
+			"freelancer_profile.delete",
 
-			"create:resume",
-			"read:resume",
-			"update:resume",
-			"delete:resume",
+			"resume.create",
+			"resume.read",
+			"resume.update",
+			"resume.delete",
 
-			"create:application",
-			"read:application",
-			"update:application",
-			"delete:application",
+			"application.create",
+			"application.read",
+			"application.update",
+			"application.delete",
 
-			"read:job",
+			"job.read",
 
-			"read:application_history",
+			"application_history.read",
 		},
 	}
 	roleBusinessOwner = Role{
 		role: "business_owner",
 		permissions: []string{
-			"create:business",
-			"read:business",
-			"update:business",
-			"delete:business",
+			"business.create",
+			"business.read",
+			"business.update",
+			"business.delete",
 
-			"create:job",
-			"read:job",
-			"update:job",
-			"delete:job",
+			"job.create",
+			"job.read",
+			"job.update",
+			"job.delete",
 
-			"read:application",
-			"update:application",
+			"application.read",
+			"application.update",
 		},
 	}
 	roleBusinessEmployee = Role{
 		role: "business_employee",
 		permissions: []string{
-			"read:business",
-			"update:business",
+			"read.business",
+			"update.business",
 
-			"create:job",
-			"read:job",
-			"update:job",
-			"delete:job",
+			"job.create",
+			"job.read",
+			"job.update",
+			"job.delete",
 
-			"read:application",
-			"update:application",
+			"application.read",
+			"application.update",
 		},
 	}
 
