@@ -33,6 +33,7 @@ func NewHttpServer(
 	}
 }
 
-func userFromCtx(ctx context.Context) (*authuser.User, error) {
+// getUser fetch user from http.Request's context
+func getUser(ctx context.Context) (*authuser.User, error) {
 	return authservice.UserFromCtx(ctx)
 }

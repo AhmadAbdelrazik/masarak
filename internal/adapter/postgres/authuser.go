@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
@@ -25,7 +26,12 @@ func (r *AuthUserRepository) Create(ctx context.Context, name, email, passwordTe
 
 	_, err := r.db.ExecContext(ctx, query, email, name, passwordText, role)
 	if err != nil {
-		return err
+		switch {
+		case strings.Contains(err.Error(), "duplicate key"):
+			return authuser.ErrUserAlreadyExists
+		default:
+			return err
+		}
 	}
 
 	return nil

@@ -36,7 +36,10 @@ func New(name, email, passwordText, role string) (*User, error) {
 
 // Instantiate - Construct user from database.
 func Instantiate(name, email string, passwordHash []byte, role string) *User {
-	r, _ := valueobject.NewRole(role)
+	r, err := valueobject.NewRole(role)
+	if err != nil {
+		panic(err)
+	}
 
 	return &User{
 		name:     name,

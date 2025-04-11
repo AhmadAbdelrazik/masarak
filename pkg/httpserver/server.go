@@ -45,7 +45,7 @@ func Serve(routes http.Handler, cfg *config.Config) error {
 		shutdownerr <- nil
 	}()
 
-	log.Info().Str("Addr", srv.Addr).Str("env", cfg.Enviroment).Msg("Shutting down the server")
+	log.Info().Str("Addr", srv.Addr).Str("env", cfg.Enviroment).Msg("running down the server")
 
 	err := srv.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {

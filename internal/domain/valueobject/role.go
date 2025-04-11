@@ -25,8 +25,10 @@ func (r *Role) Role() string {
 
 var (
 	roleUser Role = Role{
-		role:        "user",
-		permissions: []string{},
+		role: "user",
+		permissions: []string{
+			"role.select",
+		},
 	}
 	roleFreelancer = Role{
 		role: "freelancer",
@@ -52,7 +54,7 @@ var (
 		},
 	}
 	roleBusinessOwner = Role{
-		role: "business_owner",
+		role: "owner",
 		permissions: []string{
 			"business.create",
 			"business.read",
@@ -69,7 +71,7 @@ var (
 		},
 	}
 	roleBusinessEmployee = Role{
-		role: "business_employee",
+		role: "employee",
 		permissions: []string{
 			"read.business",
 			"update.business",
