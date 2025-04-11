@@ -1,6 +1,8 @@
 package port
 
 import (
+	"context"
+
 	"github.com/ahmadabdelrazik/masarak/config"
 	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/internal/port/authservice"
@@ -29,4 +31,8 @@ func NewHttpServer(
 		auth:     authService,
 		userRepo: userRepo,
 	}
+}
+
+func userFromCtx(ctx context.Context) (*authuser.User, error) {
+	return authservice.UserFromCtx(ctx)
 }

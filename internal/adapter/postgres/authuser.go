@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"strings"
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
@@ -80,7 +79,7 @@ func (r *AuthUserRepository) GetByToken(ctx context.Context, token authuser.Toke
 	)
 	if err != nil {
 		switch {
-		case strings.Contains(err.Error(), "no rows in result set"):
+		case errors.Is(err, sql.ErrNoRows):
 			return nil, authuser.ErrUserNotFound
 		default:
 			return nil, err
@@ -92,11 +91,12 @@ func (r *AuthUserRepository) GetByToken(ctx context.Context, token authuser.Toke
 	return user, nil
 }
 
-// Save - Gets the user by email, and pass it to the updateFn for updating
+// Update - Gets the user by email, and pass it to the updateFn for updating
 // user using it's method. After updating the user object, it's saved in the
 // database with the condition that there was no updates since getting the
-// user in the beginning. Returns ErrEditConflict in case of collision
-func (r *AuthUserRepository) Save(ctx context.Context, email string, updateFn func(ctx context.Context, user *authuser.User) error) error {
+// user in the beginning. Returns ErrEditConflict in case of collision or
+// ErrUserNotFound
+func (r *AuthUserRepository) Update(ctx context.Context, email string, updateFn func(ctx context.Context, user *authuser.User) error) error {
 	query := `
 	SELECT name, password, role, version
 	FROM users
@@ -115,7 +115,12 @@ func (r *AuthUserRepository) Save(ctx context.Context, email string, updateFn fu
 		&version,
 	)
 	if err != nil {
-		return err
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return authuser.ErrUserNotFound
+		default:
+			return err
+		}
 	}
 
 	user := authuser.Instantiate(name, email, passwordHash, role)

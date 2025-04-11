@@ -25,10 +25,10 @@ type UserRepository interface {
 	// ErrUserNotFound if the user doesn't exist
 	GetByToken(ctx context.Context, token Token) (*User, error)
 
-	// Save - Save changes to a user (name, password, or role
+	// Update - Update changes to a user (name, password, or role
 	// change). returns ErrUserNotFound if user doesn't exist or a
 	// generic error.
-	Save(
+	Update(
 		ctx context.Context,
 		email string,
 		updateFn func(ctx context.Context, user *User) error,

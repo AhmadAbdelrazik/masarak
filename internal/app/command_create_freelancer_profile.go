@@ -7,7 +7,7 @@ import (
 )
 
 type CreateFreelancerProfile struct {
-	User               authuser.User
+	User               *authuser.User
 	Email              string
 	Name               string
 	Title              string
