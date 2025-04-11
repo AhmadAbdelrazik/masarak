@@ -45,8 +45,8 @@ func (r *FreelancerProfileRepository) Create(
 	query := `
 	INSERT INTO freelancer_profiles(email, name, title, picture_url,
 	skills, years_of_experience, hourly_rate_currency, hourly_rate_amount,
-	profile_link, resume_url)
-	VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+	resume_url)
+	VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 
 	if _, err := r.db.ExecContext(
 		ctx,
@@ -59,6 +59,7 @@ func (r *FreelancerProfileRepository) Create(
 		yearsOfExperience,
 		hourlyRateCurrency,
 		hourlyRateAmount,
+		resumeURL,
 	); err != nil {
 		switch {
 		case strings.Contains(err.Error(), "duplicate key"):

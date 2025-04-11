@@ -7,6 +7,9 @@ import (
 func (h *HttpServer) Routes() http.Handler {
 	mux := http.NewServeMux()
 
+	fs := http.FileServer(http.Dir("./uploads"))
+	mux.Handle("/static/", http.StripPrefix("/static/", fs))
+
 	mux.HandleFunc("GET /v1/google_login", h.auth.Google.GoogleLogin)
 	mux.HandleFunc("POST /v1/google_callback", h.auth.Google.GoogleCallback)
 	mux.HandleFunc("GET /v1/google_callback", h.auth.Google.GoogleCallback)
@@ -18,6 +21,8 @@ func (h *HttpServer) Routes() http.Handler {
 
 	mux.HandleFunc("GET /v1/health", h.HealthCheck)
 	mux.Handle("GET /v1/auth_health", h.auth.IsAuthenticated(h.HealthCheck))
+
+	mux.Handle("POST /v1/freelancer_profile", h.auth.IsAuthenticated(h.CreateFreelancerProfileHandler))
 
 	return mux
 }

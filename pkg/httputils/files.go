@@ -71,7 +71,7 @@ func SaveFile(r *http.Request, key, path string, acceptedMIMETypes ...string) (s
 		return "", err
 	}
 
-	fullPath := filepath.Join(path, fmt.Sprintf("%v.%v", fileName, ext))
+	fullPath := filepath.Join(path, fmt.Sprintf("%v%v", fileName, ext))
 
 	dst, err := os.Create(fullPath)
 	if err != nil {

@@ -28,8 +28,8 @@ func (c *Commands) CreateFreelancerProfileHandler(ctx context.Context, cmd Creat
 
 	_, err := c.repo.FreelancerProfile.Create(
 		ctx,
-		cmd.Name,
 		cmd.Email,
+		cmd.Name,
 		cmd.Title,
 		cmd.PictureURL,
 		cmd.Skills,
