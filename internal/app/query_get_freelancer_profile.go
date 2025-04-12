@@ -7,7 +7,7 @@ import (
 )
 
 type GetFreelancerProfile struct {
-	User  authuser.User
+	User  *authuser.User
 	Email string
 }
 

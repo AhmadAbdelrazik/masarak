@@ -2,6 +2,7 @@ package port
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -94,4 +95,36 @@ func (h *HttpServer) CreateFreelancerProfileHandler(w http.ResponseWriter, r *ht
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
+}
+
+func (h *HttpServer) GetFreelancerProfile(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	email := r.Form.Get("email")
+
+	user, err := getUser(r.Context())
+	if err != nil {
+		httperr.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	cmd := app.GetFreelancerProfile{
+		User:  user,
+		Email: email,
+	}
+
+	profile, err := h.app.Queries.GetFreelancerProfileHandler(r.Context(), cmd)
+	if err != nil {
+		switch {
+		case errors.Is(err, freelancerprofile.ErrProfileNotFound):
+			httperr.NotFoundResponse(w, r)
+		default:
+			httperr.ServerErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	profile.ResumeURL = fmt.Sprintf("http://%v/%v", h.cfg.HostURL, profile.ResumeURL)
+	profile.PictureURL = fmt.Sprintf("http://%v/%v", h.cfg.HostURL, profile.PictureURL)
+
+	httputils.WriteJSON(w, http.StatusOK, httputils.Envelope{"profile": profile}, nil)
 }
