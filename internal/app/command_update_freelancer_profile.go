@@ -9,7 +9,7 @@ import (
 )
 
 type UpdateFreelancerProfile struct {
-	User               authuser.User
+	User               *authuser.User
 	Name               *string
 	Title              *string
 	PictureURL         *string

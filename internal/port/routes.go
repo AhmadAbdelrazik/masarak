@@ -17,17 +17,18 @@ func (h *HttpServer) Routes() http.Handler {
 	mux.HandleFunc("POST /v1/login", h.auth.Login)
 	mux.HandleFunc("POST /v1/signup", h.auth.Signup)
 	mux.Handle("GET /v1/logout", h.auth.IsAuthenticated(h.auth.Logout))
-	mux.Handle("POST /v1/select_role", h.auth.IsAuthenticated(h.SelectRole))
+	mux.Handle("POST /v1/select_role", h.auth.IsAuthenticated(h.selectRole))
 
-	mux.HandleFunc("GET /v1/health", h.HealthCheck)
-	mux.Handle("GET /v1/auth_health", h.auth.IsAuthenticated(h.HealthCheck))
+	mux.HandleFunc("GET /v1/health", h.healthCheck)
+	mux.Handle("GET /v1/auth_health", h.auth.IsAuthenticated(h.healthCheck))
 
-	mux.Handle("POST /v1/freelancer_profiles", h.auth.IsAuthenticated(h.CreateFreelancerProfileHandler))
-	mux.Handle("GET /v1/freelancer_profiles", h.auth.IsAuthenticated(h.GetFreelancerProfile))
+	mux.Handle("POST /v1/freelancer_profiles", h.auth.IsAuthenticated(h.createFreelancerProfileHandler))
+	mux.Handle("GET /v1/freelancer_profiles", h.auth.IsAuthenticated(h.getFreelancerProfile))
+	mux.Handle("PATCH /v1/freelancer_profiles", h.auth.IsAuthenticated(h.updateFreelancerProfile))
 
 	return mux
 }
 
-func (h *HttpServer) HealthCheck(w http.ResponseWriter, r *http.Request) {
+func (h *HttpServer) healthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Healthy\n"))
 }

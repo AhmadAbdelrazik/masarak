@@ -11,7 +11,7 @@ import (
 	"github.com/ahmadabdelrazik/masarak/pkg/httputils"
 )
 
-func (h *HttpServer) SelectRole(w http.ResponseWriter, r *http.Request) {
+func (h *HttpServer) selectRole(w http.ResponseWriter, r *http.Request) {
 	user, err := getUser(r.Context())
 	if err != nil {
 		httperr.UnauthorizedResponse(w, r)

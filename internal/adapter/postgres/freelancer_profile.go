@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
@@ -172,8 +173,8 @@ func (r *FreelancerProfileRepository) Update(
 	UPDATE freelancer_profiles
 	SET name=$1, title=$2, picture_url=$3, skills=$4,
 	years_of_experience=$5, hourly_rate_currency=$6,
-	hourly_rate_amount=&7, resume_url=&8, version=version + 1
-	WHERE email = &9`
+	hourly_rate_amount=$7, resume_url=$8, version=version + 1
+	WHERE email = $9`
 
 	if _, err := r.db.ExecContext(
 		ctx,
@@ -188,6 +189,7 @@ func (r *FreelancerProfileRepository) Update(
 		profile.ResumeURL(),
 		email,
 	); err != nil {
+		fmt.Printf("err: %v\n", err)
 		return app.ErrEditConflict
 	}
 
