@@ -9,6 +9,7 @@ import (
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/internal/domain/freelancerprofile"
+	"github.com/ahmadabdelrazik/masarak/pkg/filters"
 	"github.com/lib/pq"
 )
 
@@ -49,9 +50,7 @@ func (r *FreelancerProfileRepository) Create(
 	resume_url)
 	VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 
-	if _, err := r.db.ExecContext(
-		ctx,
-		query,
+	args := []interface{}{
 		email,
 		name,
 		title,
@@ -61,7 +60,9 @@ func (r *FreelancerProfileRepository) Create(
 		hourlyRateCurrency,
 		hourlyRateAmount,
 		resumeURL,
-	); err != nil {
+	}
+
+	if _, err := r.db.ExecContext(ctx, query, args...); err != nil {
 		switch {
 		case strings.Contains(err.Error(), "duplicate key"):
 			return nil, freelancerprofile.ErrDuplicateProfile
@@ -176,9 +177,7 @@ func (r *FreelancerProfileRepository) Update(
 	hourly_rate_amount=$7, resume_url=$8, version=version + 1
 	WHERE email = $9`
 
-	if _, err := r.db.ExecContext(
-		ctx,
-		query,
+	args := []interface{}{
 		profile.Name(),
 		profile.Title(),
 		profile.PictureURL(),
@@ -188,10 +187,97 @@ func (r *FreelancerProfileRepository) Update(
 		int(profile.HourlyRate().Amount()),
 		profile.ResumeURL(),
 		email,
-	); err != nil {
+	}
+
+	if _, err := r.db.ExecContext(ctx, query, args); err != nil {
 		fmt.Printf("err: %v\n", err)
 		return app.ErrEditConflict
 	}
 
 	return nil
+}
+
+func (r *FreelancerProfileRepository) Search(
+	ctx context.Context,
+	name, title string,
+	skills []string,
+	yearsOfExperience int,
+	hourlyRateAmount int,
+	hourlyRateCurrency string,
+	filters filters.Filter,
+) ([]freelancerprofile.FreelancerProfile, error) {
+	query := fmt.Sprintf(`
+	SELECT COUNT(*) OVER(), email, name, title, picture_url, skills, years_of_experience,
+	hourly_rate_currency, hourly_rate_amount, resume_url
+	FROM freelancer_profiles
+	WHERE (to_tsvector('simple', name) @@ plainto_tsquery('simple', $1) OR $1 = '')
+	AND (to_tsvector('simple', title) @@ plainto_tsquery('simple', $2) OR $2 = '')
+	AND (skills @> $3 OR $3 = '{}')
+	AND (to_tsvector('simple', hourly_rate_currency) @@ plainto_tsquery('simple', $4) OR $4 = '')
+	AND (years_of_experience = $5 OR $5 = -1)
+	AND (hourly_rate_amount = $6 OR $6 = -1)
+	ORDER BY %s %s, email ASC
+	LIMIT $7 OFFSET $8`, filters.SortColumn(), filters.SortDirection())
+
+	args := []interface{}{
+		name,
+		title,
+		pq.Array(skills),
+		hourlyRateCurrency,
+		yearsOfExperience,
+		hourlyRateAmount,
+		filters.Limit(),
+		filters.Offset(),
+	}
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var profiles []freelancerprofile.FreelancerProfile
+	numberOfRows := 0
+
+	for rows.Next() {
+		var email, name, title, pictureURL string
+		var skills []string
+		var yearsOfExperience, hourlyRateAmount int
+		var hourlyRateCurrency, resumeURL string
+
+		if err := rows.Scan(
+			&numberOfRows,
+			&email,
+			&name,
+			&title,
+			&pictureURL,
+			pq.Array(&skills),
+			&yearsOfExperience,
+			&hourlyRateCurrency,
+			&hourlyRateAmount,
+			&resumeURL,
+		); err != nil {
+			return nil, err
+		}
+
+		profile := freelancerprofile.Instantiate(
+			email,
+			name,
+			title,
+			pictureURL,
+			skills,
+			yearsOfExperience,
+			hourlyRateAmount,
+			hourlyRateCurrency,
+			resumeURL,
+		)
+
+		profiles = append(profiles, *profile)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return profiles, nil
 }

@@ -3,6 +3,8 @@ package freelancerprofile
 import (
 	"context"
 	"errors"
+
+	"github.com/ahmadabdelrazik/masarak/pkg/filters"
 )
 
 var (
@@ -26,6 +28,20 @@ type Repository interface {
 	// GetByEmail - Returns freelancer profile by email. returns
 	// ErrProfileNotFound if it doesn't exist
 	GetByEmail(ctx context.Context, email string) (*FreelancerProfile, error)
+
+	// Search finds freelancer profiles matching the search criteria. the
+	// nil value for any parameter means to select all except the numerical
+	// parameters (yearsOfExperience and hourlyRateAmount) with default
+	// value of -1.
+	Search(
+		ctx context.Context,
+		name, title string,
+		skills []string,
+		yearsOfExperience int,
+		hourlyRateAmount int,
+		hourlyRateCurrency string,
+		filters filters.Filter,
+	) ([]FreelancerProfile, error)
 
 	// Update - Returns a freelancer profile by email for editing. the
 	// fetched profile would be available in the updateFn for updating it
