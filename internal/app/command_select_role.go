@@ -7,9 +7,9 @@ import (
 )
 
 type SelectRole struct {
-	User  *authuser.User
-	Email string
-	Role  string
+	User *authuser.User
+	ID   int
+	Role string
 }
 
 // SelectRoleHandler - Selects a role for a user. Notice that this action is
@@ -20,7 +20,7 @@ func (c *Commands) SelectRoleHandler(ctx context.Context, cmd SelectRole) error 
 		return ErrUnauthorized
 	}
 
-	err := c.repo.Users.Update(ctx, cmd.Email, func(ctx context.Context, user *authuser.User) error {
+	err := c.repo.Users.Update(ctx, cmd.ID, func(ctx context.Context, user *authuser.User) error {
 		err := user.UpdateRole(cmd.Role)
 
 		return err

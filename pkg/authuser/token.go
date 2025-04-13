@@ -7,9 +7,9 @@ type Token string
 type TokenRepository interface {
 	// GenerateToken - Generate token for the user and save it in the
 	// database.
-	GenerateToken(ctx context.Context, email string) (Token, error)
+	GenerateToken(ctx context.Context, id int) (Token, error)
 
-	// DeleteTokensByEmail - Delete all tokens related to email, used for
+	// DeleteTokensByID - Delete all tokens related to an id, used for
 	// logging out
-	DeleteTokensByEmail(ctx context.Context, email string) error
+	DeleteTokensByID(ctx context.Context, id int) error
 }

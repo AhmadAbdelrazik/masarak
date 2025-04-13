@@ -11,9 +11,15 @@ func New(dsn string) (*app.Repositories, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	token := &TokensRepository{
+		memory: make(map[[32]byte]int),
+		db:     db,
+	}
+
 	return &app.Repositories{
-		Users:             &AuthUserRepository{db},
-		Tokens:            &TokensRepository{db},
+		Users:             &AuthUserRepository{db, token},
+		Tokens:            token,
 		FreelancerProfile: &FreelancerProfileRepository{db},
 	}, nil
 }

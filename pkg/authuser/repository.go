@@ -15,11 +15,18 @@ var (
 type UserRepository interface {
 	// Create - creates a new user and save it to the database.
 	// returns ErrUserAlreadyExists if email is already used
-	Create(ctx context.Context, name, email, passwordText, role string) error
+	Create(ctx context.Context, username, email, name, passwordText, role string) (*User, error)
 
 	// GetByEmail - returns a user by the email. returns
 	// ErrUserNotFound if the user doesn't exist
 	GetByEmail(ctx context.Context, email string) (*User, error)
+
+	// GetByUsername - returns a user by Username. returns
+	// ErrUserNotFound if the user doesn't exist
+	GetByUsername(ctx context.Context, username string) (*User, error)
+	// GetByID - returns a user by the id. returns
+	// ErrUserNotFound if the user doesn't exist
+	GetByID(ctx context.Context, id int) (*User, error)
 
 	// GetByEmail - returns a user by the token. returns
 	// ErrUserNotFound if the user doesn't exist
@@ -30,7 +37,7 @@ type UserRepository interface {
 	// generic error.
 	Update(
 		ctx context.Context,
-		email string,
+		id int,
 		updateFn func(ctx context.Context, user *User) error,
 	) error
 }

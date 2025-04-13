@@ -6,40 +6,44 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/base32"
+	"sync"
 
 	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 )
 
 type TokensRepository struct {
-	db *sql.DB
+	db     *sql.DB
+	memory map[[32]byte]int
+
+	sync.Mutex
 }
 
-func (r *TokensRepository) GenerateToken(ctx context.Context, email string) (authuser.Token, error) {
+func (r *TokensRepository) GenerateToken(ctx context.Context, id int) (authuser.Token, error) {
 	token, err := generateToken()
 	if err != nil {
 		return authuser.Token(""), err
 	}
 	hash := hashToken(token)
 
-	query := `
-	INSERT INTO tokens(token, email)
-	VALUES ($1, $2)`
+	r.Lock()
+	defer r.Unlock()
 
-	if _, err := r.db.ExecContext(ctx, query, hash, email); err != nil {
-		return authuser.Token(""), err
-	}
+	r.memory[[32]byte(hash)] = id
 
 	return token, nil
 }
 
-func (r *TokensRepository) DeleteTokensByEmail(ctx context.Context, email string) error {
-	query := `
-	DELETE FROM tokens
-	WHERE email = $1`
+func (r *TokensRepository) DeleteTokensByID(ctx context.Context, id int) error {
+	r.Lock()
+	defer r.Unlock()
 
-	_, err := r.db.ExecContext(ctx, query, email)
+	for hash, userID := range r.memory {
+		if id == userID {
+			delete(r.memory, hash)
+		}
+	}
 
-	return err
+	return nil
 }
 
 // generateToken - generate a 26 byte random token.

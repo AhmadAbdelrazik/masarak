@@ -23,9 +23,9 @@ func (h *HttpServer) Routes() http.Handler {
 	mux.Handle("GET /v1/auth_health", h.auth.IsAuthenticated(h.healthCheck))
 
 	mux.Handle("POST /v1/freelancer_profiles", h.auth.IsAuthenticated(h.createFreelancerProfileHandler))
-	mux.Handle("GET /v1/freelancer_profiles", h.auth.IsAuthenticated(h.getFreelancerProfile))
+	mux.HandleFunc("GET /v1/freelancer_profiles/{username}", h.getFreelancerProfile)
 	mux.HandleFunc("GET /v1/freelancer_profiles/search", h.searchFreelancerProfiles)
-	mux.Handle("PATCH /v1/freelancer_profiles", h.auth.IsAuthenticated(h.updateFreelancerProfile))
+	mux.Handle("PATCH /v1/freelancer_profiles/{username}", h.auth.IsAuthenticated(h.updateFreelancerProfile))
 
 	return mux
 }

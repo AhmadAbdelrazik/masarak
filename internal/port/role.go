@@ -28,9 +28,9 @@ func (h *HttpServer) selectRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cmd := app.SelectRole{
-		User:  user,
-		Email: user.Email(),
-		Role:  input.Role,
+		User: user,
+		ID:   user.ID(),
+		Role: input.Role,
 	}
 
 	if err := h.app.Commands.SelectRoleHandler(r.Context(), cmd); err != nil {

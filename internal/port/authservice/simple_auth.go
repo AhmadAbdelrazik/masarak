@@ -2,6 +2,7 @@ package authservice
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
@@ -13,8 +14,9 @@ import (
 func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
 	// provide sign up credentials
 	var input struct {
-		Name     string `json:"name"`
+		Username string `json:"username"`
 		Email    string `json:"email"`
+		Name     string `json:"name"`
 		Password string `json:"password"`
 	}
 
@@ -24,13 +26,15 @@ func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cmd := app.CreateUser{
-		Name:     input.Name,
+		Username: input.Username,
 		Email:    input.Email,
+		Name:     input.Name,
 		Password: input.Password,
 		Role:     "user",
 	}
 
-	if err := h.app.Commands.CreateUserHandler(r.Context(), cmd); err != nil {
+	user, err := h.app.Commands.CreateUserHandler(r.Context(), cmd)
+	if err != nil {
 		switch {
 		case errors.Is(err, authuser.ErrUserAlreadyExists):
 			httperr.ErrorResponse(w, r, http.StatusConflict, "user already exists")
@@ -42,22 +46,14 @@ func (h *AuthService) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := getTokenCookie(r, input.Email, h.tokenRepo)
+	cookie, err := getTokenCookie(r, user.ID, h.tokenRepo)
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 		return
 	}
 
-	var output struct {
-		Name  string `json:"name"`
-		Email string `json:"email"`
-	}
-
-	output.Name = input.Name
-	output.Email = input.Email
-
 	http.SetCookie(w, cookie)
-	if err := httputils.WriteJSON(w, http.StatusCreated, httputils.Envelope{"message": "registered successfully", "user": output}, nil); err != nil {
+	if err := httputils.WriteJSON(w, http.StatusCreated, httputils.Envelope{"message": "registered successfully", "user": user}, nil); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
 }
@@ -73,7 +69,14 @@ func (h *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.app.Queries.UserLogin(r.Context(), app.UserLogin(input))
+	cmd := app.UserLogin{
+		Email:    input.Email,
+		Password: input.Password,
+	}
+
+	fmt.Printf("cmd: %v\n", cmd)
+
+	user, err := h.app.Queries.UserLogin(r.Context(), cmd)
 	if err != nil {
 		switch {
 		case errors.Is(err, authuser.ErrUserNotFound), errors.Is(err, app.ErrInvalidPassword):
@@ -84,7 +87,7 @@ func (h *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := getTokenCookie(r, input.Email, h.tokenRepo)
+	cookie, err := getTokenCookie(r, user.ID, h.tokenRepo)
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 		return
@@ -109,7 +112,7 @@ func (h *AuthService) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.tokenRepo.DeleteTokensByEmail(r.Context(), user.Email()); err != nil {
+	if err := h.tokenRepo.DeleteTokensByID(r.Context(), user.ID()); err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 		return
 	}

@@ -7,16 +7,24 @@ import (
 )
 
 type User struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Role  string `json:"role"`
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
 }
 
 func toUserDTO(user *authuser.User) User {
+	if user == nil {
+		return User{}
+	}
+
 	return User{
-		Name:  user.Name(),
-		Email: user.Email(),
-		Role:  user.Role(),
+		ID:       user.ID(),
+		Username: user.Username(),
+		Name:     user.Name(),
+		Email:    user.Email(),
+		Role:     user.Role(),
 	}
 }
 
@@ -35,6 +43,10 @@ type FreelancerProfile struct {
 }
 
 func toFreelancerProfile(profile *freelancerprofile.FreelancerProfile) FreelancerProfile {
+	if profile == nil {
+		return FreelancerProfile{}
+	}
+
 	return FreelancerProfile{
 		Email:             profile.Email(),
 		Name:              profile.Name(),

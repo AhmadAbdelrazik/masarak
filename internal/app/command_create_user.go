@@ -3,8 +3,9 @@ package app
 import "context"
 
 type CreateUser struct {
-	Name     string
+	Username string
 	Email    string
+	Name     string
 	Password string
 	Role     string
 }
@@ -12,14 +13,15 @@ type CreateUser struct {
 // CreateUserHandler - Creates a new user in the system. if the user already
 // exists, ErrUserAlreadyExists will return. if any field fails validation
 // check, ErrInvalidProperty will return.
-func (c *Commands) CreateUserHandler(ctx context.Context, cmd CreateUser) error {
-	err := c.repo.Users.Create(
+func (c *Commands) CreateUserHandler(ctx context.Context, cmd CreateUser) (User, error) {
+	user, err := c.repo.Users.Create(
 		ctx,
-		cmd.Name,
+		cmd.Username,
 		cmd.Email,
+		cmd.Name,
 		cmd.Password,
 		cmd.Role,
 	)
 
-	return err
+	return toUserDTO(user), err
 }

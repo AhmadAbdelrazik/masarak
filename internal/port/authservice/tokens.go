@@ -10,8 +10,8 @@ import (
 
 // getTokenCookie - Generates a new cookie that contains the token session. the
 // newly created token will be stored in the database.
-func getTokenCookie(r *http.Request, email string, tokenRepo authuser.TokenRepository) (*http.Cookie, error) {
-	userToken, err := tokenRepo.GenerateToken(r.Context(), email)
+func getTokenCookie(r *http.Request, id int, tokenRepo authuser.TokenRepository) (*http.Cookie, error) {
+	userToken, err := tokenRepo.GenerateToken(r.Context(), id)
 	if err != nil {
 		return nil, err
 	}

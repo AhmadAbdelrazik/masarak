@@ -12,41 +12,51 @@ import (
 
 // AuthUserRepository - Postgres Implemntation for user repository
 type AuthUserRepository struct {
-	db *sql.DB
+	db     *sql.DB
+	tokens *TokensRepository
 }
 
-func (r *AuthUserRepository) Create(ctx context.Context, name, email, passwordText, role string) error {
-	if _, err := authuser.New(name, email, passwordText, role); err != nil {
-		return authuser.ErrInvalidProperty
+func (r *AuthUserRepository) Create(ctx context.Context, username, email, name, passwordText, role string) (*authuser.User, error) {
+	user, err := authuser.New(username, email, name, passwordText, role)
+	if err != nil {
+		return nil, authuser.ErrInvalidProperty
 	}
 
 	query := `
-	INSERT INTO users(email, name, password, role)
-	VALUES($1,$2,$3,$4)`
+	INSERT INTO users(username, email, name, password, role)
+	VALUES($1,$2,$3,$4,$5)
+	RETURNING id`
 
-	_, err := r.db.ExecContext(ctx, query, email, name, passwordText, role)
-	if err != nil {
+	args := []interface{}{username, email, name, user.Password.Hash(), role}
+
+	var id int
+	if err := r.db.QueryRowContext(ctx, query, args...).Scan(&id); err != nil {
 		switch {
 		case strings.Contains(err.Error(), "duplicate key"):
-			return authuser.ErrUserAlreadyExists
+			return nil, authuser.ErrUserAlreadyExists
 		default:
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	newUser := authuser.Instantiate(id, username, email, name, []byte(passwordText), role)
+
+	return newUser, nil
 }
 
 func (r *AuthUserRepository) GetByEmail(ctx context.Context, email string) (*authuser.User, error) {
 	query := `
-	SELECT name, password, role
+	SELECT id, username, name, password, role
 	FROM users
 	WHERE email = $1`
 
-	var name, role string
+	var id int
+	var username, name, role string
 	var passwordHash []byte
 
 	err := r.db.QueryRowContext(ctx, query, email).Scan(
+		&id,
+		&username,
 		&name,
 		&passwordHash,
 		&role,
@@ -60,26 +70,102 @@ func (r *AuthUserRepository) GetByEmail(ctx context.Context, email string) (*aut
 		}
 	}
 
-	user := authuser.Instantiate(name, email, passwordHash, role)
+	user := authuser.Instantiate(id, username, email, name, passwordHash, role)
+
+	return user, nil
+}
+
+func (r *AuthUserRepository) GetByUsername(ctx context.Context, username string) (*authuser.User, error) {
+	query := `
+	SELECT id, email, name, password, role
+	FROM users
+	WHERE email = $1`
+
+	var id int
+	var email, name, role string
+	var passwordHash []byte
+
+	err := r.db.QueryRowContext(ctx, query, username).Scan(
+		&id,
+		&email,
+		&name,
+		&passwordHash,
+		&role,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, authuser.ErrUserNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	user := authuser.Instantiate(id, username, email, name, passwordHash, role)
+
+	return user, nil
+}
+func (r *AuthUserRepository) GetByID(ctx context.Context, id int) (*authuser.User, error) {
+	query := `
+	SELECT username, email, name, password, role
+	FROM users
+	WHERE email = $1`
+
+	var username, email, name, role string
+	var passwordHash []byte
+
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&username,
+		&email,
+		&name,
+		&passwordHash,
+		&role,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, authuser.ErrUserNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	user := authuser.Instantiate(id, username, email, name, passwordHash, role)
 
 	return user, nil
 }
 
 func (r *AuthUserRepository) GetByToken(ctx context.Context, token authuser.Token) (*authuser.User, error) {
-	query := `
-	SELECT name, users.email, password, role
-	FROM users
-	JOIN tokens ON tokens.email = users.email
-	WHERE tokens.token = $1`
+	r.tokens.Lock()
+	defer r.tokens.Unlock()
 
-	var name, email, role string
+	hash := string(hashToken(token))
+
+	var id int
+
+	for tokenHash, userID := range r.tokens.memory {
+		if string(tokenHash[:32]) == hash {
+			id = userID
+			break
+		}
+	}
+
+	if id == 0 {
+		return nil, authuser.ErrUserNotFound
+	}
+
+	query := `
+	SELECT username, email, name, password, role
+	FROM users
+	WHERE id = $1`
+
+	var username, email, name, role string
 	var passwordHash []byte
 
-	tokenHash := hashToken(token)
-
-	err := r.db.QueryRowContext(ctx, query, tokenHash).Scan(
-		&name,
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&username,
 		&email,
+		&name,
 		&passwordHash,
 		&role,
 	)
@@ -92,29 +178,31 @@ func (r *AuthUserRepository) GetByToken(ctx context.Context, token authuser.Toke
 		}
 	}
 
-	user := authuser.Instantiate(name, email, passwordHash, role)
+	user := authuser.Instantiate(id, username, email, name, passwordHash, role)
 
 	return user, nil
 }
 
-// Update - Gets the user by email, and pass it to the updateFn for updating
+// Update - Gets the user by id, and pass it to the updateFn for updating
 // user using it's method. After updating the user object, it's saved in the
 // database with the condition that there was no updates since getting the
 // user in the beginning. Returns ErrEditConflict in case of collision or
 // ErrUserNotFound
-func (r *AuthUserRepository) Update(ctx context.Context, email string, updateFn func(ctx context.Context, user *authuser.User) error) error {
+func (r *AuthUserRepository) Update(ctx context.Context, id int, updateFn func(ctx context.Context, user *authuser.User) error) error {
 	query := `
-	SELECT name, password, role, version
+	SELECT username, email, name, password, role, version
 	FROM users
-	WHERE email = $1`
+	WHERE id = $1`
 
-	var name, role string
+	var username, email, name, role string
 	var passwordHash []byte
 
 	// version ensures that there would be no update collisions
 	var version int
 
-	err := r.db.QueryRowContext(ctx, query, email).Scan(
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&username,
+		&email,
 		&name,
 		&passwordHash,
 		&role,
@@ -129,7 +217,7 @@ func (r *AuthUserRepository) Update(ctx context.Context, email string, updateFn 
 		}
 	}
 
-	user := authuser.Instantiate(name, email, passwordHash, role)
+	user := authuser.Instantiate(id, username, email, name, passwordHash, role)
 
 	if err := updateFn(ctx, user); err != nil {
 		return err
@@ -138,17 +226,17 @@ func (r *AuthUserRepository) Update(ctx context.Context, email string, updateFn 
 	query = `
 	UPDATE users
 	SET name=$1, password=$2, role=$3, version = version + 1
-	WHERE email = $4 AND version = $5`
+	WHERE id = $4 AND version = $5`
 
-	if _, err := r.db.ExecContext(
-		ctx,
-		query,
+	args := []interface{}{
 		user.Name(),
 		user.Password.Hash(),
 		user.Role(),
-		user.Email(),
+		user.ID(),
 		version,
-	); err != nil {
+	}
+
+	if _, err := r.db.ExecContext(ctx, query, args...); err != nil {
 		return app.ErrEditConflict
 	}
 

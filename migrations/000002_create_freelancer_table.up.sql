@@ -1,5 +1,7 @@
 CREATE TABLE IF NOT EXISTS freelancer_profiles(
-	email text PRIMARY KEY REFERENCES users(email),
+	id SERIAL PRIMARY KEY,
+	username text UNIQUE NOT NULL REFERENCES users(username),
+	email text UNIQUE NOT NULL REFERENCES users(email),
 	name text NOT NULL,
 	title text NOT NULL,
 	picture_url text NOT NULL,

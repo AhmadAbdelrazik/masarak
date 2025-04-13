@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/ahmadabdelrazik/masarak/config"
 	"github.com/ahmadabdelrazik/masarak/internal/app"
@@ -107,19 +108,24 @@ func (a *GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if _, err := a.app.Queries.GetUserHandler(context.Background(), app.GetUser{Email: input.Email}); err != nil {
+	var user app.User
+	user, err = a.app.Queries.GetUserHandler(context.Background(), app.GetUser{Email: input.Email})
+	if err != nil {
 		switch {
 		case errors.Is(err, authuser.ErrUserNotFound):
 			cmd := app.CreateUser{
+				Username: strings.TrimSuffix(input.Email, "@gmail.com"),
 				Name:     input.Name,
 				Email:    input.Email,
 				Password: input.ID,
 				Role:     "user",
 			}
 
-			if err := a.app.Commands.CreateUserHandler(context.Background(), cmd); err != nil {
+			if u, err := a.app.Commands.CreateUserHandler(context.Background(), cmd); err != nil {
 				httperr.ServerErrorResponse(w, r, err)
 				return
+			} else {
+				user = u
 			}
 		default:
 			httperr.ServerErrorResponse(w, r, err)
@@ -127,7 +133,7 @@ func (a *GoogleAuthService) GoogleCallback(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	cookie, err := getTokenCookie(r, input.Email, a.tokenRepo)
+	cookie, err := getTokenCookie(r, user.ID, a.tokenRepo)
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 		return

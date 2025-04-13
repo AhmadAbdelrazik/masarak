@@ -7,15 +7,18 @@ import (
 )
 
 type User struct {
-	name     string
+	id       int
 	email    string
+	username string
+	name     string
 	Password *Password
 	role     *valueobject.Role
 }
 
 // New - Creates a new user and validate the input data. For reconstructing
-// users from database, use Instantiate instead.
-func New(name, email, passwordText, role string) (*User, error) {
+// users from database, use Instantiate instead. the user instance will not
+// have an id, the id would be given by the database
+func New(username, email, name, passwordText, role string) (*User, error) {
 	password, err := createPassword(passwordText)
 	if err != nil {
 		return nil, err
@@ -26,24 +29,31 @@ func New(name, email, passwordText, role string) (*User, error) {
 		return nil, err
 	}
 
+	if !isValidUsername(username) {
+		return nil, errors.New("invalid username")
+	}
+
 	return &User{
-		name:     name,
+		username: username,
 		email:    email,
+		name:     name,
 		role:     r,
 		Password: password,
 	}, nil
 }
 
 // Instantiate - Construct user from database.
-func Instantiate(name, email string, passwordHash []byte, role string) *User {
+func Instantiate(id int, username, email, name string, passwordHash []byte, role string) *User {
 	r, err := valueobject.NewRole(role)
 	if err != nil {
 		panic(err)
 	}
 
 	return &User{
-		name:     name,
+		id:       id,
+		username: username,
 		email:    email,
+		name:     name,
 		Password: &Password{hash: passwordHash},
 		role:     r,
 	}
@@ -93,6 +103,14 @@ func (a *User) UpdatePassword(oldPassword, newPassword string) error {
 	return nil
 }
 
+func (a *User) ID() int {
+	return a.id
+}
+
+func (a *User) Username() string {
+	return a.username
+}
+
 func (a *User) Email() string {
 	return a.email
 }
@@ -107,4 +125,20 @@ func (a *User) Name() string {
 
 func (a *User) HasPermission(permission string) bool {
 	return a.role.HasPermission(permission)
+}
+
+// isValidUsername checks if the username characters all are either
+// alphanumeric or underscore
+func isValidUsername(username string) bool {
+	for _, c := range username {
+		if c >= 'a' && c <= 'z' {
+			continue
+		} else if c >= '0' && c <= '9' {
+			continue
+		} else {
+			return false
+		}
+	}
+
+	return true
 }

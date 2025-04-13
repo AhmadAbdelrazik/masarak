@@ -22,9 +22,11 @@ func (q *Queries) UserLogin(ctx context.Context, cmd UserLogin) (User, error) {
 		return User{}, err
 	}
 
-	return User{
-		Name:  user.Name(),
-		Email: user.Email(),
-		Role:  user.Role(),
-	}, nil
+	if match, err := user.Password.Matches(cmd.Password); err != nil {
+		return User{}, err
+	} else if !match {
+		return User{}, ErrInvalidPassword
+	}
+
+	return toUserDTO(user), nil
 }
