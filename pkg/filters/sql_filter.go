@@ -57,17 +57,23 @@ func WithPageSize(pageSize int) Opt {
 	}
 }
 
-func WithSort(sort string, sortSafeList []string) Opt {
+func WithSort(sort, defaultValue string, sortSafeList []string) Opt {
 	return func(f *SQLFilters) error {
-		for _, s := range sortSafeList {
-			if strings.TrimPrefix(s, "-") == s {
-				f.sort = sort
-				f.sortSafeList = sortSafeList
-				return nil
-			}
+		if !valueIn(defaultValue, sortSafeList) {
+			panic("default value is not found in the sort safe list")
+		}
+		if sort == "" {
+			sort = defaultValue
 		}
 
-		return errors.New("sort: invalid sort value")
+		if !valueIn(strings.TrimPrefix(sort, "-"), sortSafeList) {
+			return errors.New("sort: invalid sort value")
+		}
+
+		f.sort = sort
+		f.sortSafeList = sortSafeList
+
+		return nil
 	}
 }
 
@@ -89,4 +95,22 @@ func (f SQLFilters) Limit() int {
 
 func (f SQLFilters) Offset() int {
 	return (f.page - 1) * f.pageSize
+}
+
+func (f SQLFilters) Page() int {
+	return f.page
+}
+
+func (f SQLFilters) PageSize() int {
+	return f.pageSize
+}
+
+func valueIn(val string, values []string) bool {
+	for _, v := range values {
+		if v == val {
+			return true
+		}
+	}
+
+	return false
 }

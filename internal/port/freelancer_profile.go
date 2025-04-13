@@ -10,6 +10,7 @@ import (
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/internal/domain/freelancerprofile"
+	"github.com/ahmadabdelrazik/masarak/pkg/filters"
 	"github.com/ahmadabdelrazik/masarak/pkg/httperr"
 	"github.com/ahmadabdelrazik/masarak/pkg/httputils"
 )
@@ -258,4 +259,91 @@ func (h *HttpServer) updateFreelancerProfile(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}
+}
+
+func (h *HttpServer) searchFreelancerProfiles(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	name := r.FormValue("name")
+	title := r.FormValue("title")
+	skills := r.Form["skills"]
+	yoeStr := r.FormValue("years_of_experience")
+	yearsOfExperience := -1
+
+	if yoeStr != "" {
+		yoe, err := strconv.ParseInt(yoeStr, 10, 64)
+		if err != nil || yoe < 0 {
+			httperr.BadRequestResponse(w, r, err)
+			return
+		}
+	}
+
+	hraStr := r.FormValue("hourly_rate_amount")
+	hourlyRateAmount := -1
+	if hraStr != "" {
+		hra, err := strconv.ParseInt(hraStr, 10, 64)
+		if err != nil || hra < 0 {
+			httperr.BadRequestResponse(w, r, err)
+			return
+		}
+	}
+
+	hourlyRateCurrency := r.FormValue("hourly_rate_currency")
+
+	sort := r.FormValue("sort")
+
+	pageSize := 20
+	pageSizeStr := r.FormValue("page_size")
+	if pageSizeStr != "" {
+		ps, err := strconv.ParseInt(pageSizeStr, 10, 64)
+		if err != nil || ps <= 0 {
+			httperr.BadRequestResponse(w, r, err)
+			return
+		}
+
+		pageSize = int(ps)
+	}
+
+	pageNumber := 1
+	pageNumberStr := r.FormValue("page_number")
+	if pageNumberStr != "" {
+		pn, err := strconv.ParseInt(pageNumberStr, 10, 64)
+		if err != nil || pn <= 0 {
+			httperr.BadRequestResponse(w, r, err)
+			return
+		}
+
+		pageNumber = int(pn)
+	}
+
+	filter, err := filters.NewSQLFilter(
+		filters.WithPage(pageNumber),
+		filters.WithPageSize(pageSize),
+		filters.WithSort(sort, "name", []string{
+			"name",
+			"title",
+			"years_of_experience",
+			"hourly_rate_amount",
+		}),
+	)
+	if err != nil {
+		httperr.BadRequestResponse(w, r, err)
+		return
+	}
+
+	cmd := app.SearchFreelancerProfiles{
+		Name:               name,
+		Title:              title,
+		Skills:             skills,
+		YearsOfExperience:  yearsOfExperience,
+		HourlyRateAmount:   hourlyRateAmount,
+		HourlyRateCurrency: hourlyRateCurrency,
+		Filters:            filter,
+	}
+	profiles, meta, err := h.app.Queries.SearchFreelancerProfilesHandler(r.Context(), cmd)
+	if err != nil {
+		httperr.ServerErrorResponse(w, r, err)
+		return
+	}
+
+	httputils.WriteJSON(w, http.StatusOK, httputils.Envelope{"profiles": profiles, "metadata": meta}, nil)
 }

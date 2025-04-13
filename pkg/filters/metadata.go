@@ -10,7 +10,7 @@ type Metadata struct {
 	TotalRecords int `json:"total_records,omitempty"`
 }
 
-func calculateMetaData(totalRecords, page, pageSize int) Metadata {
+func CalculateMetaData(totalRecords, page, pageSize int) Metadata {
 	if totalRecords == 0 {
 		return Metadata{}
 	}

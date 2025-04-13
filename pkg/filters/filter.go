@@ -7,4 +7,6 @@ type Filter interface {
 	SortDirection() string
 	Limit() int
 	Offset() int
+	Page() int
+	PageSize() int
 }

@@ -41,7 +41,7 @@ type Repository interface {
 		hourlyRateAmount int,
 		hourlyRateCurrency string,
 		filters filters.Filter,
-	) ([]FreelancerProfile, error)
+	) ([]FreelancerProfile, filters.Metadata, error)
 
 	// Update - Returns a freelancer profile by email for editing. the
 	// fetched profile would be available in the updateFn for updating it

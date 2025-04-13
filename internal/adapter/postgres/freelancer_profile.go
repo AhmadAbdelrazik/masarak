@@ -190,7 +190,6 @@ func (r *FreelancerProfileRepository) Update(
 	}
 
 	if _, err := r.db.ExecContext(ctx, query, args); err != nil {
-		fmt.Printf("err: %v\n", err)
 		return app.ErrEditConflict
 	}
 
@@ -204,8 +203,8 @@ func (r *FreelancerProfileRepository) Search(
 	yearsOfExperience int,
 	hourlyRateAmount int,
 	hourlyRateCurrency string,
-	filters filters.Filter,
-) ([]freelancerprofile.FreelancerProfile, error) {
+	filter filters.Filter,
+) ([]freelancerprofile.FreelancerProfile, filters.Metadata, error) {
 	query := fmt.Sprintf(`
 	SELECT COUNT(*) OVER(), email, name, title, picture_url, skills, years_of_experience,
 	hourly_rate_currency, hourly_rate_amount, resume_url
@@ -217,7 +216,7 @@ func (r *FreelancerProfileRepository) Search(
 	AND (years_of_experience = $5 OR $5 = -1)
 	AND (hourly_rate_amount = $6 OR $6 = -1)
 	ORDER BY %s %s, email ASC
-	LIMIT $7 OFFSET $8`, filters.SortColumn(), filters.SortDirection())
+	LIMIT $7 OFFSET $8`, filter.SortColumn(), filter.SortDirection())
 
 	args := []interface{}{
 		name,
@@ -226,18 +225,18 @@ func (r *FreelancerProfileRepository) Search(
 		hourlyRateCurrency,
 		yearsOfExperience,
 		hourlyRateAmount,
-		filters.Limit(),
-		filters.Offset(),
+		filter.Limit(),
+		filter.Offset(),
 	}
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, filters.Metadata{}, err
 	}
 	defer rows.Close()
 
 	var profiles []freelancerprofile.FreelancerProfile
-	numberOfRows := 0
+	totalRecords := 0
 
 	for rows.Next() {
 		var email, name, title, pictureURL string
@@ -246,7 +245,7 @@ func (r *FreelancerProfileRepository) Search(
 		var hourlyRateCurrency, resumeURL string
 
 		if err := rows.Scan(
-			&numberOfRows,
+			&totalRecords,
 			&email,
 			&name,
 			&title,
@@ -257,7 +256,7 @@ func (r *FreelancerProfileRepository) Search(
 			&hourlyRateAmount,
 			&resumeURL,
 		); err != nil {
-			return nil, err
+			return nil, filters.Metadata{}, err
 		}
 
 		profile := freelancerprofile.Instantiate(
@@ -276,8 +275,10 @@ func (r *FreelancerProfileRepository) Search(
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, filters.Metadata{}, err
 	}
 
-	return profiles, nil
+	meta := filters.CalculateMetaData(totalRecords, filter.Page(), filter.PageSize())
+
+	return profiles, meta, nil
 }
