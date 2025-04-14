@@ -7,6 +7,7 @@ import (
 )
 
 type SearchFreelancerProfiles struct {
+	Username           string
 	Name               string
 	Title              string
 	Skills             []string
@@ -34,6 +35,7 @@ func (q *Queries) SearchFreelancerProfilesHandler(
 
 	profiles, meta, err := q.repo.FreelancerProfile.Search(
 		ctx,
+		cmd.Username,
 		cmd.Name,
 		cmd.Title,
 		cmd.Skills,

@@ -10,6 +10,7 @@ import (
 
 type UpdateFreelancerProfile struct {
 	User               *authuser.User
+	Username           string
 	Name               *string
 	Title              *string
 	PictureURL         *string
@@ -25,7 +26,7 @@ type UpdateFreelancerProfile struct {
 // ErrInvalidYearsOfExperience or ErrInvalidHourlyRate for validation errors.
 // or returns ErrEditConflict
 func (c *Commands) UpdateFreelancerProfileHandler(ctx context.Context, cmd UpdateFreelancerProfile) error {
-	if !cmd.User.HasPermission("freelancer_profile.update") {
+	if !cmd.User.HasPermission("freelancer_profile.update") || cmd.User.Username() != cmd.Username {
 		return ErrUnauthorized
 	}
 

@@ -44,7 +44,11 @@ func BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 	ErrorResponse(w, r, http.StatusBadRequest, err.Error())
 }
 
-func EditConflictResponse(w http.ResponseWriter, r *http.Request) {
+func ConflictResponse(w http.ResponseWriter, r *http.Request, err error) {
+	ErrorResponse(w, r, http.StatusConflict, err.Error())
+}
+
+func UpdateConflictResponse(w http.ResponseWriter, r *http.Request) {
 	message := "unable to update the record due to edit conflict, please try again"
 	ErrorResponse(w, r, http.StatusConflict, message)
 }

@@ -15,6 +15,10 @@ import (
 	"github.com/ahmadabdelrazik/masarak/pkg/httputils"
 )
 
+// createFreelancerProfileHandler receives html form with the following data:
+// name, title, skills (array), years_of_experience (int),
+// hourly_rate_amount(int), hourly_rate_currency, picture (.jpg/.jpeg/.png
+// file) and resume (.pdf file)
 func (h *HttpServer) createFreelancerProfileHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := getUser(r.Context())
 	if err != nil {
@@ -28,9 +32,14 @@ func (h *HttpServer) createFreelancerProfileHandler(w http.ResponseWriter, r *ht
 	}
 
 	email := user.Email()
+	username := user.Username()
 	name := r.FormValue("name")
 	title := r.FormValue("title")
-	skills := r.Form["skills"]
+
+	var skills []string
+	if r.Form["skills"] != nil {
+		skills = r.Form["skills"]
+	}
 
 	yearsOfExperienceStr := r.FormValue("years_of_experience")
 	yearsOfExperience, err := strconv.ParseInt(yearsOfExperienceStr, 10, 64)
@@ -63,6 +72,7 @@ func (h *HttpServer) createFreelancerProfileHandler(w http.ResponseWriter, r *ht
 
 	cmd := app.CreateFreelancerProfile{
 		User:               user,
+		Username:           username,
 		Email:              email,
 		Name:               name,
 		Title:              title,
@@ -79,11 +89,10 @@ func (h *HttpServer) createFreelancerProfileHandler(w http.ResponseWriter, r *ht
 		switch {
 		case errors.Is(err, app.ErrUnauthorized):
 			httperr.UnauthorizedResponse(w, r)
-		case errors.Is(err, freelancerprofile.ErrDuplicateProfile),
-			errors.Is(err, freelancerprofile.ErrInvalidYearsOfExperience),
-			errors.Is(err, freelancerprofile.ErrSkillLimitReached),
-			errors.Is(err, freelancerprofile.ErrInvalidHourlyRate):
+		case errors.Is(err, freelancerprofile.ErrInvalidProperties):
 			httperr.BadRequestResponse(w, r, err)
+		case errors.Is(err, freelancerprofile.ErrDuplicateProfile):
+			httperr.ConflictResponse(w, r, err)
 		default:
 			httperr.ServerErrorResponse(w, r, err)
 		}
@@ -99,8 +108,7 @@ func (h *HttpServer) createFreelancerProfileHandler(w http.ResponseWriter, r *ht
 }
 
 func (h *HttpServer) getFreelancerProfile(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	email := r.Form.Get("email")
+	username := r.PathValue("username")
 
 	user, err := getUser(r.Context())
 	if err != nil {
@@ -109,8 +117,8 @@ func (h *HttpServer) getFreelancerProfile(w http.ResponseWriter, r *http.Request
 	}
 
 	cmd := app.GetFreelancerProfile{
-		User:  user,
-		Email: email,
+		User:     user,
+		Username: username,
 	}
 
 	profile, err := h.app.Queries.GetFreelancerProfileHandler(r.Context(), cmd)
@@ -131,7 +139,7 @@ func (h *HttpServer) getFreelancerProfile(w http.ResponseWriter, r *http.Request
 }
 
 func (h *HttpServer) updateFreelancerProfile(w http.ResponseWriter, r *http.Request) {
-	var cmd app.UpdateFreelancerProfile
+	username := r.PathValue("username")
 
 	user, err := getUser(r.Context())
 	if err != nil {
@@ -139,6 +147,9 @@ func (h *HttpServer) updateFreelancerProfile(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	var cmd app.UpdateFreelancerProfile
+
+	cmd.Username = username
 	cmd.User = user
 
 	if err := r.ParseMultipartForm((1 << 20) * 10); err != nil {
@@ -217,7 +228,7 @@ func (h *HttpServer) updateFreelancerProfile(w http.ResponseWriter, r *http.Requ
 		cmd.ResumeURL = &resumeURL
 	}
 
-	oldProfile, err := h.app.Queries.GetFreelancerProfileHandler(r.Context(), app.GetFreelancerProfile{User: user, Email: user.Email()})
+	oldProfile, err := h.app.Queries.GetFreelancerProfileHandler(r.Context(), app.GetFreelancerProfile{User: user, Username: user.Username()})
 	if err != nil {
 		switch {
 		case errors.Is(err, freelancerprofile.ErrProfileNotFound):
@@ -233,13 +244,10 @@ func (h *HttpServer) updateFreelancerProfile(w http.ResponseWriter, r *http.Requ
 		switch {
 		case errors.Is(err, app.ErrUnauthorized):
 			httperr.UnauthorizedResponse(w, r)
-		case errors.Is(err, freelancerprofile.ErrDuplicateProfile),
-			errors.Is(err, freelancerprofile.ErrInvalidYearsOfExperience),
-			errors.Is(err, freelancerprofile.ErrSkillLimitReached),
-			errors.Is(err, freelancerprofile.ErrInvalidHourlyRate):
+		case errors.Is(err, freelancerprofile.ErrInvalidProperties):
 			httperr.BadRequestResponse(w, r, err)
 		case errors.Is(err, app.ErrEditConflict):
-			httperr.EditConflictResponse(w, r)
+			httperr.UpdateConflictResponse(w, r)
 		default:
 			httperr.ServerErrorResponse(w, r, err)
 		}

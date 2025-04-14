@@ -7,8 +7,8 @@ import (
 )
 
 type GetFreelancerProfile struct {
-	User  *authuser.User
-	Email string
+	User     *authuser.User
+	Username string
 }
 
 // GetFreelancerProfileHandler - returns a freelancer profile if found, returns
@@ -18,7 +18,7 @@ func (q *Queries) GetFreelancerProfileHandler(ctx context.Context, cmd GetFreela
 		return FreelancerProfile{}, ErrUnauthorized
 	}
 
-	profile, err := q.repo.FreelancerProfile.GetByEmail(ctx, cmd.Email)
+	profile, err := q.repo.FreelancerProfile.GetByUsername(ctx, cmd.Username)
 	if err != nil {
 		return FreelancerProfile{}, err
 	}

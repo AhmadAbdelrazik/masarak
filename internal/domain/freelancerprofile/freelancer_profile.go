@@ -1,12 +1,14 @@
 package freelancerprofile
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/Rhymond/go-money"
 )
 
 type FreelancerProfile struct {
+	id                int
+	username          string
 	email             string
 	name              string
 	title             string
@@ -17,17 +19,11 @@ type FreelancerProfile struct {
 	resumeURL         string
 }
 
-var (
-	ErrSkillLimitReached        = errors.New("skill number must not be more than 10")
-	ErrInvalidYearsOfExperience = errors.New("invalid years of experience")
-	ErrInvalidHourlyRate        = errors.New("invalid hourly rate")
-)
-
 // New - Creates new Freelancer Profile. for creating freelancer profile from
 // database, use Instantiate instead. returns ErrSkillLimitReached if it
 // exceeds the limit. returns ErrInvalidYearsOfExperience for invalid YoE
 func New(
-	email, name, title, pictureURL string,
+	username, email, name, title, pictureURL string,
 	skills []string,
 	yearsOfExperience int,
 	hourlyRateAmount int,
@@ -35,24 +31,28 @@ func New(
 	resumeURL string,
 ) (*FreelancerProfile, error) {
 	if len(skills) > 10 {
-		return nil, ErrSkillLimitReached
+		return nil, fmt.Errorf("%w: skill number must not be more than 10", ErrInvalidProperties)
+	}
+	if len(skills) == 0 {
+		return nil, fmt.Errorf("%w: must specify at least one skill", ErrInvalidProperties)
 	}
 
 	if yearsOfExperience < 0 || yearsOfExperience > 40 {
-		return nil, ErrInvalidYearsOfExperience
+		return nil, fmt.Errorf("%w: invalid years of experience", ErrInvalidProperties)
 	}
 
-	if hourlyRateAmount < 0 {
-		return nil, ErrInvalidHourlyRate
+	if hourlyRateAmount <= 0 {
+		return nil, fmt.Errorf("%w: hourly rate amount must be higher than 0", ErrInvalidProperties)
 	}
 
 	if hourlyRateCurrency != "EGP" && hourlyRateCurrency != "USD" {
-		return nil, ErrInvalidHourlyRate
+		return nil, fmt.Errorf("%w: hourly rate amount must be higher than 0", ErrInvalidProperties)
 	}
 
 	hourlyRate := money.New(int64(hourlyRateAmount), hourlyRateCurrency)
 
 	return &FreelancerProfile{
+		username:          username,
 		email:             email,
 		name:              name,
 		title:             title,
@@ -66,7 +66,8 @@ func New(
 
 // Instantiate - Create a freelancer profile from database.
 func Instantiate(
-	email, name, title, pictureURL string,
+	id int,
+	username, email, name, title, pictureURL string,
 	skills []string,
 	yearsOfExperience int,
 	hourlyRateAmount int,
@@ -76,6 +77,8 @@ func Instantiate(
 	hourlyRate := money.New(int64(hourlyRateAmount), hourlyRateCurrency)
 
 	return &FreelancerProfile{
+		id:                id,
+		username:          username,
 		email:             email,
 		name:              name,
 		title:             title,
@@ -85,6 +88,14 @@ func Instantiate(
 		hourlyRate:        hourlyRate,
 		resumeURL:         resumeURL,
 	}
+}
+
+func (f *FreelancerProfile) ID() int {
+	return f.id
+}
+
+func (f *FreelancerProfile) Username() string {
+	return f.username
 }
 
 func (f *FreelancerProfile) Email() string {
@@ -135,7 +146,7 @@ func (f *FreelancerProfile) UpdatePictureURL(pictureURL string) error {
 
 func (f *FreelancerProfile) UpdateSkills(skills []string) error {
 	if len(skills) > 10 {
-		return ErrSkillLimitReached
+		return fmt.Errorf("%w: skill number must not be more than 10", ErrInvalidProperties)
 	}
 
 	f.skills = skills
@@ -144,7 +155,7 @@ func (f *FreelancerProfile) UpdateSkills(skills []string) error {
 
 func (f *FreelancerProfile) UpdateYearsOfExperience(yearsOfExperience int) error {
 	if yearsOfExperience < 0 || yearsOfExperience > 40 {
-		return ErrInvalidYearsOfExperience
+		return fmt.Errorf("%w: invalid years of experience", ErrInvalidProperties)
 	}
 
 	f.yearsOfExperience = yearsOfExperience

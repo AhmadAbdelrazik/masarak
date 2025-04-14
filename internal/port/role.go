@@ -38,7 +38,7 @@ func (h *HttpServer) selectRole(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, authuser.ErrUserNotFound):
 			httperr.NotFoundResponse(w, r)
 		case errors.Is(err, app.ErrEditConflict):
-			httperr.EditConflictResponse(w, r)
+			httperr.UpdateConflictResponse(w, r)
 		case errors.Is(err, app.ErrUnauthorized):
 			httperr.UnauthorizedResponse(w, r)
 		case errors.Is(err, valueobject.ErrInvalidRole):

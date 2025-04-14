@@ -8,6 +8,7 @@ import (
 
 type CreateFreelancerProfile struct {
 	User               *authuser.User
+	Username           string
 	Email              string
 	Name               string
 	Title              string
@@ -28,6 +29,7 @@ func (c *Commands) CreateFreelancerProfileHandler(ctx context.Context, cmd Creat
 
 	_, err := c.repo.FreelancerProfile.Create(
 		ctx,
+		cmd.Username,
 		cmd.Email,
 		cmd.Name,
 		cmd.Title,

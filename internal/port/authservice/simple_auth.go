@@ -2,7 +2,6 @@ package authservice
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
@@ -73,8 +72,6 @@ func (h *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 		Email:    input.Email,
 		Password: input.Password,
 	}
-
-	fmt.Printf("cmd: %v\n", cmd)
 
 	user, err := h.app.Queries.UserLogin(r.Context(), cmd)
 	if err != nil {
