@@ -22,6 +22,7 @@ type Business struct {
 var (
 	ErrInvalidBusinessProperty = fmt.Errorf("%w: business", domain.ErrInvalidProperty)
 	ErrInvalidBusinessUpdate   = fmt.Errorf("%w: business", domain.ErrInvalidUpdate)
+	ErrBusinessConflict        = fmt.Errorf("%w: business conflict", domain.ErrInvalidProperty)
 )
 
 // New creates a new business and validate it's name, description, and emails.
@@ -170,4 +171,63 @@ func (b *Business) RemoveEmployee(email string) error {
 	}
 
 	return fmt.Errorf("%w: employee doesn't exist", ErrInvalidBusinessUpdate)
+}
+
+func (b *Business) NewJob(title, description, workLocation, workTime string, skills []string) (*Job, error) {
+	for _, j := range b.jobs {
+		if j.title == title {
+			return nil, fmt.Errorf("%w: job with the same name already exists", ErrBusinessConflict)
+		}
+	}
+
+	job, err := newJob(title, description, workLocation, workLocation, skills)
+	if err != nil {
+		return nil, err
+	}
+
+	b.jobs = append(b.jobs, job)
+
+	return job, nil
+}
+
+// Job Gets a job from business by ID. returns ErrNotFound if not exists
+func (b *Business) Job(jobID int) (*Job, error) {
+	for _, j := range b.jobs {
+		if j.ID() == jobID {
+			return j, nil
+		}
+	}
+
+	return nil, fmt.Errorf("%w: job not found", domain.ErrNotFound)
+}
+
+// DeleteJob deletes a job from the business. It's advised not to use this
+// method directly and rather use the use case related to deletion instead.
+func (b *Business) DeleteJob(jobID int) error {
+	for i, j := range b.jobs {
+		if j.id == jobID {
+			b.jobs = slices.Delete(b.jobs, i, i+1)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("%w: job not found", domain.ErrNotFound)
+}
+
+func (b *Business) UpdateJobTitle(jobID int, title string) error {
+	var job *Job
+	for _, j := range b.jobs {
+		if j.title == title {
+			return fmt.Errorf("%w: job with the same title already exists", ErrInvalidBusinessUpdate)
+		}
+		if j.id == jobID {
+			job = j
+		}
+	}
+
+	if job == nil {
+		return fmt.Errorf("%w: job not found", domain.ErrNotFound)
+	}
+
+	return job.updateTitle(title)
 }

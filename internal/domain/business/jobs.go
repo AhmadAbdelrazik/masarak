@@ -40,7 +40,7 @@ var (
 	ErrInvalidJobUpdate   = fmt.Errorf("%w: Job", domain.ErrInvalidUpdate)
 )
 
-func NewJob(title, description, workLocation, workTime string, skills []string) (*Job, error) {
+func newJob(title, description, workLocation, workTime string, skills []string) (*Job, error) {
 	if len(title) < 0 && len(title) > 30 {
 		return nil, fmt.Errorf("%w: job title must be between 0 and 30 bytes", ErrInvalidJobProperty)
 
