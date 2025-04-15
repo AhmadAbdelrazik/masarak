@@ -32,7 +32,7 @@ func (c *Commands) UpdateFreelancerProfileHandler(ctx context.Context, cmd Updat
 
 	err := c.repo.FreelancerProfile.Update(
 		ctx,
-		cmd.User.Email(),
+		cmd.Username,
 		func(ctx context.Context, profile *freelancerprofile.FreelancerProfile) error {
 			if cmd.Name != nil {
 				if err := profile.UpdateName(*cmd.Name); err != nil {

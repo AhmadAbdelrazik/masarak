@@ -235,11 +235,14 @@ func (h *HttpServer) updateFreelancerProfile(w http.ResponseWriter, r *http.Requ
 	err = h.app.Commands.UpdateFreelancerProfileHandler(r.Context(), cmd)
 	if err != nil {
 		switch {
+		case errors.Is(err, freelancerprofile.ErrProfileNotFound):
+			httperr.NotFoundResponse(w, r)
 		case errors.Is(err, app.ErrUnauthorized):
 			httperr.UnauthorizedResponse(w, r)
 		case errors.Is(err, freelancerprofile.ErrInvalidProperties):
 			httperr.BadRequestResponse(w, r, err)
 		case errors.Is(err, app.ErrEditConflict):
+			fmt.Printf("err: %v\n", err)
 			httperr.UpdateConflictResponse(w, r)
 		default:
 			httperr.ServerErrorResponse(w, r, err)
@@ -256,7 +259,7 @@ func (h *HttpServer) updateFreelancerProfile(w http.ResponseWriter, r *http.Requ
 		os.Remove(oldProfile.PictureURL)
 	}
 
-	err = httputils.WriteJSON(w, http.StatusCreated, httputils.Envelope{"message": "updated"}, nil)
+	err = httputils.WriteJSON(w, http.StatusOK, httputils.Envelope{"message": "updated"}, nil)
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
 	}

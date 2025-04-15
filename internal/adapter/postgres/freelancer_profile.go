@@ -40,7 +40,7 @@ func (r *FreelancerProfileRepository) Create(
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 	}
 
 	query := `
@@ -69,7 +69,7 @@ func (r *FreelancerProfileRepository) Create(
 		case strings.Contains(err.Error(), "duplicate key"):
 			return nil, freelancerprofile.ErrDuplicateProfile
 		default:
-			return nil, err
+			return nil, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 	}
 
@@ -119,7 +119,7 @@ func (r *FreelancerProfileRepository) GetByUsername(ctx context.Context, usernam
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, freelancerprofile.ErrProfileNotFound
 		default:
-			return nil, err
+			return nil, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 	}
 
@@ -169,7 +169,7 @@ func (r *FreelancerProfileRepository) GetByEmail(ctx context.Context, email stri
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, freelancerprofile.ErrProfileNotFound
 		default:
-			return nil, err
+			return nil, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 	}
 
@@ -218,7 +218,7 @@ func (r *FreelancerProfileRepository) GetByID(ctx context.Context, id int) (*fre
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, freelancerprofile.ErrProfileNotFound
 		default:
-			return nil, err
+			return nil, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 	}
 
@@ -257,6 +257,7 @@ func (r *FreelancerProfileRepository) Update(
 
 	err := r.db.QueryRowContext(ctx, query, username).Scan(
 		&id,
+		&email,
 		&name,
 		&title,
 		&pictureURL,
@@ -272,7 +273,7 @@ func (r *FreelancerProfileRepository) Update(
 		case errors.Is(err, sql.ErrNoRows):
 			return freelancerprofile.ErrProfileNotFound
 		default:
-			return err
+			return fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 	}
 
@@ -299,7 +300,7 @@ func (r *FreelancerProfileRepository) Update(
 	SET name=$1, title=$2, picture_url=$3, skills=$4,
 	years_of_experience=$5, hourly_rate_currency=$6,
 	hourly_rate_amount=$7, resume_url=$8, version=version + 1
-	WHERE email = $9`
+	WHERE email = $9 AND version = $10`
 
 	args := []interface{}{
 		profile.Name(),
@@ -311,10 +312,11 @@ func (r *FreelancerProfileRepository) Update(
 		int(profile.HourlyRate().Amount()),
 		profile.ResumeURL(),
 		email,
+		version,
 	}
 
-	if _, err := r.db.ExecContext(ctx, query, args); err != nil {
-		return app.ErrEditConflict
+	if _, err := r.db.ExecContext(ctx, query, args...); err != nil {
+		return fmt.Errorf("%w: %w", app.ErrEditConflict, err)
 	}
 
 	return nil
@@ -357,7 +359,7 @@ func (r *FreelancerProfileRepository) Search(
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, filters.Metadata{}, err
+		return nil, filters.Metadata{}, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 	}
 	defer rows.Close()
 
@@ -385,7 +387,7 @@ func (r *FreelancerProfileRepository) Search(
 			&hourlyRateAmount,
 			&resumeURL,
 		); err != nil {
-			return nil, filters.Metadata{}, err
+			return nil, filters.Metadata{}, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 
 		profile := freelancerprofile.Instantiate(
@@ -406,7 +408,7 @@ func (r *FreelancerProfileRepository) Search(
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, filters.Metadata{}, err
+		return nil, filters.Metadata{}, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 	}
 
 	meta := filters.CalculateMetaData(totalRecords, filter.Page(), filter.PageSize())

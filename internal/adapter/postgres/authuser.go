@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
@@ -35,7 +36,7 @@ func (r *AuthUserRepository) Create(ctx context.Context, username, email, name, 
 		case strings.Contains(err.Error(), "duplicate key"):
 			return nil, authuser.ErrUserAlreadyExists
 		default:
-			return nil, err
+			return nil, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 	}
 
@@ -66,7 +67,7 @@ func (r *AuthUserRepository) GetByEmail(ctx context.Context, email string) (*aut
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, authuser.ErrUserNotFound
 		default:
-			return nil, err
+			return nil, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 	}
 
@@ -97,7 +98,7 @@ func (r *AuthUserRepository) GetByUsername(ctx context.Context, username string)
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, authuser.ErrUserNotFound
 		default:
-			return nil, err
+			return nil, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 	}
 
@@ -126,7 +127,7 @@ func (r *AuthUserRepository) GetByID(ctx context.Context, id int) (*authuser.Use
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, authuser.ErrUserNotFound
 		default:
-			return nil, err
+			return nil, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 	}
 
@@ -174,7 +175,7 @@ func (r *AuthUserRepository) GetByToken(ctx context.Context, token authuser.Toke
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, authuser.ErrUserNotFound
 		default:
-			return nil, err
+			return nil, fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 	}
 
@@ -213,7 +214,7 @@ func (r *AuthUserRepository) Update(ctx context.Context, id int, updateFn func(c
 		case errors.Is(err, sql.ErrNoRows):
 			return authuser.ErrUserNotFound
 		default:
-			return err
+			return fmt.Errorf("%w: %w", ErrDatabaseError, err)
 		}
 	}
 

@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/base32"
+	"fmt"
 	"sync"
 
 	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
@@ -51,7 +52,7 @@ func generateToken() (authuser.Token, error) {
 	randomBytes := make([]byte, 16)
 
 	if _, err := rand.Read(randomBytes); err != nil {
-		return authuser.Token(""), err
+		return authuser.Token(""), fmt.Errorf("generate token error: %w", err)
 	}
 
 	plainText := base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
