@@ -28,11 +28,11 @@ var (
 // New creates a new business and validate it's name, description, and emails.
 // returns ErrInvalidBusinessProperty in case of any invalid properties.
 func New(name, businessEmail, description, imageURL, ownerEmail string) (*Business, error) {
-	if len(name) < 0 && len(name) > 30 {
+	if len(name) == 0 || len(name) > 30 {
 		return nil, fmt.Errorf("%w: name must be between 0 and 30 bytes", ErrInvalidBusinessProperty)
 	}
 
-	if len(description) < 0 && len(description) > 1000 {
+	if len(description) == 0 || len(description) > 1000 {
 		return nil, fmt.Errorf("%w: description must be between 0 and 1000 bytes", ErrInvalidBusinessProperty)
 	}
 
@@ -83,7 +83,7 @@ func (b *Business) Name() string {
 }
 
 func (b *Business) UpdateName(name string) error {
-	if len(name) < 0 && len(name) > 30 {
+	if len(name) == 0 || len(name) > 30 {
 		return fmt.Errorf("%w: name must be between 0 and 30 bytes", ErrInvalidBusinessProperty)
 	}
 
@@ -96,7 +96,7 @@ func (b *Business) Description() string {
 }
 
 func (b *Business) UpdateDescription(description string) error {
-	if len(description) < 0 && len(description) > 1000 {
+	if len(description) == 0 || len(description) > 1000 {
 		return fmt.Errorf("%w: description must be between 0 and 1000 bytes", ErrInvalidBusinessProperty)
 	}
 

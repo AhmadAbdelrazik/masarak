@@ -15,7 +15,7 @@ type Range[T comparable] struct {
 	To   T
 }
 
-type Salary Range[*money.Money]
+type SalaryRange Range[*money.Money]
 type YearsOfExperience Range[int]
 
 type Job struct {
@@ -27,7 +27,7 @@ type Job struct {
 	skills       []string
 
 	yearsOfExperience YearsOfExperience
-	expectedSalary    Salary
+	expectedSalary    SalaryRange
 
 	status       *valueobject.JobStatus
 	applications []*Application
@@ -41,12 +41,12 @@ var (
 )
 
 func newJob(title, description, workLocation, workTime string, skills []string) (*Job, error) {
-	if len(title) < 0 && len(title) > 30 {
+	if len(title) == 0 || len(title) > 30 {
 		return nil, fmt.Errorf("%w: job title must be between 0 and 30 bytes", ErrInvalidJobProperty)
 
 	}
 
-	if len(description) < 0 && len(description) > 1000 {
+	if len(description) == 0 || len(description) > 1000 {
 		return nil, fmt.Errorf("%w: description must be between 0 and 1000 bytes", ErrInvalidJobProperty)
 	}
 
@@ -57,7 +57,7 @@ func newJob(title, description, workLocation, workTime string, skills []string) 
 		return nil, fmt.Errorf("%w: incorrect work time. (full time - part time)", ErrInvalidJobProperty)
 	}
 
-	if len(skills) <= 0 || len(skills) > 10 {
+	if len(skills) == 0 || len(skills) > 10 {
 		return nil, fmt.Errorf("%w: invalid number of skills (must be between 1 and 10)", ErrInvalidJobProperty)
 	}
 
@@ -75,11 +75,11 @@ func newJob(title, description, workLocation, workTime string, skills []string) 
 		workTime:          workTime,
 		skills:            skills,
 		yearsOfExperience: YearsOfExperience{From: 0, To: 50},
-		expectedSalary:    Salary{From: from, To: to},
+		expectedSalary:    SalaryRange{From: from, To: to},
 		status:            status,
 		applications:      []*Application{},
-		createdAt:         time.Time{},
-		updatedAt:         time.Time{},
+		createdAt:         time.Now(),
+		updatedAt:         time.Now(),
 	}, nil
 }
 
@@ -89,7 +89,7 @@ func InstantiateJob(
 	title, description, workLocation, workTime string,
 	skills []string,
 	yearsOfExperience YearsOfExperience,
-	salary Salary,
+	salary SalaryRange,
 	status string,
 	applications []*Application,
 	createdAt, updatedAt time.Time,
@@ -124,7 +124,7 @@ func (j *Job) Title() string {
 }
 
 func (j *Job) updateTitle(title string) error {
-	if len(title) < 0 && len(title) > 30 {
+	if len(title) == 0 || len(title) > 30 {
 		return fmt.Errorf("%w: job title must be between 0 and 30 bytes", ErrInvalidJobUpdate)
 	}
 
@@ -140,7 +140,7 @@ func (j *Job) Description() string {
 }
 
 func (j *Job) UpdateDescription(description string) error {
-	if len(description) < 0 && len(description) > 1000 {
+	if len(description) == 0 || len(description) > 1000 {
 		return fmt.Errorf("%w: description must be between 0 and 1000 bytes", ErrInvalidJobUpdate)
 	}
 
@@ -186,7 +186,7 @@ func (j *Job) Skills() []string {
 }
 
 func (j *Job) UpdateSkills(skills []string) error {
-	if len(skills) <= 0 || len(skills) > 10 {
+	if len(skills) == 0 || len(skills) > 10 {
 		return fmt.Errorf("%w: invalid number of skills (must be between 1 and 10)", ErrInvalidJobUpdate)
 	}
 
@@ -202,6 +202,9 @@ func (j *Job) YearsOfExperience() YearsOfExperience {
 }
 
 func (j *Job) UpdateYearsOfExperience(from, to int) error {
+	if from < 0 {
+		return fmt.Errorf("%w: invalid years of experience, can't be less than 0", ErrInvalidJobUpdate)
+	}
 	if from > to {
 		return fmt.Errorf("%w: from can't be more than to", ErrInvalidJobUpdate)
 	}
@@ -214,7 +217,7 @@ func (j *Job) UpdateYearsOfExperience(from, to int) error {
 	return nil
 }
 
-func (j *Job) ExpectedSalary() Salary {
+func (j *Job) ExpectedSalary() SalaryRange {
 	return j.expectedSalary
 }
 
