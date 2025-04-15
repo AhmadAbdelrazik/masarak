@@ -346,7 +346,7 @@ func (r *FreelancerProfileRepository) Search(
 	LIMIT $8 OFFSET $9`, filter.SortColumn(), filter.SortDirection())
 
 	args := []interface{}{
-		name,
+		username,
 		name,
 		title,
 		pq.Array(skills),

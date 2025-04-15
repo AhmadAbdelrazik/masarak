@@ -266,8 +266,9 @@ func (h *HttpServer) updateFreelancerProfile(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *HttpServer) searchFreelancerProfiles(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+	err := r.ParseForm()
 	name := r.FormValue("name")
+	username := r.FormValue("username")
 	title := r.FormValue("title")
 	skills := r.Form["skills"]
 	yoeStr := r.FormValue("years_of_experience")
@@ -322,8 +323,9 @@ func (h *HttpServer) searchFreelancerProfiles(w http.ResponseWriter, r *http.Req
 	filter, err := filters.NewSQLFilter(
 		filters.WithPage(pageNumber),
 		filters.WithPageSize(pageSize),
-		filters.WithSort(sort, "name", []string{
+		filters.WithSort(sort, "username", []string{
 			"name",
+			"username",
 			"title",
 			"years_of_experience",
 			"hourly_rate_amount",
@@ -335,6 +337,7 @@ func (h *HttpServer) searchFreelancerProfiles(w http.ResponseWriter, r *http.Req
 	}
 
 	cmd := app.SearchFreelancerProfiles{
+		Username:           username,
 		Name:               name,
 		Title:              title,
 		Skills:             skills,
@@ -343,6 +346,7 @@ func (h *HttpServer) searchFreelancerProfiles(w http.ResponseWriter, r *http.Req
 		HourlyRateCurrency: hourlyRateCurrency,
 		Filters:            filter,
 	}
+
 	profiles, meta, err := h.app.Queries.SearchFreelancerProfilesHandler(r.Context(), cmd)
 	if err != nil {
 		httperr.ServerErrorResponse(w, r, err)
