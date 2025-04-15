@@ -22,7 +22,9 @@ make run/api
 
 Masarak architecture is inspired by the amazing work of [ThreeDots](https://threedots.tech/series/modern-business-software-in-go) that introduces [Domain Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design) that is more idiomatic to Golang.
 
-The architecture utilizes the strength of DDD and it's modularity and ease of scalability, but careful not to fall in a lot of boiler plate.
+The architecture utilizes the strength of DDD and it's modularity and ease of scalability, but careful not to fall in a lot of boiler plate. the architecture can be described by this 
+
+![application architecture](https://github.com/AhmadAbdelrazik/masarak/blob/main/docs/application%20layers.png)
 
 
 The architecture lean more towards the [Hexagonal architecture](https://en.wikipedia.org/wiki/Hexagonal_architecture_(software)) defining Ports which are entry points to the application, and adapters which implements the necessary infrastructure and services defined by the domain layer.
