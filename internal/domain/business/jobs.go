@@ -38,6 +38,7 @@ type Job struct {
 var (
 	ErrInvalidJobProperty = fmt.Errorf("%w: Job", domain.ErrInvalidProperty)
 	ErrInvalidJobUpdate   = fmt.Errorf("%w: Job", domain.ErrInvalidUpdate)
+	ErrJobConflict        = fmt.Errorf("%w: Job conflict", domain.ErrInvalidUpdate)
 )
 
 func newJob(title, description, workLocation, workTime string, skills []string) (*Job, error) {
@@ -253,4 +254,85 @@ func (j *Job) UpdateStatus(status string) error {
 	j.updatedAt = time.Now()
 
 	return nil
+}
+
+func (j *Job) NewApplication(
+	name, email, title string,
+	yearsOfExperience int,
+	freelancerProfile, resumeURL string,
+) (*Application, error) {
+	for _, e := range j.applications {
+		if e.email == email {
+			return nil, fmt.Errorf("%w: applicant already applied", ErrJobConflict)
+		}
+	}
+
+	application, err := newApplication(
+		name,
+		email,
+		title,
+		yearsOfExperience,
+		freelancerProfile,
+		resumeURL,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	j.applications = append(j.applications, application)
+
+	return application, nil
+}
+
+func (j *Job) Application(applicationID int) (*Application, error) {
+	for _, a := range j.applications {
+		if a.id == applicationID {
+			return a, nil
+		}
+	}
+
+	return nil, fmt.Errorf("%w: application not found", domain.ErrNotFound)
+}
+
+// UpdateApplicationStatus Change the status of a job application. returns
+// ErrJobConflict in case the job was not open, and returns ErrNotFound if the
+// application is not found, and returns ErrInvalidApplicationUpdate in case of
+// error with the provided application status
+func (j *Job) UpdateApplicationStatus(applicationID int, status string) error {
+	if j.status.Status() != "open" {
+		return fmt.Errorf("%w: job is not open", ErrJobConflict)
+	}
+
+	var application *Application
+
+	for _, a := range j.applications {
+		if a.id == applicationID {
+			application = a
+			break
+		}
+	}
+
+	if application == nil {
+		return fmt.Errorf("%w: application not found", domain.ErrNotFound)
+	}
+
+	return application.updateStatus(status)
+}
+
+// DeleteApplication deletes an application, it's advised to not use this
+// method directly and use the application layer use case instead for
+// protection from database not knowing about the deletion.
+func (j *Job) DeleteApplication(applicationID int) error {
+	if j.status.Status() != "open" {
+		return fmt.Errorf("%w: job is not open", ErrJobConflict)
+	}
+
+	for i, a := range j.applications {
+		if a.id == applicationID {
+			j.applications = slices.Delete(j.applications, i, i+1)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("%w: application not found", domain.ErrNotFound)
 }
