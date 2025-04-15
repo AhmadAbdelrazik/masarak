@@ -17,8 +17,8 @@ import (
 
 // createFreelancerProfileHandler receives html form with the following data:
 // name, title, skills (array), years_of_experience (int),
-// hourly_rate_amount(int), hourly_rate_currency, picture (.jpg/.jpeg/.png
-// file) and resume (.pdf file)
+// hourly_rate_amount(int), hourly_rate_currency, picture (jpg/jpeg/png
+// file) and resume (pdf file)
 func (h *HttpServer) createFreelancerProfileHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := getUser(r.Context())
 	if err != nil {
@@ -107,6 +107,7 @@ func (h *HttpServer) createFreelancerProfileHandler(w http.ResponseWriter, r *ht
 	}
 }
 
+// getFreelancerProfile returns the freelancer profile by username
 func (h *HttpServer) getFreelancerProfile(w http.ResponseWriter, r *http.Request) {
 	username := r.PathValue("username")
 
@@ -131,6 +132,10 @@ func (h *HttpServer) getFreelancerProfile(w http.ResponseWriter, r *http.Request
 	httputils.WriteJSON(w, http.StatusOK, httputils.Envelope{"profile": profile}, nil)
 }
 
+// updateFreelancerProfile Updates freelancer profile. Available properties to
+// update are name, title, skills (array), years_of_experience (int),
+// hourly_rate_amount(int), hourly_rate_currency, picture (jpg/jpeg/png file)
+// and resume (pdf file)
 func (h *HttpServer) updateFreelancerProfile(w http.ResponseWriter, r *http.Request) {
 	username := r.PathValue("username")
 
@@ -265,6 +270,8 @@ func (h *HttpServer) updateFreelancerProfile(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+// searchFreelancerProfiles search functionality to search for freelancer
+// profiles, you can sort, paginate, filter for better results.
 func (h *HttpServer) searchFreelancerProfiles(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	name := r.FormValue("name")
