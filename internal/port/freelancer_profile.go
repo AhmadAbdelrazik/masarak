@@ -110,14 +110,7 @@ func (h *HttpServer) createFreelancerProfileHandler(w http.ResponseWriter, r *ht
 func (h *HttpServer) getFreelancerProfile(w http.ResponseWriter, r *http.Request) {
 	username := r.PathValue("username")
 
-	user, err := getUser(r.Context())
-	if err != nil {
-		httperr.ServerErrorResponse(w, r, err)
-		return
-	}
-
 	cmd := app.GetFreelancerProfile{
-		User:     user,
 		Username: username,
 	}
 
@@ -228,7 +221,7 @@ func (h *HttpServer) updateFreelancerProfile(w http.ResponseWriter, r *http.Requ
 		cmd.ResumeURL = &resumeURL
 	}
 
-	oldProfile, err := h.app.Queries.GetFreelancerProfileHandler(r.Context(), app.GetFreelancerProfile{User: user, Username: user.Username()})
+	oldProfile, err := h.app.Queries.GetFreelancerProfileHandler(r.Context(), app.GetFreelancerProfile{Username: user.Username()})
 	if err != nil {
 		switch {
 		case errors.Is(err, freelancerprofile.ErrProfileNotFound):
