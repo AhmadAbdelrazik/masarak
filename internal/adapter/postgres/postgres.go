@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
+
+	_ "github.com/lib/pq"
 )
 
 var ErrDatabaseError = fmt.Errorf("%w: postgres", app.ErrDatabaseError)
