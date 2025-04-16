@@ -2,6 +2,9 @@
 package app
 
 import (
+	"time"
+
+	"github.com/ahmadabdelrazik/masarak/internal/domain/business"
 	"github.com/ahmadabdelrazik/masarak/internal/domain/freelancerprofile"
 	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
 )
@@ -63,4 +66,74 @@ func toFreelancerProfile(profile *freelancerprofile.FreelancerProfile) Freelance
 		},
 		ResumeURL: profile.ResumeURL(),
 	}
+}
+
+type Business struct {
+	Name          string `json:"name"`
+	BusinessEmail string `json:"businessEmail"`
+	Description   string `json:"description"`
+	ImageURL      string `json:"imageURL"`
+}
+
+func toBusiness(business *business.Business) Business {
+	if business == nil {
+		return Business{}
+	}
+	return Business{
+		Name:          business.Name(),
+		BusinessEmail: business.BusinessEmail(),
+		Description:   business.Description(),
+		ImageURL:      business.ImageURL,
+	}
+}
+
+type Job struct {
+	ID           int      `json:"iD"`
+	Title        string   `json:"title"`
+	Description  string   `json:"description"`
+	WorkLocation string   `json:"workLocation"`
+	WorkTime     string   `json:"workTime"`
+	Skills       []string `json:"skills"`
+
+	YearsOfExperience struct {
+		From int `json:"from"`
+		To   int `json:"to"`
+	} `json:"years_of_experience"`
+
+	ExpectedSalary struct {
+		From     int    `json:"from"`
+		To       int    `json:"to"`
+		Currency string `json:"currency"`
+	} `json:"expected_salary"`
+
+	Status    string    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func toJob(job *business.Job) Job {
+	if job == nil {
+		return Job{}
+	}
+
+	jobDTO := Job{
+		ID:           0,
+		Title:        job.Title(),
+		Description:  job.Description(),
+		WorkLocation: job.WorkLocation(),
+		WorkTime:     job.WorkTime(),
+		Skills:       job.Skills(),
+		Status:       job.Status(),
+		CreatedAt:    job.CreatedAt(),
+		UpdatedAt:    job.UpdatedAt(),
+	}
+
+	jobDTO.YearsOfExperience.From = job.YearsOfExperience().From
+	jobDTO.YearsOfExperience.To = job.YearsOfExperience().To
+
+	jobDTO.ExpectedSalary.From = int(job.ExpectedSalary().From.Amount())
+	jobDTO.ExpectedSalary.To = int(job.ExpectedSalary().To.Amount())
+	jobDTO.ExpectedSalary.Currency = job.ExpectedSalary().From.Currency().Code
+
+	return jobDTO
 }

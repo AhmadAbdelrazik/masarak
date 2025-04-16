@@ -14,7 +14,7 @@ type Business struct {
 	businessEmail  string
 	description    string
 	ImageURL       string
-	jobs           []*Job
+	jobs           []Job
 	ownerEmail     string
 	employeeEmails []string
 }
@@ -49,7 +49,7 @@ func New(name, businessEmail, description, imageURL, ownerEmail string) (*Busine
 		businessEmail:  businessEmail,
 		description:    description,
 		ImageURL:       imageURL,
-		jobs:           make([]*Job, 0),
+		jobs:           make([]Job, 0),
 		ownerEmail:     ownerEmail,
 		employeeEmails: []string{},
 	}, nil
@@ -59,7 +59,7 @@ func New(name, businessEmail, description, imageURL, ownerEmail string) (*Busine
 func Instantiate(
 	id int,
 	name, businessEmail, description, imageURL, ownerEmail string,
-	jobs []*Job,
+	jobs []Job,
 	employeeEmails []string,
 ) *Business {
 	return &Business{
@@ -185,7 +185,7 @@ func (b *Business) NewJob(title, description, workLocation, workTime string, ski
 		return nil, err
 	}
 
-	b.jobs = append(b.jobs, job)
+	b.jobs = append(b.jobs, *job)
 
 	return job, nil
 }
@@ -194,7 +194,7 @@ func (b *Business) NewJob(title, description, workLocation, workTime string, ski
 func (b *Business) Job(jobID int) (*Job, error) {
 	for _, j := range b.jobs {
 		if j.ID() == jobID {
-			return j, nil
+			return &j, nil
 		}
 	}
 
@@ -221,7 +221,7 @@ func (b *Business) UpdateJobTitle(jobID int, title string) error {
 			return fmt.Errorf("%w: job with the same title already exists", ErrInvalidBusinessUpdate)
 		}
 		if j.id == jobID {
-			job = j
+			job = &j
 		}
 	}
 

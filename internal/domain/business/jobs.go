@@ -30,7 +30,7 @@ type Job struct {
 	expectedSalary    SalaryRange
 
 	status       *valueobject.JobStatus
-	applications []*Application
+	applications []Application
 	createdAt    time.Time
 	updatedAt    time.Time
 }
@@ -78,7 +78,7 @@ func newJob(title, description, workLocation, workTime string, skills []string) 
 		yearsOfExperience: YearsOfExperienceRange{From: 0, To: 50},
 		expectedSalary:    SalaryRange{From: from, To: to},
 		status:            status,
-		applications:      []*Application{},
+		applications:      []Application{},
 		createdAt:         time.Now(),
 		updatedAt:         time.Now(),
 	}, nil
@@ -92,7 +92,7 @@ func InstantiateJob(
 	yearsOfExperience YearsOfExperienceRange,
 	salary SalaryRange,
 	status string,
-	applications []*Application,
+	applications []Application,
 	createdAt, updatedAt time.Time,
 ) *Job {
 	jobStatus, err := valueobject.NewJobStatus(status)
@@ -256,6 +256,14 @@ func (j *Job) UpdateStatus(status string) error {
 	return nil
 }
 
+func (j *Job) CreatedAt() time.Time {
+	return j.createdAt
+}
+
+func (j *Job) UpdatedAt() time.Time {
+	return j.updatedAt
+}
+
 func (j *Job) NewApplication(
 	name, email, title string,
 	yearsOfExperience int,
@@ -279,7 +287,7 @@ func (j *Job) NewApplication(
 		return nil, err
 	}
 
-	j.applications = append(j.applications, application)
+	j.applications = append(j.applications, *application)
 
 	return application, nil
 }
@@ -287,7 +295,7 @@ func (j *Job) NewApplication(
 func (j *Job) Application(applicationID int) (*Application, error) {
 	for _, a := range j.applications {
 		if a.id == applicationID {
-			return a, nil
+			return &a, nil
 		}
 	}
 
@@ -307,7 +315,7 @@ func (j *Job) UpdateApplicationStatus(applicationID int, status string) error {
 
 	for _, a := range j.applications {
 		if a.id == applicationID {
-			application = a
+			application = &a
 			break
 		}
 	}
