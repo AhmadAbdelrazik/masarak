@@ -25,7 +25,7 @@ type Repository interface {
 	// Search - Returns all businesses matching the filters, the name
 	// argument is used for filtering, for all names use "" in the
 	// name argument
-	Search(ctx context.Context, name string, filter filters.Filter) ([]*Business, error)
+	Search(ctx context.Context, name string, filter filters.Filter) ([]*Business, filters.Metadata, error)
 
 	// Update fetches the business and apply update to the business. the
 	// updateFn provides the fetched business object where domain and
@@ -35,5 +35,5 @@ type Repository interface {
 		ctx context.Context,
 		businessID int,
 		updateFn func(ctx context.Context, business *Business) error,
-	) error
+	) (Business, error)
 }
