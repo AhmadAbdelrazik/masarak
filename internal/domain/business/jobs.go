@@ -16,7 +16,7 @@ type Range[T comparable] struct {
 }
 
 type SalaryRange Range[*money.Money]
-type YearsOfExperience Range[int]
+type YearsOfExperienceRange Range[int]
 
 type Job struct {
 	id           int
@@ -26,7 +26,7 @@ type Job struct {
 	workTime     string // full time or part time
 	skills       []string
 
-	yearsOfExperience YearsOfExperience
+	yearsOfExperience YearsOfExperienceRange
 	expectedSalary    SalaryRange
 
 	status       *valueobject.JobStatus
@@ -75,7 +75,7 @@ func newJob(title, description, workLocation, workTime string, skills []string) 
 		workLocation:      workLocation,
 		workTime:          workTime,
 		skills:            skills,
-		yearsOfExperience: YearsOfExperience{From: 0, To: 50},
+		yearsOfExperience: YearsOfExperienceRange{From: 0, To: 50},
 		expectedSalary:    SalaryRange{From: from, To: to},
 		status:            status,
 		applications:      []*Application{},
@@ -89,7 +89,7 @@ func InstantiateJob(
 	id int,
 	title, description, workLocation, workTime string,
 	skills []string,
-	yearsOfExperience YearsOfExperience,
+	yearsOfExperience YearsOfExperienceRange,
 	salary SalaryRange,
 	status string,
 	applications []*Application,
@@ -198,7 +198,7 @@ func (j *Job) UpdateSkills(skills []string) error {
 }
 
 // YearsOfExperience returns the range of years of experiences, default value is 0 to 50
-func (j *Job) YearsOfExperience() YearsOfExperience {
+func (j *Job) YearsOfExperience() YearsOfExperienceRange {
 	return j.yearsOfExperience
 }
 
