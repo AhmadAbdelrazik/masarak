@@ -35,8 +35,17 @@ func (c *Commands) CreateBusinessHandler(ctx context.Context, cmd CreateBusiness
 	return toBusiness(business), nil
 }
 
+type UpdateBusiness struct {
+	User          *authuser.User
+	BusinessID    int
+	Name          *string
+	BusinessEmail *string
+	Description   *string
+	ImageURL      *string
+}
+
 func (c *Commands) UpdateBusinessHandler(ctx context.Context, cmd UpdateBusiness) (Business, error) {
-	if !cmd.User.HasPermission("business.create") {
+	if !cmd.User.HasPermission("business.update") {
 		return Business{}, ErrUnauthorized
 	}
 
@@ -44,6 +53,10 @@ func (c *Commands) UpdateBusinessHandler(ctx context.Context, cmd UpdateBusiness
 		ctx,
 		cmd.BusinessID,
 		func(ctx context.Context, business *business.Business) error {
+			if !business.IsEmployee(cmd.User.Email()) {
+				return ErrUnauthorized
+			}
+
 			if cmd.Name != nil {
 				if err := business.UpdateName(*cmd.Name); err != nil {
 					return err
@@ -92,6 +105,10 @@ func (c *Commands) AddEmployeeToBusinessHandler(ctx context.Context, cmd AddEmpl
 		ctx,
 		cmd.BusinessID,
 		func(ctx context.Context, business *business.Business) error {
+			if !business.IsEmployee(cmd.User.Email()) {
+				return ErrUnauthorized
+			}
+
 			return business.AddEmployee(cmd.EmployeeEmail)
 		},
 	)
@@ -114,18 +131,13 @@ func (c *Commands) RemoveEmployeeFromBusinessHandler(ctx context.Context, cmd Re
 		ctx,
 		cmd.BusinessID,
 		func(ctx context.Context, business *business.Business) error {
+			if !business.IsEmployee(cmd.User.Email()) {
+				return ErrUnauthorized
+			}
+
 			return business.RemoveEmployee(cmd.EmployeeEmail)
 		},
 	)
 
 	return err
-}
-
-type UpdateBusiness struct {
-	User          *authuser.User
-	BusinessID    int
-	Name          *string
-	BusinessEmail *string
-	Description   *string
-	ImageURL      *string
 }

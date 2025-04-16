@@ -133,10 +133,10 @@ func (b *Business) UpdateBusinessEmail(businessEmail string) error {
 }
 
 func (b *Business) IsEmployee(email string) bool {
-	for _, e := range b.employeeEmails {
-		if e == email {
-			return true
-		}
+	if email == b.ownerEmail {
+		return true
+	} else if slices.Contains(b.employeeEmails, email) {
+		return true
 	}
 
 	return false
