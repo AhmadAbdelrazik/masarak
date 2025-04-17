@@ -18,16 +18,13 @@ type AddJob struct {
 }
 
 func (c *Commands) AddJobHandler(ctx context.Context, cmd AddJob) (Job, error) {
-	if !cmd.User.HasPermission("job.create") {
-		return Job{}, ErrUnauthorized
-	}
-
 	var jobDTO Job
+
 	_, err := c.repo.Businesses.Update(
 		ctx,
 		cmd.BusinessID,
 		func(ctx context.Context, business *business.Business) error {
-			if !business.IsEmployee(cmd.User.Email()) {
+			if !cmd.User.HasPermission("job.create") || !business.IsEmployee(cmd.User.Email()) {
 				return ErrUnauthorized
 			}
 
@@ -73,17 +70,13 @@ type UpdateJob struct {
 }
 
 func (c *Commands) UpdateJobHandler(ctx context.Context, cmd UpdateJob) (Job, error) {
-	if !cmd.User.HasPermission("job.update") {
-		return Job{}, ErrUnauthorized
-	}
-
 	var jobDTO Job
 
 	_, err := c.repo.Businesses.Update(
 		ctx,
 		cmd.BusinessID,
 		func(ctx context.Context, business *business.Business) error {
-			if !business.IsEmployee(cmd.User.Email()) {
+			if !cmd.User.HasPermission("job.update") || !business.IsEmployee(cmd.User.Email()) {
 				return ErrUnauthorized
 			}
 

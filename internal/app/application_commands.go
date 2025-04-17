@@ -22,15 +22,16 @@ type ApplyToJob struct {
 }
 
 func (c *Commands) ApplyToJobHandler(ctx context.Context, cmd ApplyToJob) (JobApplication, error) {
-	if !cmd.User.HasPermission("application.create") {
-		return JobApplication{}, ErrUnauthorized
-	}
-
 	var applicationDTO JobApplication
+
 	_, err := c.repo.Businesses.Update(
 		ctx,
 		cmd.BusinessID,
 		func(ctx context.Context, business *business.Business) error {
+			if !cmd.User.HasPermission("application.create") || !business.IsEmployee(cmd.User.Email()) {
+				return ErrUnauthorized
+			}
+
 			job, err := business.Job(cmd.JobID)
 			if err != nil {
 				return err
@@ -75,15 +76,16 @@ type UpdateApplication struct {
 }
 
 func (c *Commands) UpdateApplicationHandler(ctx context.Context, cmd UpdateApplication) (JobApplication, error) {
-	if !cmd.User.HasPermission("application.update") {
-		return JobApplication{}, ErrUnauthorized
-	}
-
 	var applicationDTO JobApplication
+
 	_, err := c.repo.Businesses.Update(
 		ctx,
 		cmd.BusinessID,
 		func(ctx context.Context, business *business.Business) error {
+			if !cmd.User.HasPermission("application.update") || !business.IsEmployee(cmd.User.Email()) {
+				return ErrUnauthorized
+			}
+
 			job, err := business.Job(cmd.JobID)
 			if err != nil {
 				return err
@@ -130,4 +132,7 @@ func (c *Commands) UpdateApplicationHandler(ctx context.Context, cmd UpdateAppli
 	}
 
 	return applicationDTO, nil
+}
+
+type UpdateApplicationStatus struct {
 }
