@@ -23,14 +23,14 @@ type ApplyToJob struct {
 
 func (c *Commands) ApplyToJobHandler(ctx context.Context, cmd ApplyToJob) (JobApplication, error) {
 	var applicationDTO JobApplication
+	if !cmd.User.HasPermission("application.create") {
+		return JobApplication{}, ErrUnauthorized
+	}
 
 	_, err := c.repo.Businesses.Update(
 		ctx,
 		cmd.BusinessID,
 		func(ctx context.Context, business *business.Business) error {
-			if !cmd.User.HasPermission("application.create") || !business.IsEmployee(cmd.User.Email()) {
-				return ErrUnauthorized
-			}
 
 			job, err := business.Job(cmd.JobID)
 			if err != nil {
@@ -82,18 +82,22 @@ func (c *Commands) UpdateApplicationHandler(ctx context.Context, cmd UpdateAppli
 		ctx,
 		cmd.BusinessID,
 		func(ctx context.Context, business *business.Business) error {
-			if !cmd.User.HasPermission("application.update") || !business.IsEmployee(cmd.User.Email()) {
-				return ErrUnauthorized
-			}
-
 			job, err := business.Job(cmd.JobID)
 			if err != nil {
 				return err
 			}
 
+			if job.Status() != "open" {
+				return ErrUnauthorized
+			}
+
 			application, err := job.Application(cmd.ApplicationID)
 			if err != nil {
 				return err
+			}
+
+			if !cmd.User.HasPermission("application.update") || application.Email() != cmd.User.Email() {
+				return ErrUnauthorized
 			}
 
 			if cmd.Name != nil {
@@ -135,4 +139,30 @@ func (c *Commands) UpdateApplicationHandler(ctx context.Context, cmd UpdateAppli
 }
 
 type UpdateApplicationStatus struct {
+	User          *authuser.User
+	BusinessID    int
+	JobID         int
+	ApplicationID int
+	Status        string
+}
+
+func (c *Commands) UpdateApplicationStatusHandler(ctx context.Context, cmd UpdateApplicationStatus) error {
+	_, err := c.repo.Businesses.Update(
+		ctx,
+		cmd.BusinessID,
+		func(ctx context.Context, business *business.Business) error {
+			if !cmd.User.HasPermission("application.update_status") || !business.IsEmployee(cmd.User.Email()) {
+				return ErrUnauthorized
+			}
+
+			job, err := business.Job(cmd.JobID)
+			if err != nil {
+				return err
+			}
+
+			return job.UpdateApplicationStatus(cmd.ApplicationID, cmd.Status)
+		},
+	)
+
+	return err
 }

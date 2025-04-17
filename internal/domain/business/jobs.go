@@ -268,6 +268,7 @@ func (j *Job) UpdateExpectedSalary(from, to int, currency string) error {
 	return nil
 }
 
+// Status can be open, closed, or archived
 func (j *Job) Status() string {
 	return j.status.Status()
 }
