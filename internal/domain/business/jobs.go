@@ -19,6 +19,10 @@ type SalaryRange Range[*money.Money]
 type YearsOfExperienceRange Range[int]
 
 type Job struct {
+	businessID       int
+	businessName     string
+	businessImageURL string
+
 	id           int
 	title        string
 	description  string
@@ -41,7 +45,12 @@ var (
 	ErrJobConflict        = fmt.Errorf("%w: Job conflict", domain.ErrInvalidUpdate)
 )
 
-func newJob(title, description, workLocation, workTime string, skills []string) (*Job, error) {
+func newJob(
+	businessID int,
+	businessName, businessImage string,
+	title, description, workLocation, workTime string,
+	skills []string,
+) (*Job, error) {
 	if len(title) == 0 || len(title) > 30 {
 		return nil, fmt.Errorf("%w: job title must be between 0 and 30 bytes", ErrInvalidJobProperty)
 
@@ -70,6 +79,9 @@ func newJob(title, description, workLocation, workTime string, skills []string) 
 	from, to := money.New(0, "EGP"), money.New(999_999_999, "EGP")
 
 	return &Job{
+		businessID:        businessID,
+		businessName:      businessName,
+		businessImageURL:  businessImage,
 		title:             title,
 		description:       description,
 		workLocation:      workLocation,
@@ -114,6 +126,18 @@ func InstantiateJob(
 		createdAt:         createdAt,
 		updatedAt:         updatedAt,
 	}
+}
+
+func (j *Job) BusinessID() int {
+	return j.id
+}
+
+func (j *Job) BusinessName() string {
+	return j.businessName
+}
+
+func (j *Job) BusinessImageURL() string {
+	return j.businessImageURL
 }
 
 func (j *Job) ID() int {

@@ -76,7 +76,7 @@ func (c *Commands) UpdateBusinessHandler(ctx context.Context, cmd UpdateBusiness
 			}
 
 			if cmd.ImageURL != nil {
-				business.ImageURL = *cmd.ImageURL
+				business.UpdateImageURL(*cmd.ImageURL)
 			}
 
 			return nil

@@ -13,7 +13,7 @@ var (
 )
 
 type Repository interface {
-	// Create - Creates a new business with unique name,
+	// Create Creates a new business with unique name,
 	// businessEmail, and imageURL
 	Create(ctx context.Context, name, businessEmail, ownerEmail,
 		description, imageURL string) (*Business, error)
@@ -22,10 +22,21 @@ type Repository interface {
 	GetByIDs(ctx context.Context, ids []int) ([]*Business,
 		error)
 
-	// Search - Returns all businesses matching the filters, the name
+	// Search  Returns all businesses matching the filters, the name
 	// argument is used for filtering, for all names use "" in the
 	// name argument
 	Search(ctx context.Context, name string, filter filters.Filter) ([]*Business, filters.Metadata, error)
+
+	// SearchJobs fetches the jobs that match the filters, use the nil
+	// value for each category you don't want to filter by it, except
+	// yearsOfExeprience use -1 instead of 0
+	SearchJobs(
+		ctx context.Context,
+		title, workLocation, workTime string,
+		skills []string,
+		yearsOfExperience int,
+		filter filters.Filter,
+	) ([]*Job, filters.Metadata, error)
 
 	// Update fetches the business and apply update to the business. the
 	// updateFn provides the fetched business object where domain and

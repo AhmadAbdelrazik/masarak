@@ -13,7 +13,7 @@ type Business struct {
 	name           string
 	businessEmail  string
 	description    string
-	ImageURL       string
+	imageURL       string
 	jobs           []Job
 	ownerEmail     string
 	employeeEmails []string
@@ -48,7 +48,7 @@ func New(name, businessEmail, description, imageURL, ownerEmail string) (*Busine
 		name:           name,
 		businessEmail:  businessEmail,
 		description:    description,
-		ImageURL:       imageURL,
+		imageURL:       imageURL,
 		jobs:           make([]Job, 0),
 		ownerEmail:     ownerEmail,
 		employeeEmails: []string{},
@@ -67,7 +67,7 @@ func Instantiate(
 		name:           name,
 		businessEmail:  businessEmail,
 		description:    description,
-		ImageURL:       imageURL,
+		imageURL:       imageURL,
 		ownerEmail:     ownerEmail,
 		jobs:           jobs,
 		employeeEmails: employeeEmails,
@@ -88,6 +88,11 @@ func (b *Business) UpdateName(name string) error {
 	}
 
 	b.name = name
+
+	for i := range b.jobs {
+		b.jobs[i].businessName = name
+	}
+
 	return nil
 }
 
@@ -180,7 +185,16 @@ func (b *Business) NewJob(title, description, workLocation, workTime string, ski
 		}
 	}
 
-	job, err := newJob(title, description, workLocation, workLocation, skills)
+	job, err := newJob(
+		b.id,
+		b.name,
+		b.imageURL,
+		title,
+		description,
+		workLocation,
+		workLocation,
+		skills,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -230,4 +244,18 @@ func (b *Business) UpdateJobTitle(jobID int, title string) error {
 	}
 
 	return job.updateTitle(title)
+}
+
+func (b *Business) ImageURL() string {
+	return b.imageURL
+}
+
+func (b *Business) UpdateImageURL(url string) error {
+	b.imageURL = url
+
+	for i := range b.jobs {
+		b.jobs[i].businessImageURL = url
+	}
+
+	return nil
 }

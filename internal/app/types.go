@@ -83,11 +83,15 @@ func toBusiness(business *business.Business) Business {
 		Name:          business.Name(),
 		BusinessEmail: business.BusinessEmail(),
 		Description:   business.Description(),
-		ImageURL:      business.ImageURL,
+		ImageURL:      business.ImageURL(),
 	}
 }
 
 type Job struct {
+	BusinessID       int    `json:"business_id"`
+	BusinessName     string `json:"business_name"`
+	BusinessImageURL string `json:"business_image_url"`
+
 	ID           int      `json:"iD"`
 	Title        string   `json:"title"`
 	Description  string   `json:"description"`
@@ -117,15 +121,27 @@ func toJob(job *business.Job) Job {
 	}
 
 	jobDTO := Job{
-		ID:           0,
-		Title:        job.Title(),
-		Description:  job.Description(),
-		WorkLocation: job.WorkLocation(),
-		WorkTime:     job.WorkTime(),
-		Skills:       job.Skills(),
-		Status:       job.Status(),
-		CreatedAt:    job.CreatedAt(),
-		UpdatedAt:    job.UpdatedAt(),
+		ID:               0,
+		Title:            job.Title(),
+		BusinessID:       job.BusinessID(),
+		BusinessName:     job.BusinessName(),
+		BusinessImageURL: job.BusinessImageURL(),
+		Description:      job.Description(),
+		WorkLocation:     job.WorkLocation(),
+		WorkTime:         job.WorkTime(),
+		Skills:           job.Skills(),
+		YearsOfExperience: struct {
+			From int "json:\"from\""
+			To   int "json:\"to\""
+		}{},
+		ExpectedSalary: struct {
+			From     int    "json:\"from\""
+			To       int    "json:\"to\""
+			Currency string "json:\"currency\""
+		}{},
+		Status:    job.Status(),
+		CreatedAt: job.CreatedAt(),
+		UpdatedAt: job.UpdatedAt(),
 	}
 
 	jobDTO.YearsOfExperience.From = job.YearsOfExperience().From

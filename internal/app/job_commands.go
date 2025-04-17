@@ -141,6 +141,8 @@ func (c *Commands) UpdateJobHandler(ctx context.Context, cmd UpdateJob) (Job, er
 				}
 			}
 
+			jobDTO = toJob(job)
+
 			return nil
 		},
 	)
