@@ -329,6 +329,33 @@ func (j *Job) NewApplication(
 	return application, nil
 }
 
+func (j *Job) ApplicationByEmail(email string) (*Application, error) {
+	for _, a := range j.applications {
+		if a.email == email {
+			return &a, nil
+		}
+	}
+
+	return nil, fmt.Errorf("%w: application not found", domain.ErrNotFound)
+}
+
+func (j *Job) ApplicationsByStatus(status string) ([]*Application, error) {
+	result := make([]*Application, 0, len(j.applications))
+
+	applicationStatus, err := valueobject.NewApplicationStatus(status)
+	if err != nil {
+		return nil, fmt.Errorf("%w: invalid status", domain.ErrInvalidProperty)
+	}
+
+	for i, a := range j.applications {
+		if a.status == applicationStatus {
+			result = append(result, &j.applications[i])
+		}
+	}
+
+	return result, fmt.Errorf("%w: application not found", domain.ErrNotFound)
+}
+
 func (j *Job) Application(applicationID int) (*Application, error) {
 	for _, a := range j.applications {
 		if a.id == applicationID {
