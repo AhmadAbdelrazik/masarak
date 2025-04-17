@@ -153,3 +153,54 @@ func toJob(job *business.Job) Job {
 
 	return jobDTO
 }
+
+type JobApplication struct {
+	BusinessID        int    `json:"business_id"`
+	BusinessName      string `json:"business_name"`
+	JobID             int    `json:"job_id"`
+	JobTitle          string `json:"job_title"`
+	Id                int    `json:"id"`
+	Status            string `json:"status"`
+	Name              string `json:"name"`
+	Email             string `json:"email"`
+	Title             string `json:"title"`
+	YearsOfExperience int    `json:"years_of_experience"`
+
+	HourlyRate struct {
+		Amount   int    `json:"amount"`
+		Currency string `json:"currency"`
+	} `json:"hourly_rate"`
+
+	FreelancerProfile string `json:"freelancer_profile"`
+	ResumeURL         string `json:"resume_url"`
+}
+
+func toApplication(application *business.Application) JobApplication {
+	if application == nil {
+		return JobApplication{}
+	}
+
+	hourlyRateAmount, hourlyRateCurrency := application.HourlyRate().Amount(), application.HourlyRate().Currency().Code
+
+	return JobApplication{
+		BusinessID:        application.BusinessID(),
+		BusinessName:      application.BusinessName(),
+		JobID:             application.JobID(),
+		JobTitle:          application.JobTitle(),
+		Id:                application.ID(),
+		Status:            application.Status(),
+		Name:              application.Name(),
+		Email:             application.Email(),
+		Title:             application.Title(),
+		YearsOfExperience: application.YearsOfExperience(),
+		HourlyRate: struct {
+			Amount   int    "json:\"amount\""
+			Currency string "json:\"currency\""
+		}{
+			Amount:   int(hourlyRateAmount),
+			Currency: hourlyRateCurrency,
+		},
+		FreelancerProfile: application.FreelancerProfile,
+		ResumeURL:         application.ResumeURL,
+	}
+}

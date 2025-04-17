@@ -118,6 +118,22 @@ func InstantiateApplication(
 	}
 }
 
+func (a *Application) BusinessID() int {
+	return a.businessID
+}
+
+func (a *Application) BusinessName() string {
+	return a.businessName
+}
+
+func (a *Application) JobID() int {
+	return a.jobID
+}
+
+func (a *Application) JobTitle() string {
+	return a.jobTitle
+}
+
 func (a *Application) ID() int {
 	return a.id
 }
@@ -193,4 +209,8 @@ func (a *Application) CreatedAt() time.Time {
 
 func (a *Application) UpdatedAt() time.Time {
 	return a.updatedAt
+}
+
+func (a *Application) HourlyRate() *money.Money {
+	return a.hourlyRate
 }
