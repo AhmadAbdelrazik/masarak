@@ -98,6 +98,8 @@ func newJob(
 
 // InstantiateJob instantiate a job from the database.
 func InstantiateJob(
+	businessID int,
+	businessName, businessImage string,
 	id int,
 	title, description, workLocation, workTime string,
 	skills []string,
@@ -113,6 +115,9 @@ func InstantiateJob(
 	}
 
 	return &Job{
+		businessID:        businessID,
+		businessName:      businessName,
+		businessImageURL:  businessImage,
 		id:                id,
 		title:             title,
 		description:       description,
@@ -290,7 +295,8 @@ func (j *Job) UpdatedAt() time.Time {
 
 func (j *Job) NewApplication(
 	name, email, title string,
-	yearsOfExperience int,
+	yearsOfExperience, hourlyRateAmount int,
+	hourlyRateCurrency string,
 	freelancerProfile, resumeURL string,
 ) (*Application, error) {
 	for _, e := range j.applications {
@@ -300,10 +306,16 @@ func (j *Job) NewApplication(
 	}
 
 	application, err := newApplication(
+		j.businessID,
+		j.id,
+		j.businessName,
+		j.title,
 		name,
 		email,
 		title,
 		yearsOfExperience,
+		hourlyRateAmount,
+		hourlyRateCurrency,
 		freelancerProfile,
 		resumeURL,
 	)

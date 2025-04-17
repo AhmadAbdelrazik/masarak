@@ -11,6 +11,10 @@ import (
 )
 
 type Application struct {
+	businessID        int
+	businessName      string
+	jobID             int
+	jobTitle          string
 	id                int
 	status            *valueobject.ApplicationStatus
 	name              string
@@ -30,8 +34,11 @@ var (
 )
 
 func newApplication(
+	businessID, jobID int,
+	businessName, jobTitle string,
 	name, email, title string,
-	yearsOfExperience int,
+	yearsOfExperience, hourlyRateAmount int,
+	hourlyRateCurrency string,
 	freelancerProfile, resumeURL string,
 ) (*Application, error) {
 	applicationStatus, err := valueobject.NewApplicationStatus("pending")
@@ -55,12 +62,19 @@ func newApplication(
 		return nil, fmt.Errorf("%w: invalid years of experience", ErrInvalidApplicationProperty)
 	}
 
+	hourlyRate := money.New(int64(hourlyRateAmount), hourlyRateCurrency)
+
 	return &Application{
+		businessID:        businessID,
+		businessName:      businessName,
+		jobID:             jobID,
+		jobTitle:          jobTitle,
 		status:            applicationStatus,
 		name:              name,
 		email:             email,
 		title:             title,
 		yearsOfExperience: yearsOfExperience,
+		hourlyRate:        hourlyRate,
 		FreelancerProfile: freelancerProfile,
 		ResumeURL:         resumeURL,
 		createdAt:         time.Now(),
@@ -69,6 +83,8 @@ func newApplication(
 }
 
 func InstantiateApplication(
+	businessID, jobID int,
+	businessName, jobTitle string,
 	id int,
 	status, name, email, title string,
 	yearsOfExperience, hourlyRateAmount int,
@@ -84,6 +100,10 @@ func InstantiateApplication(
 	hourlyRate := money.New(int64(hourlyRateAmount), hourlyRateCurrency)
 
 	return &Application{
+		businessID:        businessID,
+		businessName:      businessName,
+		jobID:             jobID,
+		jobTitle:          jobTitle,
 		id:                id,
 		status:            applicationStatus,
 		name:              name,
