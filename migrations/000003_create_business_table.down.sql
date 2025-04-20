@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS applications;
+DROP TABLE IF EXISTS jobs;
+DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS businesses;
