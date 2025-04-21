@@ -10,11 +10,12 @@ import (
 	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/internal/domain/freelancerprofile"
 	"github.com/ahmadabdelrazik/masarak/pkg/filters"
+	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )
 
 type FreelancerProfileRepository struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
 func (r *FreelancerProfileRepository) Create(

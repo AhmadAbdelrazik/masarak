@@ -4,16 +4,16 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
-	"database/sql"
 	"encoding/base32"
 	"fmt"
 	"sync"
 
 	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
+	"github.com/jmoiron/sqlx"
 )
 
 type TokensRepository struct {
-	db     *sql.DB
+	db     *sqlx.DB
 	memory map[[32]byte]int
 
 	sync.Mutex

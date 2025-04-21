@@ -9,11 +9,12 @@ import (
 
 	"github.com/ahmadabdelrazik/masarak/internal/app"
 	"github.com/ahmadabdelrazik/masarak/pkg/authuser"
+	"github.com/jmoiron/sqlx"
 )
 
 // AuthUserRepository - Postgres Implemntation for user repository
 type AuthUserRepository struct {
-	db     *sql.DB
+	db     *sqlx.DB
 	tokens *TokensRepository
 }
 
