@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS jobs(
 	max_years_of_experience INT NOT NULL DEFAULT 40,
 	min_expected_salary NUMERIC NOT NULL DEFAULT 0,
 	max_expected_salary NUMERIC NOT NULL DEFAULT 1000000,
+	expected_salary_currency TEXT NOT NULL DEFAULT 'EGP',
 	status TEXT NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
